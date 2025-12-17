@@ -21,7 +21,7 @@ import {
   TOrganization,
   TOrganizationPayment,
   TSale,
-  TSalesGroup
+  TSalesGroup,
 } from './drizzle-postgres.schema';
 import DrizzleOrm from '../drizzle-orm.service';
 import { eq } from 'drizzle-orm';
