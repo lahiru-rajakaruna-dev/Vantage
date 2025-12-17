@@ -41,9 +41,12 @@ export class DrizzleSqliteService extends DrizzleOrm {
     );
   }
 
-  addOrganization(organizationDetails: TOrganization) {
+  async addOrganization(organizationDetails: TOrganization) {
     return this.logger.logAndReturn(
-      this.driver.insert(organizations).values(organizationDetails).returning(),
+      await this.driver
+        .insert(organizations)
+        .values(organizationDetails)
+        .returning(),
     );
   }
 

@@ -26,89 +26,89 @@ export default abstract class DrizzleOrm implements IOrmInterface {
     this.logger = loggerFactory.getLogger();
   }
 
-  abstract addOrganization(organizationDetails: TOrganization);
+  abstract addOrganization(organizationDetails: TOrganization): Promise<TOrganization>;
 
   abstract updateOrganizationById(
     organization_id: string,
     organizationUpdates: Partial<TOrganization>,
-  );
+  ): Promise<TOrganization>;
 
-  abstract getOrganizationDetailsById(organization_id: string): any;
+  abstract getOrganizationDetailsById(organization_id: string): Promise<TOrganization | undefined>;
 
-  abstract addEmployee(employeeDetails: TEmployee): any;
+  abstract addEmployee(employeeDetails: TEmployee): Promise<TEmployee>;
 
-  abstract viewEmployeeById(employee_id: string): any;
+  abstract viewEmployeeById(employee_id: string): Promise<TEmployee | undefined>;
 
-  abstract getEmployeesByOrganizationId(organization_id: string): any;
+  abstract getEmployeesByOrganizationId(organization_id: string): Promise<TEmployee[]>;
 
-  abstract getEmployeesBySalesGroupId(sales_group_id: string): any;
+  abstract getEmployeesBySalesGroupId(sales_group_id: string): Promise<TEmployee[]>;
 
   abstract updateEmployeeById(
     employee_id: string,
     employeeUpdates: Partial<TEmployee>,
-  ): any;
+  ): Promise<TEmployee>;
 
-  abstract deleteEmployeeById(employee_id: string): any;
+  abstract deleteEmployeeById(employee_id: string): Promise<TEmployee>;
 
-  abstract addItem(itemDetails: TItem): any;
+  abstract addItem(itemDetails: TItem): Promise<TItem>;
 
-  abstract viewItemById(item_id: string): any;
+  abstract viewItemById(item_id: string): Promise<TItem | undefined>;
 
-  abstract getItemsByOrganizationId(organization_id: string): any;
+  abstract getItemsByOrganizationId(organization_id: string): Promise<TItem[]>;
 
-  abstract updateItemById(item_id: string, itemUpdates: Partial<TItem>): any;
+  abstract updateItemById(item_id: string, itemUpdates: Partial<TItem>): Promise<TItem>;
 
-  abstract deleteItemById(item_id: string): any;
+  abstract deleteItemById(item_id: string): Promise<TItem>;
 
-  abstract addSalesGroup(salesGroupDetails: TSalesGroup): any;
+  abstract addSalesGroup(salesGroupDetails: TSalesGroup): Promise<TSalesGroup>;
 
-  abstract getSalesGroupsByOrganizationId(organization_id: string): any;
+  abstract getSalesGroupsByOrganizationId(organization_id: string): Promise<TSalesGroup | undefined>;
 
   abstract updateSalesGroupById(
     sales_group_id: string,
     salesGroupUpdates: Partial<TSalesGroup>,
-  ): any;
+  ): Promise<TSalesGroup>;
 
-  abstract deleteSalesGroupById(sales_group_id: string): any;
+  abstract deleteSalesGroupById(sales_group_id: string): Promise<TSalesGroup>;
 
-  abstract addClient(clientDetails: TClient): any;
+  abstract addClient(clientDetails: TClient): Promise<TClient>;
 
-  abstract getClientsByOrganizationId(organization_id: string): any;
+  abstract getClientsByOrganizationId(organization_id: string): Promise<TClient[]>;
 
   abstract updateClientById(
     client_id: string,
     clientUpdates: Partial<TClient>,
-  ): any;
+  ): Promise<TClient>;
 
-  abstract addOrganizationPayment(paymentDetails: TOrganizationPayment): any;
+  abstract addOrganizationPayment(paymentDetails: TOrganizationPayment): Promise<TOrganizationPayment>;
 
   abstract getOrganizationPaymentsByOrganizationId(
     organization_id: string,
-  ): any;
+  ): Promise<TOrganizationPayment[]>;
 
   abstract updateOrganizationPaymentById(
     payment_id: string,
     paymentUpdates: Partial<TOrganizationPayment>,
-  ): any;
+  ): Promise<TOrganizationPayment>;
 
-  abstract addClientPayment(paymentDetails: TClientPayment): any;
+  abstract addClientPayment(paymentDetails: TClientPayment): Promise<TClientPayment>;
 
-  abstract getClientPaymentsByClientId(client_id: string): any;
+  abstract getClientPaymentsByClientId(client_id: string): Promise<TClientPayment[]>;
 
   abstract updateClientPaymentById(
     client_payment_id: string,
     clientPaymentUpdates: Partial<TClientPayment>,
-  ): any;
+  ): Promise<TClientPayment>;
 
-  abstract addSaleItem(saleDetails: TSale): any;
+  abstract addSaleItem(saleDetails: TSale): Promise<TSale>;
 
-  abstract viewSaleById(sale_id: string): any;
+  abstract viewSaleById(sale_id: string): Promise<TSale | undefined>;
 
-  abstract getSalesByEmployeeId(employee_id: string): any;
+  abstract getSalesByEmployeeId(employee_id: string): Promise<TSale[]>;
 
-  abstract getSalesByItemId(item_id: string): any;
+  abstract getSalesByItemId(item_id: string): Promise<TSale[]>;
 
-  abstract getSalesByOrganizationId(organization_id: string): any;
+  abstract getSalesByOrganizationId(organization_id: string): Promise<TSale[]>;
 
-  abstract getSalesByClientId(client_id: string): any;
+  abstract getSalesByClientId(client_id: string): Promise<TSale[]>;
 }

@@ -10,70 +10,70 @@ import {
 } from './drizzle/drizzle-postgres/drizzle-postgres.schema';
 
 export default interface IOrmInterface {
-  addOrganization(organizationDetails: TOrganization): TOrganization;
-  getOrganizationDetailsById(organization_id: string): TOrganization;
+  addOrganization(organizationDetails: TOrganization): Promise<TOrganization>;
+  getOrganizationDetailsById(organization_id: string): Promise<TOrganization>;
   updateOrganizationById(
     organization_id: string,
     organizationUpdates: Partial<TOrganization>,
-  ): TOrganization;
+  ): Promise<TOrganization>;
 
   //   EMPLOYEE
-  addEmployee(employeeDetails: TEmployee): TEmployee;
-  viewEmployeeById(employee_id: string): TEmployee;
-  getEmployeesByOrganizationId(organization_id: string): TEmployee[];
-  getEmployeesBySalesGroupId(sales_group_id: string): TEmployee[];
+  addEmployee(employeeDetails: TEmployee): Promise<TEmployee>;
+  viewEmployeeById(employee_id: string): Promise<TEmployee>;
+  getEmployeesByOrganizationId(organization_id: string): Promise<TEmployee[]>;
+  getEmployeesBySalesGroupId(sales_group_id: string): Promise<TEmployee[]>;
   updateEmployeeById(
     employee_id: string,
     employeeUpdates: Partial<TEmployee>,
-  ): TEmployee;
-  deleteEmployeeById(employee_id: string): TEmployee;
+  ): Promise<TEmployee>;
+  deleteEmployeeById(employee_id: string): Promise<TEmployee>;
 
   //   ITEM
-  addItem(itemDetails: TItem): TItem;
-  viewItemById(item_id: string): TItem;
-  getItemsByOrganizationId(organization_id: string): TItem[];
-  updateItemById(item_id: string, itemUpdates: Partial<TItem>): TItem;
-  deleteItemById(item_id: string): TItem;
+  addItem(itemDetails: TItem): Promise<TItem>;
+  viewItemById(item_id: string): Promise<TItem>;
+  getItemsByOrganizationId(organization_id: string): Promise<TItem[]>;
+  updateItemById(item_id: string, itemUpdates: Partial<TItem>): Promise<TItem>;
+  deleteItemById(item_id: string): Promise<TItem>;
 
   //   SALES_GROUP
-  addSalesGroup(salesGroupDetails: TSalesGroup): TSalesGroup;
-  getSalesGroupsByOrganizationId(organization_id: string): TSalesGroup;
+  addSalesGroup(salesGroupDetails: TSalesGroup): Promise<TSalesGroup>;
+  getSalesGroupsByOrganizationId(organization_id: string): Promise<TSalesGroup>;
   updateSalesGroupById(
     sales_group_id: string,
     salesGroupUpdates: Partial<TSalesGroup>,
-  ): TSalesGroup;
-  deleteSalesGroupById(sales_group_id: string): TSalesGroup;
+  ): Promise<TSalesGroup>;
+  deleteSalesGroupById(sales_group_id: string): Promise<TSalesGroup>;
 
   //   SALE
-  addSaleItem(saleDetails: TSale): TSale;
-  viewSaleById(sale_id: string): TSale;
-  getSalesByEmployeeId(employee_id: string): TSale[];
-  getSalesByClientId(client_id: string): TSale[];
-  getSalesByItemId(item_id: string): TSale[];
-  getSalesByOrganizationId(organization_id: string): TSale[];
+  addSaleItem(saleDetails: TSale): Promise<TSale>;
+  viewSaleById(sale_id: string): Promise<TSale>;
+  getSalesByEmployeeId(employee_id: string): Promise<TSale[]>;
+  getSalesByClientId(client_id: string): Promise<TSale[]>;
+  getSalesByItemId(item_id: string): Promise<TSale[]>;
+  getSalesByOrganizationId(organization_id: string): Promise<TSale[]>;
 
   //   PAYMENT
   addOrganizationPayment(
     paymentDetails: TOrganizationPayment,
-  ): TOrganizationPayment;
+  ): Promise<TOrganizationPayment>;
   getOrganizationPaymentsByOrganizationId(
     organization_id: string,
-  ): TOrganizationPayment[];
+  ): Promise<TOrganizationPayment[]>;
   updateOrganizationPaymentById(
     payment_id: string,
     paymentUpdates: Partial<TOrganizationPayment>,
-  ): TOrganizationPayment;
+  ): Promise<TOrganizationPayment>;
 
   //   CLIENT
-  addClient(clientDetails: TClient): TClient;
-  getClientsByOrganizationId(organization_id: string): TClient[];
-  updateClientById(client_id: string, clientUpdates: Partial<TClient>): TClient;
+  addClient(clientDetails: TClient): Promise<TClient>;
+  getClientsByOrganizationId(organization_id: string): Promise<TClient[]>;
+  updateClientById(client_id: string, clientUpdates: Partial<TClient>): Promise<TClient>;
 
   //   CLIENT PAYMENTS
-  addClientPayment(paymentDetails: TClientPayment): TClientPayment;
-  getClientPaymentsByClientId(client_id: string): TClientPayment[];
+  addClientPayment(paymentDetails: TClientPayment): Promise<TClientPayment>;
+  getClientPaymentsByClientId(client_id: string): Promise<TClientPayment[]>;
   updateClientPaymentById(
     client_payment_id: string,
     clientPaymentUpdates: Partial<TClientPayment>,
-  ): TClientPayment;
+  ): Promise<TClientPayment>;
 }

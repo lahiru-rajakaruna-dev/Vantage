@@ -42,50 +42,57 @@ export class DrizzlePostgresService extends DrizzleOrm {
     });
   }
 
-  async addOrganization(organizationDetails: TOrganization) {
-    return this.logger.logAndReturn(
-      this.driver.insert(organizations).values(organizationDetails).returning(),
-    );
+  async addOrganization(
+    organizationDetails: TOrganization,
+  ): Promise<TOrganization> {
+    const result = await this.driver
+      .insert(organizations)
+      .values(organizationDetails)
+      .returning();
+    return this.logger.logAndReturn(result[0]);
   }
 
   async updateOrganizationById(
     organization_id: string,
     organizationUpdates: Partial<TOrganization>,
-  ) {
-    return this.logger.logAndReturn(
-      await this.driver
-        .update(organizations)
-        .set(organizationUpdates)
-        .where(eq(organizations.organization_id, organization_id))
-        .returning(),
-    );
+  ): Promise<TOrganization> {
+    const result = await this.driver
+      .update(organizations)
+      .set(organizationUpdates)
+      .where(eq(organizations.organization_id, organization_id))
+      .returning();
+    return this.logger.logAndReturn(result[0]);
   }
 
-  async getOrganizationDetailsById(organization_id: string) {
-    return this.logger.logAndReturn(
-      await this.driver
-        .select()
-        .from(organizations)
-        .where(eq(organizations.organization_id, organization_id)),
-    );
+  async getOrganizationDetailsById(
+    organization_id: string,
+  ): Promise<TOrganization | undefined> {
+    const result = await this.driver
+      .select()
+      .from(organizations)
+      .where(eq(organizations.organization_id, organization_id));
+    return this.logger.logAndReturn(result[0]);
   }
 
-  async addEmployee(employeeDetails: TEmployee) {
-    return this.logger.logAndReturn(
-      await this.driver.insert(employees).values(employeeDetails).returning(),
-    );
+  async addEmployee(employeeDetails: TEmployee): Promise<TEmployee> {
+    const result = await this.driver
+      .insert(employees)
+      .values(employeeDetails)
+      .returning();
+    return this.logger.logAndReturn(result[0]);
   }
 
-  async viewEmployeeById(employee_id: string) {
-    return this.logger.logAndReturn(
-      await this.driver
-        .select()
-        .from(employees)
-        .where(eq(employees.employee_id, employee_id)),
-    );
+  async viewEmployeeById(employee_id: string): Promise<TEmployee | undefined> {
+    const result = await this.driver
+      .select()
+      .from(employees)
+      .where(eq(employees.employee_id, employee_id));
+    return this.logger.logAndReturn(result[0]);
   }
 
-  async getEmployeesByOrganizationId(organization_id: string) {
+  async getEmployeesByOrganizationId(
+    organization_id: string,
+  ): Promise<TEmployee[]> {
     return this.logger.logAndReturn(
       await this.driver
         .select()
@@ -94,7 +101,7 @@ export class DrizzlePostgresService extends DrizzleOrm {
     );
   }
 
-  async getEmployeesBySalesGroupId(sales_group_id: string) {
+  async getEmployeesBySalesGroupId(sales_group_id: string): Promise<TEmployee[]> {
     return this.logger.logAndReturn(
       await this.driver
         .select()
@@ -106,38 +113,40 @@ export class DrizzlePostgresService extends DrizzleOrm {
   async updateEmployeeById(
     employee_id: string,
     employeeUpdates: Partial<TEmployee>,
-  ) {
-    return this.logger.logAndReturn(
-      await this.driver
-        .update(employees)
-        .set(employeeUpdates)
-        .where(eq(employees.employee_id, employee_id))
-        .returning(),
-    );
+  ): Promise<TEmployee> {
+    const result = await this.driver
+      .update(employees)
+      .set(employeeUpdates)
+      .where(eq(employees.employee_id, employee_id))
+      .returning();
+    return this.logger.logAndReturn(result[0]);
   }
 
-  async deleteEmployeeById(employee_id: string) {
-    return this.logger.logAndReturn(
-      await this.driver
-        .delete(employees)
-        .where(eq(employees.employee_id, employee_id))
-        .returning(),
-    );
+  async deleteEmployeeById(employee_id: string): Promise<TEmployee> {
+    const result = await this.driver
+      .delete(employees)
+      .where(eq(employees.employee_id, employee_id))
+      .returning();
+    return this.logger.logAndReturn(result[0]);
   }
 
-  async addItem(itemDetails: TItem) {
-    return this.logger.logAndReturn(
-      await this.driver.insert(items).values(itemDetails).returning(),
-    );
+  async addItem(itemDetails: TItem): Promise<TItem> {
+    const result = await this.driver
+      .insert(items)
+      .values(itemDetails)
+      .returning();
+    return this.logger.logAndReturn(result[0]);
   }
 
-  async viewItemById(item_id: string) {
-    return this.logger.logAndReturn(
-      await this.driver.select().from(items).where(eq(items.item_id, item_id)),
-    );
+  async viewItemById(item_id: string): Promise<TItem | undefined> {
+    const result = await this.driver
+      .select()
+      .from(items)
+      .where(eq(items.item_id, item_id));
+    return this.logger.logAndReturn(result[0]);
   }
 
-  async getItemsByOrganizationId(organization_id: string) {
+  async getItemsByOrganizationId(organization_id: string): Promise<TItem[]> {
     return this.logger.logAndReturn(
       await this.driver
         .select()
@@ -146,71 +155,73 @@ export class DrizzlePostgresService extends DrizzleOrm {
     );
   }
 
-  async updateItemById(item_id: string, itemUpdates: Partial<TItem>) {
-    return this.logger.logAndReturn(
-      await this.driver
-        .update(items)
-        .set(itemUpdates)
-        .where(eq(items.item_id, item_id))
-        .returning(),
-    );
+  async updateItemById(
+    item_id: string,
+    itemUpdates: Partial<TItem>,
+  ): Promise<TItem> {
+    const result = await this.driver
+      .update(items)
+      .set(itemUpdates)
+      .where(eq(items.item_id, item_id))
+      .returning();
+    return this.logger.logAndReturn(result[0]);
   }
 
-  async deleteItemById(item_id: string) {
-    return this.logger.logAndReturn(
-      await this.driver
-        .delete(items)
-        .where(eq(items.item_id, item_id))
-        .returning(),
-    );
+  async deleteItemById(item_id: string): Promise<TItem> {
+    const result = await this.driver
+      .delete(items)
+      .where(eq(items.item_id, item_id))
+      .returning();
+    return this.logger.logAndReturn(result[0]);
   }
 
-  async addSalesGroup(salesGroupDetails: TSalesGroup) {
-    return this.logger.logAndReturn(
-      await this.driver
-        .insert(salesGroups)
-        .values(salesGroupDetails)
-        .returning(),
-    );
+  async addSalesGroup(salesGroupDetails: TSalesGroup): Promise<TSalesGroup> {
+    const result = await this.driver
+      .insert(salesGroups)
+      .values(salesGroupDetails)
+      .returning();
+    return this.logger.logAndReturn(result[0]);
   }
 
-  async getSalesGroupsByOrganizationId(organization_id: string) {
-    return this.logger.logAndReturn(
-      await this.driver
-        .select()
-        .from(salesGroups)
-        .where(eq(salesGroups.sales_group_organization_id, organization_id)),
-    );
+  async getSalesGroupsByOrganizationId(
+    organization_id: string,
+  ): Promise<TSalesGroup | undefined> {
+    const result = await this.driver
+      .select()
+      .from(salesGroups)
+      .where(eq(salesGroups.sales_group_organization_id, organization_id));
+    return this.logger.logAndReturn(result[0]);
   }
 
   async updateSalesGroupById(
     sales_group_id: string,
     salesGroupUpdates: Partial<TSalesGroup>,
-  ) {
-    return this.logger.logAndReturn(
-      await this.driver
-        .update(salesGroups)
-        .set(salesGroupUpdates)
-        .where(eq(salesGroups.sales_group_id, sales_group_id))
-        .returning(),
-    );
+  ): Promise<TSalesGroup> {
+    const result = await this.driver
+      .update(salesGroups)
+      .set(salesGroupUpdates)
+      .where(eq(salesGroups.sales_group_id, sales_group_id))
+      .returning();
+    return this.logger.logAndReturn(result[0]);
   }
 
-  async deleteSalesGroupById(sales_group_id: string) {
-    return this.logger.logAndReturn(
-      await this.driver
-        .delete(salesGroups)
-        .where(eq(salesGroups.sales_group_id, sales_group_id)),
-    );
+  async deleteSalesGroupById(sales_group_id: string): Promise<TSalesGroup> {
+    const result = await this.driver
+      .delete(salesGroups)
+      .where(eq(salesGroups.sales_group_id, sales_group_id))
+      .returning();
+    return this.logger.logAndReturn(result[0]);
   }
 
-  async addClient(clientDetails: TClient) {
-    return this.logger.logAndReturn(
-      await this.driver.insert(clients).values(clientDetails).returning(),
-    );
+  async addClient(clientDetails: TClient): Promise<TClient> {
+    const result = await this.driver
+      .insert(clients)
+      .values(clientDetails)
+      .returning();
+    return this.logger.logAndReturn(result[0]);
   }
 
-  async getClientsByOrganizationId(organization_id: string) {
+  async getClientsByOrganizationId(organization_id: string): Promise<TClient[]> {
     return this.logger.logAndReturn(
       await this.driver
         .select()
@@ -219,25 +230,31 @@ export class DrizzlePostgresService extends DrizzleOrm {
     );
   }
 
-  async updateClientById(client_id: string, clientUpdates: Partial<TClient>) {
-    return this.logger.logAndReturn(
-      await this.driver
-        .update(clients)
-        .set(clientUpdates)
-        .where(eq(clients.client_id, client_id)),
-    );
+  async updateClientById(
+    client_id: string,
+    clientUpdates: Partial<TClient>,
+  ): Promise<TClient> {
+    const result = await this.driver
+      .update(clients)
+      .set(clientUpdates)
+      .where(eq(clients.client_id, client_id))
+      .returning();
+    return this.logger.logAndReturn(result[0]);
   }
 
-  async addOrganizationPayment(paymentDetails: TOrganizationPayment) {
-    return this.logger.logAndReturn(
-      await this.driver
-        .insert(organizationsPayments)
-        .values(paymentDetails)
-        .returning(),
-    );
+  async addOrganizationPayment(
+    paymentDetails: TOrganizationPayment,
+  ): Promise<TOrganizationPayment> {
+    const result = await this.driver
+      .insert(organizationsPayments)
+      .values(paymentDetails)
+      .returning();
+    return this.logger.logAndReturn(result[0]);
   }
 
-  async getOrganizationPaymentsByOrganizationId(organization_id: string) {
+  async getOrganizationPaymentsByOrganizationId(
+    organization_id: string,
+  ): Promise<TOrganizationPayment[]> {
     return this.logger.logAndReturn(
       await this.driver
         .select()
@@ -251,25 +268,28 @@ export class DrizzlePostgresService extends DrizzleOrm {
   async updateOrganizationPaymentById(
     payment_id: string,
     paymentUpdates: Partial<TOrganizationPayment>,
-  ) {
-    return this.logger.logAndReturn(
-      await this.driver
-        .update(organizationsPayments)
-        .set(paymentUpdates)
-        .where(eq(organizationsPayments.payment_organization_id, payment_id)),
-    );
+  ): Promise<TOrganizationPayment> {
+    const result = await this.driver
+      .update(organizationsPayments)
+      .set(paymentUpdates)
+      .where(eq(organizationsPayments.payment_id, payment_id))
+      .returning();
+    return this.logger.logAndReturn(result[0]);
   }
 
-  async addClientPayment(paymentDetails: TClientPayment) {
-    return this.logger.logAndReturn(
-      await this.driver
-        .insert(clientsPayments)
-        .values(paymentDetails)
-        .returning(),
-    );
+  async addClientPayment(
+    paymentDetails: TClientPayment,
+  ): Promise<TClientPayment> {
+    const result = await this.driver
+      .insert(clientsPayments)
+      .values(paymentDetails)
+      .returning();
+    return this.logger.logAndReturn(result[0]);
   }
 
-  async getClientPaymentsByClientId(client_id: string) {
+  async getClientPaymentsByClientId(
+    client_id: string,
+  ): Promise<TClientPayment[]> {
     return this.logger.logAndReturn(
       await this.driver
         .select()
@@ -281,29 +301,32 @@ export class DrizzlePostgresService extends DrizzleOrm {
   async updateClientPaymentById(
     client_payment_id: string,
     clientPaymentUpdates: Partial<TClientPayment>,
-  ) {
-    return this.logger.logAndReturn(
-      await this.driver
-        .update(clientsPayments)
-        .set(clientPaymentUpdates)
-        .where(eq(clientsPayments.client_payment_id, client_payment_id))
-        .returning(),
-    );
+  ): Promise<TClientPayment> {
+    const result = await this.driver
+      .update(clientsPayments)
+      .set(clientPaymentUpdates)
+      .where(eq(clientsPayments.client_payment_id, client_payment_id))
+      .returning();
+    return this.logger.logAndReturn(result[0]);
   }
 
-  async addSaleItem(saleDetails: TSale) {
-    return this.logger.logAndReturn(
-      await this.driver.insert(sales).values(saleDetails).returning(),
-    );
+  async addSaleItem(saleDetails: TSale): Promise<TSale> {
+    const result = await this.driver
+      .insert(sales)
+      .values(saleDetails)
+      .returning();
+    return this.logger.logAndReturn(result[0]);
   }
 
-  async viewSaleById(sale_id: string) {
-    return this.logger.logAndReturn(
-      await this.driver.select().from(sales).where(eq(sales.sale_id, sale_id)),
-    );
+  async viewSaleById(sale_id: string): Promise<TSale | undefined> {
+    const result = await this.driver
+      .select()
+      .from(sales)
+      .where(eq(sales.sale_id, sale_id));
+    return this.logger.logAndReturn(result[0]);
   }
 
-  async getSalesByEmployeeId(employee_id: string) {
+  async getSalesByEmployeeId(employee_id: string): Promise<TSale[]> {
     return this.logger.logAndReturn(
       await this.driver
         .select()
@@ -312,7 +335,7 @@ export class DrizzlePostgresService extends DrizzleOrm {
     );
   }
 
-  async getSalesByItemId(item_id: string) {
+  async getSalesByItemId(item_id: string): Promise<TSale[]> {
     return this.logger.logAndReturn(
       await this.driver
         .select()
@@ -321,7 +344,7 @@ export class DrizzlePostgresService extends DrizzleOrm {
     );
   }
 
-  async getSalesByOrganizationId(organization_id: string) {
+  async getSalesByOrganizationId(organization_id: string): Promise<TSale[]> {
     return this.logger.logAndReturn(
       await this.driver
         .select()
@@ -330,7 +353,7 @@ export class DrizzlePostgresService extends DrizzleOrm {
     );
   }
 
-  async getSalesByClientId(client_id: string) {
+  async getSalesByClientId(client_id: string): Promise<TSale[]> {
     return this.logger.logAndReturn(
       await this.driver
         .select()
