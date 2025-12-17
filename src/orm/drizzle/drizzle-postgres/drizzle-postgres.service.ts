@@ -1,29 +1,29 @@
-import { POSTGRES_URL } from './../../../types';
+import { POSTGRES_URL } from '../../../types';
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { drizzle, PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import LoggerFactoryService from '../../../logger/logger-factory.service';
 import * as schema from './drizzle-postgres.schema';
-import DrizzleOrm from '../drizzle-orm.service';
 import {
-  organizations,
+  clients,
+  clientsPayments,
   employees,
   items,
-  clients,
+  organizations,
+  organizationsPayments,
   sales,
   salesGroups,
-  organizationsPayments,
-  clientsPayments,
-  TOrganization,
+  TClient,
+  TClientPayment,
   TEmployee,
   TItem,
-  TSale,
-  TSalesGroup,
-  TClient,
+  TOrganization,
   TOrganizationPayment,
-  TClientPayment,
+  TSale,
+  TSalesGroup
 } from './drizzle-postgres.schema';
+import DrizzleOrm from '../drizzle-orm.service';
 import { eq } from 'drizzle-orm';
 
 @Injectable()
@@ -101,7 +101,9 @@ export class DrizzlePostgresService extends DrizzleOrm {
     );
   }
 
-  async getEmployeesBySalesGroupId(sales_group_id: string): Promise<TEmployee[]> {
+  async getEmployeesBySalesGroupId(
+    sales_group_id: string,
+  ): Promise<TEmployee[]> {
     return this.logger.logAndReturn(
       await this.driver
         .select()
@@ -221,7 +223,9 @@ export class DrizzlePostgresService extends DrizzleOrm {
     return this.logger.logAndReturn(result[0]);
   }
 
-  async getClientsByOrganizationId(organization_id: string): Promise<TClient[]> {
+  async getClientsByOrganizationId(
+    organization_id: string,
+  ): Promise<TClient[]> {
     return this.logger.logAndReturn(
       await this.driver
         .select()
