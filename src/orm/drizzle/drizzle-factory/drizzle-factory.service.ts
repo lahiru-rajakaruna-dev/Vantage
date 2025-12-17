@@ -31,11 +31,15 @@ import LoggerFactoryService from '../../../logger/logger-factory.service';
 import { DrizzleSqliteService } from '../drizzle-sqlite/drizzle-sqlite.service';
 import { InternalServerErrorException } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
+import IOrmInterface from '../../orm.interface';
 
 export const TOKEN__DRIZZLE_FACTORY = 'DrizzleFactory';
 export const DrizzleFactory = {
   provide: TOKEN__DRIZZLE_FACTORY,
-  useFactory: (configService: ConfigService, moduleRef: ModuleRef) => {
+  useFactory(
+    configService: ConfigService,
+    moduleRef: ModuleRef,
+  ): IOrmInterface {
     const databaseStrategy = configService.get('DATABASE_STRATEGY');
 
     switch (databaseStrategy) {
