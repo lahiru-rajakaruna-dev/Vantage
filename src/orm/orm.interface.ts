@@ -67,10 +67,14 @@ export default interface IOrmInterface {
   //   CLIENT
   addClient(clientDetails: TClient): Promise<TClient>;
   getClientsByOrganizationId(organization_id: string): Promise<TClient[]>;
-  updateClientById(client_id: string, clientUpdates: Partial<TClient>): Promise<TClient>;
+  updateClientById(
+    client_id: string,
+    clientUpdates: Partial<TClient>,
+  ): Promise<TClient>;
 
   //   CLIENT PAYMENTS
   addClientPayment(paymentDetails: TClientPayment): Promise<TClientPayment>;
+  getClientPaymentById(payment_id: string): Promise<TClientPayment>;
   getClientPaymentsByClientId(client_id: string): Promise<TClientPayment[]>;
   updateClientPaymentById(
     client_payment_id: string,
