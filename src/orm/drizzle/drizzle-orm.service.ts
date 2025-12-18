@@ -11,8 +11,8 @@ import {
   TSale,
   TSalesGroup,
 } from './drizzle-postgres/drizzle-postgres.schema';
-import ILoggerService from '../../logger/logger.interface';
-import LoggerFactoryService from '../../logger/logger-factory.service';
+import type ILoggerService from '../../logger/logger.interface';
+import { TOKEN__LOGGER_FACTORY } from '../../logger/logger_factory/logger_factory.service';
 
 export default abstract class DrizzleOrm implements IOrmInterface {
   protected readonly configService: ConfigService;
@@ -20,10 +20,10 @@ export default abstract class DrizzleOrm implements IOrmInterface {
 
   constructor(
     @Inject() configService: ConfigService,
-    @Inject() loggerFactory: LoggerFactoryService,
+    @Inject(TOKEN__LOGGER_FACTORY) logger: ILoggerService,
   ) {
     this.configService = configService;
-    this.logger = loggerFactory.getLogger();
+    this.logger = logger;
   }
 
   abstract addOrganization(

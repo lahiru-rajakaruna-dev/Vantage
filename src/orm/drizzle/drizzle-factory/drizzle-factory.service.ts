@@ -27,7 +27,6 @@
 
 import { ConfigService } from '@nestjs/config';
 import { DrizzlePostgresService } from '../drizzle-postgres/drizzle-postgres.service';
-import LoggerFactoryService from '../../../logger/logger-factory.service';
 import { DrizzleSqliteService } from '../drizzle-sqlite/drizzle-sqlite.service';
 import { InternalServerErrorException } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
@@ -56,5 +55,5 @@ export const DrizzleFactory = {
       }
     }
   },
-  inject: [ConfigService, ModuleRef, LoggerFactoryService],
+  inject: [ConfigService, ModuleRef],
 };

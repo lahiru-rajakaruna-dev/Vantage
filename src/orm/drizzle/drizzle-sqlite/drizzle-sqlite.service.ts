@@ -1,7 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import DrizzleOrm from '../drizzle-orm.service';
 import { ConfigService } from '@nestjs/config';
-import LoggerFactoryService from '../../../logger/logger-factory.service';
 import { drizzle } from 'drizzle-orm/libsql';
 import * as schema from './drizzle-sqlite.schema';
 import {
@@ -23,6 +22,8 @@ import {
   TSalesGroup,
 } from '../drizzle-postgres/drizzle-postgres.schema';
 import { between, eq } from 'drizzle-orm';
+import { TOKEN__LOGGER_FACTORY } from '../../../logger/logger_factory/logger_factory.service';
+import type ILoggerService from '../../../logger/logger.interface';
 
 @Injectable()
 export class DrizzleSqliteService extends DrizzleOrm {
@@ -30,9 +31,9 @@ export class DrizzleSqliteService extends DrizzleOrm {
 
   constructor(
     @Inject() configService: ConfigService,
-    @Inject() loggerFactory: LoggerFactoryService,
+    @Inject(TOKEN__LOGGER_FACTORY) logger: ILoggerService,
   ) {
-    super(configService, loggerFactory);
+    super(configService, logger);
     const client = drizzle({
       url: this.configService.get('SQLITE_DATABASE_URL') as string,
     });

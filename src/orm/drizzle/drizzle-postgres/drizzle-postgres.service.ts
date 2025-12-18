@@ -3,7 +3,6 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { drizzle, PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
-import LoggerFactoryService from '../../../logger/logger-factory.service';
 import * as schema from './drizzle-postgres.schema';
 import {
   clients,
@@ -25,6 +24,8 @@ import {
 } from './drizzle-postgres.schema';
 import DrizzleOrm from '../drizzle-orm.service';
 import { between, eq } from 'drizzle-orm';
+import { TOKEN__LOGGER_FACTORY } from '../../../logger/logger_factory/logger_factory.service';
+import type ILoggerService from '../../../logger/logger.interface';
 
 @Injectable()
 export class DrizzlePostgresService extends DrizzleOrm {
@@ -32,9 +33,9 @@ export class DrizzlePostgresService extends DrizzleOrm {
 
   constructor(
     @Inject() configService: ConfigService,
-    @Inject() loggerFactory: LoggerFactoryService,
+    @Inject(TOKEN__LOGGER_FACTORY) logger: ILoggerService,
   ) {
-    super(configService, loggerFactory);
+    super(configService, logger);
 
     const pgDriver = postgres(this.configService.get(POSTGRES_URL) as string);
     this.driver = drizzle(pgDriver, {
