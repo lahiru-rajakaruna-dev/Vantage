@@ -1,10 +1,10 @@
 import {
-  sqliteTable,
-  text,
+  index,
   integer,
   primaryKey,
-  index,
   real,
+  sqliteTable,
+  text,
 } from 'drizzle-orm/sqlite-core';
 import { relations } from 'drizzle-orm';
 
@@ -215,6 +215,14 @@ export const clients = sqliteTable(
       .references(() => organizations.organization_id),
     client_stripe_customer_id: text().notNull(),
     client_name: text().notNull(),
+    client_nic_number: text().notNull(),
+    client_email: text().notNull(),
+    client_phone: text().notNull(),
+    client_account_status: text({
+      enum: ['active', 'deactivated', 'unverified'],
+    })
+      .notNull()
+      .default('unverified'),
     client_registration_date: integer().notNull(),
   },
   (table) => {

@@ -222,6 +222,16 @@ export class DrizzleSqliteService extends DrizzleOrm {
     return this.logger.logAndReturn(result[0]);
   }
 
+  async getClientProfileById(organization_id: string): Promise<TClient> {
+    const result = await this.driver
+      .select()
+      .from(clients)
+      .where(eq(clients.client_organization_id, organization_id))
+      .limit(1);
+
+    return this.logger.logAndReturn(result[0]);
+  }
+
   async getClientsByOrganizationId(
     organization_id: string,
   ): Promise<TClient[]> {

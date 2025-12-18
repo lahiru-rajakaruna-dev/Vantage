@@ -223,6 +223,15 @@ export class DrizzlePostgresService extends DrizzleOrm {
     return this.logger.logAndReturn(result[0]);
   }
 
+  async getClientProfileById(client_id: string): Promise<TClient> {
+    const result = await this.driver
+      .select()
+      .from(clients)
+      .where(eq(clients.client_id, client_id));
+
+    return this.logger.logAndReturn(result[0]);
+  }
+
   async getClientsByOrganizationId(
     organization_id: string,
   ): Promise<TClient[]> {

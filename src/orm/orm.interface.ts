@@ -66,6 +66,7 @@ export default interface IOrmInterface {
 
   //   CLIENT
   addClient(clientDetails: TClient): Promise<TClient>;
+  getClientProfileById(client_id: string): Promise<TClient>;
   getClientsByOrganizationId(organization_id: string): Promise<TClient[]>;
   updateClientById(
     client_id: string,

@@ -45,3 +45,9 @@ export enum EOrmStrategy {
   DRIZZLE = 'DRIZZLE',
   PRISMA = 'PRISMA',
 }
+
+export enum EAccountStatus {
+  ACTIVE = 'active',
+  DEACTIVATED = 'deactivated',
+  UNVERIFIED = 'unverified',
+}

@@ -1,14 +1,15 @@
 import {
+  decimal,
+  index,
+  integer,
   pgEnum,
   pgTable,
-  text,
-  integer,
-  decimal,
   primaryKey,
-  index,
+  text,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 import {
+  EAccountStatus,
   EOrganizationStatus,
   EPaymentStatus,
   ESubscriptionStatus,
@@ -23,6 +24,7 @@ export const EPGOrganizationStatus = pgEnum(
   'EOrganizationStatus',
   EOrganizationStatus,
 );
+export const EPGAccountStatus = pgEnum('EAccountStatus', EAccountStatus);
 
 export const organizations = pgTable(
   'organizations',
@@ -222,13 +224,18 @@ export const organizationsPayments = pgTable(
 export const clients = pgTable(
   'clients',
   {
-    // FIX: Added .unique()
     client_id: text().unique().notNull(),
     client_organization_id: text()
       .notNull()
       .references(() => organizations.organization_id),
     client_stripe_customer_id: text().notNull(),
     client_name: text().notNull(),
+    client_nic_number: text().notNull(),
+    client_email: text().notNull(),
+    client_phone: text().notNull(),
+    client_account_status: EPGAccountStatus()
+      .notNull()
+      .default(EAccountStatus.UNVERIFIED),
     client_registration_date: integer().notNull(),
   },
   (table) => {

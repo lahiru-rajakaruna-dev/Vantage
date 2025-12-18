@@ -86,6 +86,8 @@ export default abstract class DrizzleOrm implements IOrmInterface {
 
   abstract addClient(clientDetails: TClient): Promise<TClient>;
 
+  abstract getClientProfileById(client_id: string): Promise<TClient>;
+
   abstract getClientsByOrganizationId(
     organization_id: string,
   ): Promise<TClient[]>;
