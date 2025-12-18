@@ -24,6 +24,7 @@ import {
 import { between, eq } from 'drizzle-orm';
 import { TOKEN__LOGGER_FACTORY } from '../../../logger/logger_factory/logger_factory.service';
 import type ILoggerService from '../../../logger/logger.interface';
+import { SQLITE_URL } from '../../../types';
 
 @Injectable()
 export class DrizzleSqliteService extends DrizzleOrm {
@@ -34,12 +35,12 @@ export class DrizzleSqliteService extends DrizzleOrm {
     @Inject(TOKEN__LOGGER_FACTORY) logger: ILoggerService,
   ) {
     super(configService, logger);
-    const client = drizzle({
-      url: this.configService.get('SQLITE_DATABASE_URL') as string,
-    });
-    this.driver = drizzle(client, {
-      schema: schema,
-    });
+
+    this.driver = drizzle(this.configService.get(SQLITE_URL) as string);
+
+    //   this.driver = drizzle(client, {
+    //     schema: schema,
+    //   });
   }
 
   async addOrganization(
