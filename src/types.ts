@@ -51,3 +51,9 @@ export enum EAccountStatus {
   DEACTIVATED = 'deactivated',
   UNVERIFIED = 'unverified',
 }
+
+export enum ELoggerStrategy {
+  CONSOLE = 'console',
+  WINSTON = 'winston',
+  PINO = 'pino',
+}
