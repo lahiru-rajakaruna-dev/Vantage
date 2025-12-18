@@ -12,7 +12,7 @@ import {
   EOrganizationStatus,
   EPaymentStatus,
   ESubscriptionStatus,
-} from '../../../database-client/database.enums';
+} from '../../../types';
 
 export const EPGPaymentStatus = pgEnum('EPaymentStatus', EPaymentStatus);
 export const EPGSubscriptionStatus = pgEnum(
@@ -197,14 +197,13 @@ export const sales = pgTable(
 export const organizationsPayments = pgTable(
   'organizations_payments',
   {
-    // FIX: Added .unique()
     payment_id: text().unique().notNull(),
     payment_organization_id: text()
       .notNull()
       .references(() => organizations.organization_id),
     payment_amount: decimal().notNull(),
     payment_status: EPGPaymentStatus().default(EPaymentStatus.VERIFIED),
-    payment_date: integer().notNull(),
+    payment_timestamp: integer().notNull(),
   },
   (table) => {
     return {
