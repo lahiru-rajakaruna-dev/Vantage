@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import AbstractDrizzlerService from '../drizzle-orm.service';
+import AbstractDrizzlerService from '../abstract_drizzle.service';
 import { ConfigService } from '@nestjs/config';
 import { drizzle } from 'drizzle-orm/libsql';
 import * as schema from './drizzle-sqlite.schema';

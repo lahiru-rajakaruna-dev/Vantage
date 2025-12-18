@@ -22,7 +22,7 @@ import {
   TSale,
   TSalesGroup,
 } from './drizzle-postgres.schema';
-import AbstractDrizzlerService from '../drizzle-orm.service';
+import AbstractDrizzlerService from '../abstract_drizzle.service';
 import { between, eq } from 'drizzle-orm';
 import { TOKEN__LOGGER_FACTORY } from '../../../logger/logger_factory/logger_factory.service';
 import type ILoggerService from '../../../logger/logger.interface';
