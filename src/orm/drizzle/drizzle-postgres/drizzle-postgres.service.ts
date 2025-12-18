@@ -22,13 +22,13 @@ import {
   TSale,
   TSalesGroup,
 } from './drizzle-postgres.schema';
-import DrizzleOrm from '../drizzle-orm.service';
+import AbstractDrizzlerService from '../drizzle-orm.service';
 import { between, eq } from 'drizzle-orm';
 import { TOKEN__LOGGER_FACTORY } from '../../../logger/logger_factory/logger_factory.service';
 import type ILoggerService from '../../../logger/logger.interface';
 
 @Injectable()
-export class DrizzlePostgresService extends DrizzleOrm {
+export class DrizzlePostgresService extends AbstractDrizzlerService {
   private readonly driver: PostgresJsDatabase<typeof schema>;
 
   constructor(

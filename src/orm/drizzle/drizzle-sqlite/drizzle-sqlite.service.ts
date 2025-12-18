@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import DrizzleOrm from '../drizzle-orm.service';
+import AbstractDrizzlerService from '../drizzle-orm.service';
 import { ConfigService } from '@nestjs/config';
 import { drizzle } from 'drizzle-orm/libsql';
 import * as schema from './drizzle-sqlite.schema';
@@ -27,7 +27,7 @@ import type ILoggerService from '../../../logger/logger.interface';
 import { SQLITE_URL } from '../../../types';
 
 @Injectable()
-export class DrizzleSqliteService extends DrizzleOrm {
+export class DrizzleSqliteService extends AbstractDrizzlerService {
   protected driver: ReturnType<typeof drizzle<typeof schema>>;
 
   constructor(

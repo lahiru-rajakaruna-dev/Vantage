@@ -14,7 +14,7 @@ import {
 import type ILoggerService from '../../logger/logger.interface';
 import { TOKEN__LOGGER_FACTORY } from '../../logger/logger_factory/logger_factory.service';
 
-export default abstract class DrizzleOrm implements IOrmInterface {
+export default abstract class AbstractDrizzlerService implements IOrmInterface {
   protected readonly configService: ConfigService;
   protected readonly logger: ILoggerService;
 
