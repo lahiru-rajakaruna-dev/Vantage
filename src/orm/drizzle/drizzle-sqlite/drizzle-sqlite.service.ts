@@ -65,7 +65,7 @@ export class DrizzleSqliteService extends DrizzleOrm {
 
   async getOrganizationDetailsById(
     organization_id: string,
-  ): Promise<TOrganization | undefined> {
+  ): Promise<TOrganization> {
     const result = await this.driver
       .select()
       .from(organizations)
@@ -81,7 +81,7 @@ export class DrizzleSqliteService extends DrizzleOrm {
     return this.logger.logAndReturn(result[0]);
   }
 
-  async viewEmployeeById(employee_id: string): Promise<TEmployee | undefined> {
+  async viewEmployeeById(employee_id: string): Promise<TEmployee> {
     const result = await this.driver
       .select()
       .from(employees)
@@ -139,7 +139,7 @@ export class DrizzleSqliteService extends DrizzleOrm {
     return this.logger.logAndReturn(result[0]);
   }
 
-  async viewItemById(item_id: string): Promise<TItem | undefined> {
+  async viewItemById(item_id: string): Promise<TItem> {
     const result = await this.driver
       .select()
       .from(items)
@@ -186,7 +186,7 @@ export class DrizzleSqliteService extends DrizzleOrm {
 
   async getSalesGroupsByOrganizationId(
     organization_id: string,
-  ): Promise<TSalesGroup | undefined> {
+  ): Promise<TSalesGroup> {
     const result = await this.driver
       .select()
       .from(salesGroups)
@@ -290,6 +290,16 @@ export class DrizzleSqliteService extends DrizzleOrm {
     return this.logger.logAndReturn(result[0]);
   }
 
+  async getClientPaymentById(payment_id: string): Promise<TClientPayment> {
+    const result = await this.driver
+      .select()
+      .from(clientsPayments)
+      .where(eq(clientsPayments.client_payment_id, payment_id))
+      .limit(1);
+
+    return this.logger.logAndReturn(result[0]);
+  }
+
   async getClientPaymentsByClientId(
     client_id: string,
   ): Promise<TClientPayment[]> {
@@ -321,7 +331,7 @@ export class DrizzleSqliteService extends DrizzleOrm {
     return this.logger.logAndReturn(result[0]);
   }
 
-  async viewSaleById(sale_id: string): Promise<TSale | undefined> {
+  async viewSaleById(sale_id: string): Promise<TSale> {
     const result = await this.driver
       .select()
       .from(sales)
