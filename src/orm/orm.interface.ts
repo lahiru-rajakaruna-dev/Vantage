@@ -51,6 +51,8 @@ export default interface IOrmInterface {
   getSalesByClientId(client_id: string): Promise<TSale[]>;
   getSalesByItemId(item_id: string): Promise<TSale[]>;
   getSalesByOrganizationId(organization_id: string): Promise<TSale[]>;
+  getSalesByDate(date: number): Promise<TSale[]>;
+  getSalesWithinDates(date_start: number, date_end: number): Promise<TSale[]>;
 
   //   PAYMENT
   addOrganizationPayment(
