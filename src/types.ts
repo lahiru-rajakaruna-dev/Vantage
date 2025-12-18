@@ -24,8 +24,8 @@ export enum ESubscriptionStatus {
 
 export enum EPaymentStatus {
   PENDING = 'PENDING',
-  COMPLETED = 'COMPLETED',
-  FAILED = 'FAILED',
+  PAID = 'PAID',
+  VERIFIED = 'VERIFIED',
   REFUNDED = 'REFUNDED',
 }
 
