@@ -136,4 +136,11 @@ export default abstract class DrizzleOrm implements IOrmInterface {
   abstract getSalesByOrganizationId(organization_id: string): Promise<TSale[]>;
 
   abstract getSalesByClientId(client_id: string): Promise<TSale[]>;
+
+  abstract getSalesByDate(date: number): Promise<TSale[]>;
+
+  abstract getSalesWithinDates(
+    date_start: number,
+    date_end: number,
+  ): Promise<TSale[]>;
 }

@@ -166,6 +166,7 @@ export const sales = pgTable(
       .notNull()
       .references(() => items.item_id),
     sale_item_unit_count: integer().notNull().default(1),
+    sale_date: integer().notNull(),
   },
   (table) => {
     return {

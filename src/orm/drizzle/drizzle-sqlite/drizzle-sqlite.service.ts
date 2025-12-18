@@ -22,7 +22,7 @@ import {
   TSale,
   TSalesGroup,
 } from '../drizzle-postgres/drizzle-postgres.schema';
-import { eq } from 'drizzle-orm';
+import { between, eq } from 'drizzle-orm';
 
 @Injectable()
 export class DrizzleSqliteService extends DrizzleOrm {
@@ -383,5 +383,26 @@ export class DrizzleSqliteService extends DrizzleOrm {
         .from(sales)
         .where(eq(sales.sale_client_id, client_id)),
     );
+  }
+
+  async getSalesByDate(date: number): Promise<TSale[]> {
+    const result = await this.driver
+      .select()
+      .from(sales)
+      .where(eq(sales.sale_date, date));
+
+    return this.logger.logAndReturn(result);
+  }
+
+  async getSalesWithinDates(
+    date_start: number,
+    date_end: number,
+  ): Promise<TSale[]> {
+    const result = await this.driver
+      .select()
+      .from(sales)
+      .where(between(sales.sale_date, date_start, date_end));
+
+    return this.logger.logAndReturn(result);
   }
 }
