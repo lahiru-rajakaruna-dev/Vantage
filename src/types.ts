@@ -42,8 +42,8 @@ export enum EDatabaseStrategy {
 }
 
 export enum EOrmStrategy {
-  DRIZZLE = 'DRIZZLE',
-  PRISMA = 'PRISMA',
+  DRIZZLE = 'drizzle',
+  // PRISMA = 'prisma',
 }
 
 export enum EAccountStatus {
