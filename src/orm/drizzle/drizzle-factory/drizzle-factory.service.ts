@@ -31,26 +31,30 @@ import { DrizzleSqliteService } from '../drizzle-sqlite/drizzle-sqlite.service';
 import { InternalServerErrorException } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import IOrmInterface from '../../orm.interface';
+import { EDatabaseStrategy } from '../../../types';
 
 export const TOKEN__DRIZZLE_FACTORY = 'DrizzleFactory';
+
 export const DrizzleFactory = {
   provide: TOKEN__DRIZZLE_FACTORY,
   useFactory(
     configService: ConfigService,
     moduleRef: ModuleRef,
   ): IOrmInterface {
-    const databaseStrategy = configService.get('DATABASE_STRATEGY');
+    const databaseStrategy = (
+      configService.get('DATABASE_STRATEGY', EDatabaseStrategy.SQLITE) as string
+    ).toLowerCase() as EDatabaseStrategy;
 
     switch (databaseStrategy) {
-      case 'postgres': {
-        return moduleRef.get(DrizzlePostgresService, { strict: true });
+      case EDatabaseStrategy.POSTGRES: {
+        return moduleRef.get(DrizzlePostgresService, { strict: false });
       }
-      case 'sqlite': {
-        return moduleRef.get(DrizzleSqliteService, { strict: true });
+      case EDatabaseStrategy.SQLITE: {
+        return moduleRef.get(DrizzleSqliteService, { strict: false });
       }
       default: {
         throw new InternalServerErrorException(
-          '[-] Invalid database strategy...',
+          `[-] Invalid database strategy. Available options ${JSON.stringify(EDatabaseStrategy)}`,
         );
       }
     }
