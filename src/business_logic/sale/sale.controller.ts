@@ -1,11 +1,12 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
+  Headers,
   Inject,
   Param,
   Post,
-  Req,
 } from '@nestjs/common';
 import { SaleService } from './sale.service';
 import { v4 as uuid } from 'uuid';
@@ -21,16 +22,20 @@ export class SaleController {
 
   @Post('/add')
   async addSale(
-    @Req() request: Request,
+    @Headers('organization_id') organization_id: string,
     @Body('sale_employee_id') sale_employee_id: string,
     @Body('sale_client_id') sale_client_id: string,
     @Body('sale_client_payment_id') sale_client_payment_id: string,
     @Body('sale_item_id') sale_item_id: string,
     @Body('sale_item_unit_count') sale_item_unit_count: number,
   ): Promise<TSale> {
+    if (!organization_id) {
+      throw new BadRequestException('[-] Invalid request...');
+    }
+
     return await this.saleService.addSale({
       sale_id: uuid().toString(),
-      sale_organization_id: request.headers['organization_id'],
+      sale_organization_id: organization_id,
       sale_employee_id,
       sale_client_id,
       sale_client_payment_id,
@@ -41,10 +46,14 @@ export class SaleController {
   }
 
   @Get('/view/organization')
-  async getSalesByOrganizationId(@Req() request: Request): Promise<TSale[]> {
-    return await this.saleService.getSalesByOrganizationId(
-      request.headers['organization_id'],
-    );
+  async getSalesByOrganizationId(
+    @Headers('organization_id') organization_id: string,
+  ): Promise<TSale[]> {
+    if (!organization_id) {
+      throw new BadRequestException('[-] Invalid request...');
+    }
+
+    return await this.saleService.getSalesByOrganizationId(organization_id);
   }
 
   @Get('/view/employee/:employee_id')

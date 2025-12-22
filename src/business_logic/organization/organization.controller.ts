@@ -1,12 +1,13 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
   Get,
+  Headers,
   Inject,
   Patch,
   Post,
-  Req,
 } from '@nestjs/common';
 import { OrganizationService } from './organization.service';
 import { v4 as uuid } from 'uuid';
@@ -27,14 +28,22 @@ export class OrganizationController {
   }
 
   @Get('/view')
-  getOrganizationById(@Req() request: Request) {
-    return this.organizationService.getOrganizationDetailsById(
-      request.headers['organization_id'],
-    );
+  getOrganizationById(@Headers('organization_id') organization_id: string) {
+    if (!organization_id) {
+      throw new BadRequestException('[-] Invalid request...');
+    }
+
+    return this.organizationService.getOrganizationDetailsById(organization_id);
   }
 
   @Post('/add')
   addOrganization(@Body('organization_name') organization_name: string) {
+    if (!organization_name) {
+      throw new BadRequestException(
+        '[-] Invalid request. Property organization_name is missing...',
+      );
+    }
+
     return this.organizationService.addOrganization({
       organization_id:
         this.configService.get('NODE_ENV') === 'DEVELOPMENT'
@@ -51,50 +60,78 @@ export class OrganizationController {
 
   @Patch('/update/name')
   updateOrganizationById(
-    @Req() request: Request,
+    @Headers('organization_id') organization_id: string,
     @Body('organization_name') organization_name: string,
   ) {
+    if (!organization_id) {
+      throw new BadRequestException('[-] Invalid request...');
+    }
+
     return this.organizationService.updateOrganizationNameById(
-      request.headers['organization_id'],
+      organization_id,
       organization_name,
     );
   }
 
   @Patch('/update/subscription/expired')
-  updateOrganizationSubscriptionStatusToExpiredById(@Req() request: Request) {
+  updateOrganizationSubscriptionStatusToExpiredById(
+    @Headers('organization_id') organization_id: string,
+  ) {
+    if (!organization_id) {
+      throw new BadRequestException('[-] Invalid request...');
+    }
+
     return this.organizationService.setOrganizationSubscriptionStatusToExpiredById(
-      request.headers['organization_id'],
+      organization_id,
     );
   }
 
   @Patch('/update/subscription/valid')
-  updateOrganizationSubscriptionStatusToValidById(@Req() request: Request) {
+  updateOrganizationSubscriptionStatusToValidById(
+    @Headers('organization_id') organization_id: string,
+  ) {
+    if (!organization_id) {
+      throw new BadRequestException('[-] Invalid request...');
+    }
+
     return this.organizationService.setOrganizationSubscriptionStatusToValidById(
-      request.headers['organization_id'],
+      organization_id,
     );
   }
 
   @Patch('/update/subscription/date')
   updateOrganizationSubscriptionEndDateById(
-    @Req() request: Request,
+    @Headers('organization_id') organization_id: string,
     @Body('organization_subscription_end_date')
     organization_subscription_end_date: number,
   ) {
+    if (!organization_id) {
+      throw new BadRequestException('[-] Invalid request...');
+    }
+
     return this.organizationService.setOrganizationSubscriptionEndDateById(
-      request.headers['organization_id'],
+      organization_id,
       organization_subscription_end_date,
     );
   }
 
   @Delete('/deactivate')
-  deactivateOrganizationById(@Req() request: Request) {
-    return this.organizationService.deactivateOrganizationById(
-      request.headers['organization_id'],
-    );
+  deactivateOrganizationById(
+    @Headers('organization_id') organization_id: string,
+  ) {
+    if (!organization_id) {
+      throw new BadRequestException('[-] Invalid request...');
+    }
+
+    return this.organizationService.deactivateOrganizationById(organization_id);
   }
 
   @Patch('/activate/:organization_id')
   activateOrganizationById(organization_id: string) {
+    if (!organization_id) {
+      throw new BadRequestException('[-] Invalid request...');
+    }
+
     return this.organizationService.activateOrganizationById(organization_id);
   }
 }

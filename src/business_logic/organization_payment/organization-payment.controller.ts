@@ -1,12 +1,13 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
+  Headers,
   Inject,
   Param,
   Patch,
   Post,
-  Req,
 } from '@nestjs/common';
 import { v4 as uuid } from 'uuid';
 import { OrganizationPaymentService } from './organization-payment.service';
@@ -31,12 +32,16 @@ export class OrganizationPaymentController {
 
   @Post('/add/')
   addPayment(
-    @Req() request: Request,
+    @Headers('organization_id') organization_id: string,
     @Body('payment_amount') payment_amount: number,
   ) {
+    if (!organization_id) {
+      throw new BadRequestException('[-] Invalid request...');
+    }
+
     return this.paymentService.addOrganizationPayment({
       payment_id: uuid().toString(),
-      payment_organization_id: request.headers['organization_id'],
+      payment_organization_id: organization_id,
       payment_amount: payment_amount.toString(),
       payment_timestamp: Date.now(),
       payment_status: EPaymentStatus.PAID,

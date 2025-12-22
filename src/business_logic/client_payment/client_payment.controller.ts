@@ -1,12 +1,13 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
+  Headers,
   Inject,
   Param,
   Patch,
   Post,
-  Req,
 } from '@nestjs/common';
 import { ClientPaymentService } from './client_payment.service';
 import { v4 as uuid } from 'uuid';
@@ -22,13 +23,17 @@ export class ClientPaymentController {
   //   ADD CLIENT PAYMENT
   @Post('/add')
   async addClientPayment(
-    @Req() request: Request,
+    @Headers('organization_id') organization_id: string,
     @Body('client_id') client_id: string,
     @Body('client_payment_amount') client_payment_amount: number,
   ) {
+    if (!organization_id) {
+      throw new BadRequestException('[-] Invalid request...');
+    }
+
     return await this.clientPaymentService.addClientPayment({
       client_payment_id: uuid().toString(),
-      client_payment_organization_id: request.headers['organization_id'],
+      client_payment_organization_id: organization_id,
       client_payment_client_id: client_id,
       client_payment_amount: client_payment_amount.toString(),
       client_payment_date: Date.now(),

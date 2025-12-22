@@ -1,13 +1,14 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
   Get,
+  Headers,
   Param,
   Patch,
   Post,
   Query,
-  Req,
 } from '@nestjs/common';
 import { EmployeeService } from './employee.service';
 import { v4 as uuid } from 'uuid';
@@ -19,11 +20,15 @@ export class EmployeeController {
     this.employeesService = employeesService;
   }
 
-  @Get()
-  getAllEmployeesByOrganizationId(@Req() request: Request) {
-    return this.employeesService.getEmployeesByOrganizationId(
-      request.headers['organization_id'],
-    );
+  @Get('/view')
+  getAllEmployeesByOrganizationId(
+    @Headers('organization_id') organization_id: string,
+  ) {
+    if (!organization_id) {
+      throw new BadRequestException('[-] Invalid request...');
+    }
+
+    return this.employeesService.getEmployeesByOrganizationId(organization_id);
   }
 
   @Get('/sales-group/:sales_group_id')
@@ -38,18 +43,20 @@ export class EmployeeController {
 
   @Post()
   addEmployee(
-    @Req() request: Request,
-    @Body('employee_first_name') employee_first_name: string,
-    @Body('employee_last_name') employee_last_name: string,
-    @Body('employee_email') employee_email: string,
+    @Headers('organization_id') organization_id: string,
+    @Body('employee_username') employee_username: string,
     @Body('employee_phone') employee_phone: string,
     @Body('employee_nic_number') employee_nic_number: string,
   ) {
+    if (!organization_id) {
+      throw new BadRequestException('[-] Invalid request...');
+    }
+
     return this.employeesService.addEmployee({
       employee_id: uuid().toString(),
-      employee_organization_id: request.headers['organization_id'],
+      employee_organization_id: organization_id,
       employee_sales_group_id: undefined,
-      employee_username: `${employee_first_name} ${employee_last_name}`,
+      employee_username: employee_username,
       employee_phone: employee_phone,
       employee_registration_date: Date.now(),
       employee_nic_number: employee_nic_number,

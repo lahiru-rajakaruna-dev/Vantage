@@ -1,14 +1,15 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
   Get,
+  Headers,
   Inject,
   Param,
   Patch,
   Post,
   Query,
-  Req,
 } from '@nestjs/common';
 import { ItemService } from './item.service';
 import { v4 as uuid } from 'uuid';
@@ -33,15 +34,17 @@ export class ItemController {
 
   @Post()
   async addItem(
-    @Req() request: Request,
+    @Headers('organization_id') organization_id: string,
     @Body('item_name') item_name: string,
     @Body('item_stock_unit_count') item_stock_unit_count: number,
   ) {
-    const { headers } = request;
+    if (!organization_id) {
+      throw new BadRequestException('[-] Invalid request...');
+    }
 
     return await this.itemService.addItem({
       item_id: uuid().toString(),
-      item_organization_id: headers['organization_id'] as string,
+      item_organization_id: organization_id,
       item_name: item_name,
       item_stock_unit_count: item_stock_unit_count,
     });

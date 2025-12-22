@@ -1,18 +1,19 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
   Get,
+  Headers,
   Inject,
   Param,
   Patch,
   Post,
-  Req,
 } from '@nestjs/common';
 import { SalesGroupService } from './sales_group.service';
 import { v4 as uuid } from 'uuid';
 
-@Controller('sales-group')
+@Controller('sales_group')
 export class SalesGroupController {
   private salesGroupService: SalesGroupService;
 
@@ -22,20 +23,28 @@ export class SalesGroupController {
 
   @Post('/add')
   addSalesGroup(
-    @Req() request: Request,
+    @Headers('organization_id') organization_id: string,
     @Body('sales_group_name') sales_group_name: string,
   ) {
+    if (!organization_id) {
+      throw new BadRequestException('[-] Invalid request...');
+    }
+
     return this.salesGroupService.addSalesGroup({
       sales_group_id: uuid().toString(),
-      sales_group_organization_id: request.headers['organization_id'],
+      sales_group_organization_id: organization_id,
       sales_group_name: sales_group_name,
     });
   }
 
   @Get('/view')
-  getSalesGroups(@Req() request: Request) {
+  getSalesGroups(@Headers('organization_id') organization_id: string) {
+    if (!organization_id) {
+      throw new BadRequestException('[-] Invalid request...');
+    }
+
     return this.salesGroupService.getSalesGroupsByOrganizationId(
-      request.headers['organization_id'],
+      organization_id,
     );
   }
 

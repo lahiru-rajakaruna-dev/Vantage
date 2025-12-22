@@ -1,12 +1,13 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
+  Headers,
   Inject,
   Param,
   Patch,
   Post,
-  Req,
 } from '@nestjs/common';
 import { ClientService } from './client.service';
 import { v4 as uuid } from 'uuid';
@@ -22,16 +23,20 @@ export class ClientController {
 
   @Post()
   async addClient(
-    @Req() request: Request,
+    @Headers('organization_id') organization_id: string,
     @Body('client_name') client_name: string,
     @Body('client_nic_number') client_nic_number: string,
     @Body('client_phone') client_phone: string,
     @Body('client_email') client_email: string,
     @Body('client_stripe_customer_id') client_stripe_customer_id: string,
   ) {
+    if (!organization_id) {
+      throw new BadRequestException('[-] Invalid request...');
+    }
+
     return await this.clientService.addClient({
       client_id: uuid().toString(),
-      client_organization_id: request.headers['organization_id'],
+      client_organization_id: organization_id,
       client_name: client_name,
       client_nic_number: client_nic_number,
       client_phone: client_phone,
