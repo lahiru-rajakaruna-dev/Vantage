@@ -52,6 +52,7 @@ export default abstract class AbstractDrizzlerService implements IOrmInterface {
   ): Promise<TEmployee[]>;
 
   abstract updateEmployeeById(
+    organization_id: string,
     employee_id: string,
     employeeUpdates: Partial<TEmployee>,
   ): Promise<TEmployee>;
@@ -65,6 +66,7 @@ export default abstract class AbstractDrizzlerService implements IOrmInterface {
   abstract getItemsByOrganizationId(organization_id: string): Promise<TItem[]>;
 
   abstract updateItemById(
+    organization_id: string,
     item_id: string,
     itemUpdates: Partial<TItem>,
   ): Promise<TItem>;
@@ -78,6 +80,7 @@ export default abstract class AbstractDrizzlerService implements IOrmInterface {
   ): Promise<TSalesGroup>;
 
   abstract updateSalesGroupById(
+    organization_id: string,
     sales_group_id: string,
     salesGroupUpdates: Partial<TSalesGroup>,
   ): Promise<TSalesGroup>;
@@ -93,6 +96,7 @@ export default abstract class AbstractDrizzlerService implements IOrmInterface {
   ): Promise<TClient[]>;
 
   abstract updateClientById(
+    organization_id: string,
     client_id: string,
     clientUpdates: Partial<TClient>,
   ): Promise<TClient>;
@@ -106,6 +110,7 @@ export default abstract class AbstractDrizzlerService implements IOrmInterface {
   ): Promise<TOrganizationPayment[]>;
 
   abstract updateOrganizationPaymentById(
+    organization_id: string,
     payment_id: string,
     paymentUpdates: Partial<TOrganizationPayment>,
   ): Promise<TOrganizationPayment>;
@@ -121,6 +126,7 @@ export default abstract class AbstractDrizzlerService implements IOrmInterface {
   ): Promise<TClientPayment[]>;
 
   abstract updateClientPaymentById(
+    organization_id: string,
     client_payment_id: string,
     clientPaymentUpdates: Partial<TClientPayment>,
   ): Promise<TClientPayment>;
@@ -137,9 +143,13 @@ export default abstract class AbstractDrizzlerService implements IOrmInterface {
 
   abstract getSalesByClientId(client_id: string): Promise<TSale[]>;
 
-  abstract getSalesByDate(date: number): Promise<TSale[]>;
+  abstract getSalesByDate(
+    organization_id: string,
+    date: number,
+  ): Promise<TSale[]>;
 
   abstract getSalesWithinDates(
+    organization_id: string,
     date_start: number,
     date_end: number,
   ): Promise<TSale[]>;

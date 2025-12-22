@@ -23,7 +23,7 @@ import {
   TSalesGroup,
 } from './drizzle-postgres.schema';
 import AbstractDrizzlerService from '../abstract_drizzle.service';
-import { between, eq } from 'drizzle-orm';
+import { and, between, eq } from 'drizzle-orm';
 import { TOKEN__LOGGER_FACTORY } from '../../../logger/logger_factory/logger_factory.service';
 import type ILoggerService from '../../../logger/logger.interface';
 
@@ -114,13 +114,19 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
   }
 
   async updateEmployeeById(
+    organization_id: string,
     employee_id: string,
     employeeUpdates: Partial<TEmployee>,
   ): Promise<TEmployee> {
     const result = await this.driver
       .update(employees)
       .set(employeeUpdates)
-      .where(eq(employees.employee_id, employee_id))
+      .where(
+        and(
+          eq(employees.employee_organization_id, organization_id),
+          eq(employees.employee_id, employee_id),
+        ),
+      )
       .returning();
     return this.logger.logAndReturn(result[0]);
   }
@@ -159,13 +165,19 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
   }
 
   async updateItemById(
+    organization_id: string,
     item_id: string,
     itemUpdates: Partial<TItem>,
   ): Promise<TItem> {
     const result = await this.driver
       .update(items)
       .set(itemUpdates)
-      .where(eq(items.item_id, item_id))
+      .where(
+        and(
+          eq(items.item_organization_id, organization_id),
+          eq(items.item_id, item_id),
+        ),
+      )
       .returning();
     return this.logger.logAndReturn(result[0]);
   }
@@ -197,13 +209,19 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
   }
 
   async updateSalesGroupById(
+    organization_id: string,
     sales_group_id: string,
     salesGroupUpdates: Partial<TSalesGroup>,
   ): Promise<TSalesGroup> {
     const result = await this.driver
       .update(salesGroups)
       .set(salesGroupUpdates)
-      .where(eq(salesGroups.sales_group_id, sales_group_id))
+      .where(
+        and(
+          eq(salesGroups.sales_group_organization_id, organization_id),
+          eq(salesGroups.sales_group_id, sales_group_id),
+        ),
+      )
       .returning();
     return this.logger.logAndReturn(result[0]);
   }
@@ -245,13 +263,19 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
   }
 
   async updateClientById(
+    organization_id: string,
     client_id: string,
     clientUpdates: Partial<TClient>,
   ): Promise<TClient> {
     const result = await this.driver
       .update(clients)
       .set(clientUpdates)
-      .where(eq(clients.client_id, client_id))
+      .where(
+        and(
+          eq(clients.client_organization_id, organization_id),
+          eq(clients.client_id, client_id),
+        ),
+      )
       .returning();
     return this.logger.logAndReturn(result[0]);
   }
@@ -280,13 +304,19 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
   }
 
   async updateOrganizationPaymentById(
+    organization_id: string,
     payment_id: string,
     paymentUpdates: Partial<TOrganizationPayment>,
   ): Promise<TOrganizationPayment> {
     const result = await this.driver
       .update(organizationsPayments)
       .set(paymentUpdates)
-      .where(eq(organizationsPayments.payment_id, payment_id))
+      .where(
+        and(
+          eq(organizationsPayments.payment_organization_id, organization_id),
+          eq(organizationsPayments.payment_id, payment_id),
+        ),
+      )
       .returning();
     return this.logger.logAndReturn(result[0]);
   }
@@ -323,13 +353,19 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
   }
 
   async updateClientPaymentById(
+    organization_id: string,
     client_payment_id: string,
     clientPaymentUpdates: Partial<TClientPayment>,
   ): Promise<TClientPayment> {
     const result = await this.driver
       .update(clientsPayments)
       .set(clientPaymentUpdates)
-      .where(eq(clientsPayments.client_payment_id, client_payment_id))
+      .where(
+        and(
+          eq(clientsPayments.client_payment_organization_id, organization_id),
+          eq(clientsPayments.client_payment_id, client_payment_id),
+        ),
+      )
       .returning();
     return this.logger.logAndReturn(result[0]);
   }
@@ -386,23 +422,37 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     );
   }
 
-  async getSalesByDate(date: number): Promise<TSale[]> {
+  async getSalesByDate(
+    organization_id: string,
+    date: number,
+  ): Promise<TSale[]> {
     const result = await this.driver
       .select()
       .from(sales)
-      .where(eq(sales.sale_date, date));
+      .where(
+        and(
+          eq(sales.sale_organization_id, organization_id),
+          eq(sales.sale_date, date),
+        ),
+      );
 
     return this.logger.logAndReturn(result);
   }
 
   async getSalesWithinDates(
+    organization_id: string,
     date_start: number,
     date_end: number,
   ): Promise<TSale[]> {
     const result = await this.driver
       .select()
       .from(sales)
-      .where(between(sales.sale_date, date_start, date_end));
+      .where(
+        and(
+          eq(sales.sale_organization_id, organization_id),
+          between(sales.sale_date, date_start, date_end),
+        ),
+      );
 
     return this.logger.logAndReturn(result);
   }

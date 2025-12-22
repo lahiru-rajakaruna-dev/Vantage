@@ -30,27 +30,27 @@ import { DrizzlePostgresService } from '../drizzle-postgres/drizzle-postgres.ser
 import { DrizzleSqliteService } from '../drizzle-sqlite/drizzle-sqlite.service';
 import { InternalServerErrorException } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
-import IOrmInterface from '../../orm.interface';
 import { EDatabaseStrategy } from '../../../types';
+import AbstractDrizzlerService from '../abstract_drizzle.service';
 
 export const TOKEN__DRIZZLE_FACTORY = 'DrizzleFactory';
 
 export const DrizzleFactory = {
   provide: TOKEN__DRIZZLE_FACTORY,
-  useFactory(
+  async useFactory(
     configService: ConfigService,
     moduleRef: ModuleRef,
-  ): IOrmInterface {
+  ): Promise<AbstractDrizzlerService> {
     const databaseStrategy = (
       configService.get('DATABASE_STRATEGY', EDatabaseStrategy.SQLITE) as string
     ).toLowerCase() as EDatabaseStrategy;
 
     switch (databaseStrategy) {
       case EDatabaseStrategy.POSTGRES: {
-        return moduleRef.get(DrizzlePostgresService, { strict: false });
+        return await moduleRef.create(DrizzlePostgresService);
       }
       case EDatabaseStrategy.SQLITE: {
-        return moduleRef.get(DrizzleSqliteService, { strict: false });
+        return await moduleRef.create(DrizzleSqliteService);
       }
       default: {
         throw new InternalServerErrorException(
@@ -61,3 +61,5 @@ export const DrizzleFactory = {
   },
   inject: [ConfigService, ModuleRef],
 };
+
+export type TDrizzleFactory = typeof DrizzleFactory;
