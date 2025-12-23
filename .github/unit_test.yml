@@ -2,7 +2,8 @@ name: TEST
 run-name: ${{github.actor}} is testing your projects' units.
 on:
   push:
-    - main
+    branches:
+      - main
 
 env:
   NODE_ENV: TEST
@@ -14,7 +15,7 @@ jobs:
   test_units:
     name: Testing Project Units
     runs-on: ubuntu-slim
-    step:
+    steps:
       - name: checkout code
         run: echo Checking out code
 
