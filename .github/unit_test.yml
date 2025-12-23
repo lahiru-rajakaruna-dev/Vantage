@@ -1,0 +1,21 @@
+name: TEST
+run-name: ${{github.actor}} is testing your projects' units.
+on:
+  push:
+    - main
+
+env:
+  NODE_ENV: TEST
+  POSTGRES_DATABASE_URL: ""
+  ORM_STRATEGY: drizzle
+  DATABASE_STRATEGY: postgres
+
+jobs:
+  test_units:
+    name: Testing Project Units
+    runs-on: ubuntu-slim
+    step:
+      - name: checkout code
+        run: echo Checking out code
+
+
