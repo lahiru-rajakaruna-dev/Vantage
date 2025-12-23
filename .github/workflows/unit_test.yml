@@ -16,7 +16,15 @@ jobs:
     name: Testing Project Units
     runs-on: ubuntu-slim
     steps:
-      - name: checkout code
-        run: echo Checking out code
+      - name: Checkout code
+        uses: actions/checkout@v4
 
+      - name: Setup node.js
+        uses: actions/setup-node@v6
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit test
+        run: npm run test
 
