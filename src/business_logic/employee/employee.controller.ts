@@ -32,13 +32,22 @@ export class EmployeeController {
   }
 
   @Get('/sales-group/:sales_group_id')
-  getEmployeeByGroupId(@Param('sales_group_id') sales_group_id: string) {
-    return this.employeesService.getEmployeesBySalesGroupId(sales_group_id);
+  getEmployeeByGroupId(
+    @Headers('organization_id') organization_id: string,
+    @Param('sales_group_id') sales_group_id: string,
+  ) {
+    return this.employeesService.getEmployeesBySalesGroupId(
+      organization_id,
+      sales_group_id,
+    );
   }
 
   @Get('/view/:employee_id')
-  getEmployeeById(@Param('employee_id') employee_id: string) {
-    return this.employeesService.viewEmployeeById(employee_id);
+  getEmployeeById(
+    @Headers('organization_id') organization_id: string,
+    @Param('employee_id') employee_id: string,
+  ) {
+    return this.employeesService.viewEmployeeById(organization_id, employee_id);
   }
 
   @Post()
@@ -65,10 +74,12 @@ export class EmployeeController {
 
   @Patch('/update/username/:employee_id')
   updateEmployeeUserName(
+    @Headers('organization_id') organization_id: string,
     @Param('employee_id') employee_id: string,
     @Body('employee_username') employee_username: string,
   ) {
     return this.employeesService.updateEmployeeUsernameById(
+      organization_id,
       employee_id,
       employee_username,
     );
@@ -76,10 +87,12 @@ export class EmployeeController {
 
   @Patch('/update/nic/:employee_id')
   updateEmployeeNic(
+    @Headers('organization_id') organization_id: string,
     @Param('employee_id') employee_id: string,
     @Body('employee_nic_number') employee_nic_number: string,
   ) {
     return this.employeesService.updateEmployeeNICById(
+      organization_id,
       employee_id,
       employee_nic_number,
     );
@@ -87,10 +100,12 @@ export class EmployeeController {
 
   @Patch('/update/phone/:employee_id')
   updateEmployeePhone(
+    @Headers('organization_id') organization_id: string,
     @Param('employee_id') employee_id: string,
     @Body('employee_phone') employee_phone: string,
   ) {
     return this.employeesService.updateEmployeePhoneById(
+      organization_id,
       employee_id,
       employee_phone,
     );
@@ -98,10 +113,12 @@ export class EmployeeController {
 
   @Patch('/update/add-to-sales-group/')
   addEmployeesToSalesGroup(
+    @Headers('organization_id') organization_id: string,
     @Body('employees_ids') employees_ids: string[],
     @Body('employee_sales_group_id') employee_sales_group_id: string,
   ) {
     return this.employeesService.addEmployeesToSalesGroupByIds(
+      organization_id,
       employees_ids,
       employee_sales_group_id,
     );
@@ -109,19 +126,36 @@ export class EmployeeController {
 
   @Patch('/update/remove-from-sales-group/')
   removeEmployeesFromSalesGroup(
+    @Headers('organization_id') organization_id: string,
     @Body('employees_ids') employees_ids: string[],
   ) {
-    return this.employeesService.removeEmployeesFromSalesGroup(employees_ids);
+    return this.employeesService.removeEmployeesFromSalesGroup(
+      organization_id,
+      employees_ids,
+    );
   }
+
   @Delete('/delete/:employee_id')
-  deleteEmployee(@Param('employee_id') employee_id: string) {
-    return this.employeesService.deleteEmployeeById(employee_id);
+  deleteEmployee(
+    @Headers('organization_id') organization_id: string,
+    @Param('employee_id') employee_id: string,
+  ) {
+    return this.employeesService.deleteEmployeeById(
+      organization_id,
+      employee_id,
+    );
   }
 
   @Delete('/delete')
-  deleteEmployees(@Query('employees_ids') employees_ids: string[]) {
+  deleteEmployees(
+    @Headers('organization_id') organization_id: string,
+    @Query('employees_ids') employees_ids: string[],
+  ) {
     return employees_ids.map((employee_id) => {
-      return this.employeesService.deleteEmployeeById(employee_id);
+      return this.employeesService.deleteEmployeeById(
+        organization_id,
+        employee_id,
+      );
     });
   }
 }

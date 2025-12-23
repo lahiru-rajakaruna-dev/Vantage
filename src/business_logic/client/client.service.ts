@@ -18,48 +18,71 @@ export class ClientService {
   }
 
   //   UPDATE CLIENT NAME
-  async updateClientName(client_id: string, client_name: string) {
-    return this.orm.updateClientById(client_id, { client_name: client_name });
+  async updateClientName(
+    organization_id: string,
+    client_id: string,
+    client_name: string,
+  ) {
+    return this.orm.updateClientById(organization_id, client_id, {
+      client_name: client_name,
+    });
   }
 
   //   UPDATE CLIENT NIC NUMBER
-  async updateClientNicNumber(client_id: string, client_nic_number: string) {
-    return this.orm.updateClientById(client_id, {
+  async updateClientNicNumber(
+    organization_id: string,
+    client_id: string,
+    client_nic_number: string,
+  ) {
+    return this.orm.updateClientById(organization_id, client_id, {
       client_nic_number: client_nic_number,
     });
   }
 
   //   UPDATE CLIENT PHONE
-  async updateClientPhone(client_id: string, client_phone: string) {
-    return this.orm.updateClientById(client_id, {
+  async updateClientPhone(
+    organization_id: string,
+    client_id: string,
+    client_phone: string,
+  ) {
+    return this.orm.updateClientById(organization_id, client_id, {
       client_phone: client_phone,
     });
   }
 
   //   UPDATE CLIENT ACCOUNT STATUS DEACTIVATED
-  async updateClientAccountStatusToDeactivated(client_id: string) {
-    return this.orm.updateClientById(client_id, {
+  async updateClientAccountStatusToDeactivated(
+    organization_id: string,
+    client_id: string,
+  ) {
+    return this.orm.updateClientById(organization_id, client_id, {
       client_account_status: EAccountStatus.DEACTIVATED,
     });
   }
 
   //   UPDATE CLIENT ACCOUNT STATUS TO ACTIVE
-  async updateClientAccountStatusToActive(client_id: string) {
-    return this.orm.updateClientById(client_id, {
+  async updateClientAccountStatusToActive(
+    organization_id: string,
+    client_id: string,
+  ) {
+    return this.orm.updateClientById(organization_id, client_id, {
       client_account_status: EAccountStatus.ACTIVE,
     });
   }
 
   // UPDATE CLIENT ACCOUNT STATUS TO UNVERIFIED
-  async updateClientAccountStatusToUnverified(client_id: string) {
-    return this.orm.updateClientById(client_id, {
+  async updateClientAccountStatusToUnverified(
+    organization_id: string,
+    client_id: string,
+  ) {
+    return this.orm.updateClientById(organization_id, client_id, {
       client_account_status: EAccountStatus.UNVERIFIED,
     });
   }
 
   //   VIEW CLIENT PROFILE
-  async viewClientProfile(client_id: string) {
-    return this.orm.getClientProfileById(client_id);
+  async viewClientProfile(organization_id: string, client_id: string) {
+    return this.orm.getClientProfileById(organization_id, client_id);
   }
 
   //   GET CLIENTS BY ORGANIZATION ID

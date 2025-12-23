@@ -21,46 +21,54 @@ export class ClientPaymentService {
 
   //   UPDATE CLIENT PAYMENT BY ID
   async updateClientPaymentStatusToPendingById(
+    organization_id: string,
     payment_id: string,
   ): Promise<TClientPayment> {
-    return this.orm.updateClientPaymentById(payment_id, {
+    return this.orm.updateClientPaymentById(organization_id, payment_id, {
       client_payment_status: EPaymentStatus.PENDING,
     });
   }
 
   async updateClientPaymentStatusToPaidById(
+    organization_id: string,
     payment_id: string,
   ): Promise<TClientPayment> {
-    return this.orm.updateClientPaymentById(payment_id, {
+    return this.orm.updateClientPaymentById(organization_id, payment_id, {
       client_payment_status: EPaymentStatus.PAID,
     });
   }
 
   async updateClientPaymentStatusToVerifiedById(
+    organization_id: string,
     payment_id: string,
   ): Promise<TClientPayment> {
-    return this.orm.updateClientPaymentById(payment_id, {
+    return this.orm.updateClientPaymentById(organization_id, payment_id, {
       client_payment_status: EPaymentStatus.VERIFIED,
     });
   }
 
   async updateClientPaymentStatusToRefundedById(
+    organization_id: string,
     payment_id: string,
   ): Promise<TClientPayment> {
-    return this.orm.updateClientPaymentById(payment_id, {
+    return this.orm.updateClientPaymentById(organization_id, payment_id, {
       client_payment_status: EPaymentStatus.REFUNDED,
     });
   }
 
   //   GET CLIENT PAYMENT BY ID
-  async viewClientPaymentById(payment_id: string): Promise<TClientPayment> {
-    return this.orm.getClientPaymentById(payment_id);
+  async viewClientPaymentById(
+    organization_id: string,
+    payment_id: string,
+  ): Promise<TClientPayment> {
+    return this.orm.getClientPaymentById(organization_id, payment_id);
   }
 
   //   GET CLIENT PAYMENTS BY CLIENT_ID
   async getClientPaymentsByClientId(
+    organization_id: string,
     client_id: string,
   ): Promise<TClientPayment[]> {
-    return this.orm.getClientPaymentsByClientId(client_id);
+    return this.orm.getClientPaymentsByClientId(organization_id, client_id);
   }
 }

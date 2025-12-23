@@ -15,11 +15,13 @@ export class ItemService {
     return await this.orm.addItem(itemData);
   }
 
-  async viewItemById(item_id: string): Promise<TItem> {
-    const item = await this.orm.viewItemById(item_id);
+  async viewItemById(organization_id: string, item_id: string): Promise<TItem> {
+    const item = await this.orm.viewItemById(organization_id, item_id);
+
     if (!item) {
       throw new NotFoundException(`Item with ID "${item_id}" not found`);
     }
+
     return item;
   }
 
@@ -27,10 +29,18 @@ export class ItemService {
     return this.orm.getItemsByOrganizationId(organization_id);
   }
 
-  async updateItemNameById(item_id: string, item_name: string): Promise<TItem> {
-    const updatedItem = await this.orm.updateItemById(item_id, {
-      item_name: item_name,
-    });
+  async updateItemNameById(
+    organization_id: string,
+    item_id: string,
+    item_name: string,
+  ): Promise<TItem> {
+    const updatedItem = await this.orm.updateItemById(
+      organization_id,
+      item_id,
+      {
+        item_name: item_name,
+      },
+    );
     if (!updatedItem) {
       throw new NotFoundException(`Item with ID "${item_id}" not found`);
     }
@@ -38,22 +48,35 @@ export class ItemService {
   }
 
   async updateItemStockById(
+    organization_id: string,
     item_id: string,
     item_stock_units: number,
   ): Promise<TItem> {
-    const updatedItem = await this.orm.updateItemById(item_id, {
-      item_stock_unit_count: item_stock_units,
-    });
+    const updatedItem = await this.orm.updateItemById(
+      organization_id,
+      item_id,
+      {
+        item_stock_unit_count: item_stock_units,
+      },
+    );
+
     if (!updatedItem) {
       throw new NotFoundException(`Item with ID "${item_id}" not found`);
     }
+
     return updatedItem;
   }
 
-  async deleteItemsByIds(item_ids: string[]): Promise<TItem[]> {
+  async deleteItemsByIds(
+    organization_id: string,
+    item_ids: string[],
+  ): Promise<TItem[]> {
     const deletedItems = await Promise.all(
       item_ids.map(async (item_id) => {
-        const deletedItem = await this.orm.deleteItemById(item_id);
+        const deletedItem = await this.orm.deleteItemById(
+          organization_id,
+          item_id,
+        );
 
         if (!deletedItem) {
           throw new NotFoundException(`Item with ID "${item_id}" not found`);

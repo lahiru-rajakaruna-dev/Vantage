@@ -15,14 +15,21 @@ export class EmployeeService {
     return await this.orm.addEmployee(employeeData);
   }
 
-  async viewEmployeeById(employee_id: string): Promise<TEmployee | undefined> {
-    return await this.orm.viewEmployeeById(employee_id);
+  async viewEmployeeById(
+    organization_id: string,
+    employee_id: string,
+  ): Promise<TEmployee | undefined> {
+    return await this.orm.viewEmployeeById(organization_id, employee_id);
   }
 
   async getEmployeesBySalesGroupId(
+    organization_id: string,
     sales_group_id: string,
   ): Promise<TEmployee[]> {
-    return await this.orm.getEmployeesBySalesGroupId(sales_group_id);
+    return await this.orm.getEmployeesBySalesGroupId(
+      organization_id,
+      sales_group_id,
+    );
   }
 
   async getEmployeesByOrganizationId(
@@ -32,11 +39,12 @@ export class EmployeeService {
   }
 
   async addEmployeesToSalesGroupByIds(
+    organization_id: string,
     employee_ids: string[],
     sales_group_id: string,
   ): Promise<TEmployee[]> {
     const promises = employee_ids.map((employee_id) => {
-      return this.orm.updateEmployeeById(employee_id, {
+      return this.orm.updateEmployeeById(organization_id, employee_id, {
         employee_sales_group_id: sales_group_id,
       });
     });
@@ -44,10 +52,11 @@ export class EmployeeService {
   }
 
   async removeEmployeesFromSalesGroup(
+    organization_id: string,
     employee_ids: string[],
   ): Promise<TEmployee[]> {
     const promises = employee_ids.map((employee_id) => {
-      return this.orm.updateEmployeeById(employee_id, {
+      return this.orm.updateEmployeeById(organization_id, employee_id, {
         employee_sales_group_id: null,
       });
     });
@@ -55,33 +64,39 @@ export class EmployeeService {
   }
 
   async updateEmployeeUsernameById(
+    organization_id: string,
     employee_id: string,
     employee_username: string,
   ): Promise<TEmployee> {
-    return await this.orm.updateEmployeeById(employee_id, {
+    return await this.orm.updateEmployeeById(organization_id, employee_id, {
       employee_username: employee_username,
     });
   }
 
   async updateEmployeeNICById(
+    organization_id: string,
     employee_id: string,
     employee_nic_number: string,
   ): Promise<TEmployee> {
-    return await this.orm.updateEmployeeById(employee_id, {
+    return await this.orm.updateEmployeeById(organization_id, employee_id, {
       employee_nic_number: employee_nic_number,
     });
   }
 
   async updateEmployeePhoneById(
+    organization_id: string,
     employee_id: string,
     employee_phone: string,
   ): Promise<TEmployee> {
-    return await this.orm.updateEmployeeById(employee_id, {
+    return await this.orm.updateEmployeeById(organization_id, employee_id, {
       employee_phone: employee_phone,
     });
   }
 
-  async deleteEmployeeById(employee_id: string): Promise<TEmployee> {
-    return await this.orm.deleteEmployeeById(employee_id);
+  async deleteEmployeeById(
+    organization_id: string,
+    employee_id: string,
+  ): Promise<TEmployee> {
+    return await this.orm.deleteEmployeeById(organization_id, employee_id);
   }
 }

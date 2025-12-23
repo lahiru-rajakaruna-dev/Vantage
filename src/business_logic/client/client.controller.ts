@@ -49,10 +49,15 @@ export class ClientController {
 
   @Patch('/update/name/:client_id')
   async updateClientName(
+    @Headers('organization_id') organization_id: string,
     @Param('client_id') client_id: string,
     @Body('client_name') client_name: string,
   ) {
-    return await this.clientService.updateClientName(client_id, client_name);
+    return await this.clientService.updateClientName(
+      organization_id,
+      client_id,
+      client_name,
+    );
   }
 
   @Patch('/update/nic/:client_id')
@@ -61,6 +66,7 @@ export class ClientController {
     @Body('client_nic_number') client_nic_number: string,
   ) {
     return await this.clientService.updateClientNicNumber(
+      '',
       client_id,
       client_nic_number,
     );
@@ -68,36 +74,59 @@ export class ClientController {
 
   @Patch('/update/phone/:client_id')
   async updateClientPhone(
+    @Headers('organization_id') organization_id: string,
     @Param('client_id') client_id: string,
     @Body('client_phone') client_phone: string,
   ) {
-    return await this.clientService.updateClientPhone(client_id, client_phone);
+    return await this.clientService.updateClientPhone(
+      organization_id,
+      client_id,
+      client_phone,
+    );
   }
 
   @Patch('/update/status/active/:client_id')
-  async updateClientStatusToActive(@Param('client_id') client_id: string) {
+  async updateClientStatusToActive(
+    @Headers('organization_id') organization_id: string,
+    @Param('client_id') client_id: string,
+  ) {
     return await this.clientService.updateClientAccountStatusToActive(
+      organization_id,
       client_id,
     );
   }
 
   @Patch('/update/status/deactivated/:client_id')
-  async updateClientStatusToDeactivated(@Param('client_id') client_id: string) {
+  async updateClientStatusToDeactivated(
+    @Headers('organization_id') organization_id: string,
+    @Param('client_id') client_id: string,
+  ) {
     return await this.clientService.updateClientAccountStatusToDeactivated(
+      organization_id,
       client_id,
     );
   }
 
   @Patch('/update/status/unverified/:client_id')
-  async updateClientStatusToUnverified(@Param('client_id') client_id: string) {
+  async updateClientStatusToUnverified(
+    @Headers('organization_id') organization_id: string,
+    @Param('client_id') client_id: string,
+  ) {
     return await this.clientService.updateClientAccountStatusToUnverified(
+      organization_id,
       client_id,
     );
   }
 
   @Get('/profile/:client_id')
-  async getClientProfile(@Param('client_id') client_id: string) {
-    return await this.clientService.viewClientProfile(client_id);
+  async getClientProfile(
+    @Headers('organization_id') organization_id: string,
+    @Param('client_id') client_id: string,
+  ) {
+    return await this.clientService.viewClientProfile(
+      organization_id,
+      client_id,
+    );
   }
 
   @Get('/view/organization/:organization_id')

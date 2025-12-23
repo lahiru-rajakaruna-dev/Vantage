@@ -22,15 +22,23 @@ export class SalesGroupService {
   }
 
   async updateSalesGroupNameById(
+    organization_id: string,
     sales_group_id: string,
     sales_group_name: string,
   ): Promise<TSalesGroup> {
-    return await this.orm.updateSalesGroupById(sales_group_id, {
-      sales_group_name: sales_group_name,
-    });
+    return await this.orm.updateSalesGroupById(
+      organization_id,
+      sales_group_id,
+      {
+        sales_group_name: sales_group_name,
+      },
+    );
   }
 
-  async deleteSalesGroupById(sales_group_id: string): Promise<TSalesGroup> {
-    return await this.orm.deleteSalesGroupById(sales_group_id);
+  async deleteSalesGroupById(
+    organization_id: string,
+    sales_group_id: string,
+  ): Promise<TSalesGroup> {
+    return await this.orm.deleteSalesGroupById(organization_id, sales_group_id);
   }
 }

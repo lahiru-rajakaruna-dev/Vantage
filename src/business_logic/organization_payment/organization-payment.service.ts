@@ -25,33 +25,37 @@ export class OrganizationPaymentService {
   }
 
   async updateOrganizationPaymentStatusToPendingById(
+    organization_id: string,
     payment_id: string,
   ): Promise<TOrganizationPayment> {
-    return this.orm.updateOrganizationPaymentById(payment_id, {
+    return this.orm.updateOrganizationPaymentById(organization_id, payment_id, {
       payment_status: EPaymentStatus.PENDING,
     });
   }
 
   async updateOrganizationPaymentStatusToPaidById(
+    organization_id: string,
     payment_id: string,
   ): Promise<TOrganizationPayment> {
-    return this.orm.updateOrganizationPaymentById(payment_id, {
+    return this.orm.updateOrganizationPaymentById(organization_id, payment_id, {
       payment_status: EPaymentStatus.PAID,
     });
   }
 
   async updateOrganizationPaymentStatusToVerifiedById(
+    organization_id: string,
     payment_id: string,
   ): Promise<TOrganizationPayment> {
-    return this.orm.updateOrganizationPaymentById(payment_id, {
+    return this.orm.updateOrganizationPaymentById(organization_id, payment_id, {
       payment_status: EPaymentStatus.VERIFIED,
     });
   }
 
   async updateOrganizationPaymentStatusToRefundedById(
+    organization_id: string,
     payment_id: string,
   ): Promise<TOrganizationPayment> {
-    return this.orm.updateOrganizationPaymentById(payment_id, {
+    return this.orm.updateOrganizationPaymentById(organization_id, payment_id, {
       payment_status: EPaymentStatus.REFUNDED,
     });
   }

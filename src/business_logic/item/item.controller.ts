@@ -23,8 +23,11 @@ export class ItemController {
   }
 
   @Get('/:item_id')
-  getItemById(@Param('item_id') item_id: string) {
-    return this.itemService.viewItemById(item_id);
+  getItemById(
+    @Headers('organization_id') organization_id: string,
+    @Param('item_id') item_id: string,
+  ) {
+    return this.itemService.viewItemById(organization_id, item_id);
   }
 
   @Get('/organization/:organization_id')
@@ -52,25 +55,35 @@ export class ItemController {
 
   @Patch('/update/name/:item_id')
   async updateItemNameById(
+    @Headers('organization_id') organization_id: string,
     @Param('item_id') item_id: string,
     @Body('item_name') item_name: string,
   ) {
-    return await this.itemService.updateItemNameById(item_id, item_name);
+    return await this.itemService.updateItemNameById(
+      organization_id,
+      item_id,
+      item_name,
+    );
   }
 
   @Patch('/update/stock/:item_id')
   async updateItemStockById(
+    @Headers('organization_id') organization_id: string,
     @Param('item_id') item_id: string,
     @Body('item_stock_units') item_stock_units: number,
   ) {
     return await this.itemService.updateItemStockById(
+      organization_id,
       item_id,
       item_stock_units,
     );
   }
 
   @Delete('/delete/')
-  async deleteItemsByIds(@Query('item_ids') item_ids: string[]) {
-    return await this.itemService.deleteItemsByIds(item_ids);
+  async deleteItemsByIds(
+    @Headers('organization_id') organization_id: string,
+    @Query('item_ids') item_ids: string[],
+  ) {
+    return await this.itemService.deleteItemsByIds(organization_id, item_ids);
   }
 }

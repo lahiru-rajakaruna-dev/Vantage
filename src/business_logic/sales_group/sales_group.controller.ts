@@ -50,17 +50,25 @@ export class SalesGroupController {
 
   @Patch('/update/name/:sales_group_id')
   updateSalesGroupName(
+    @Headers('organization_id') organization_id: string,
     @Param('sales_group_id') sales_group_id: string,
     @Body('sales_group_name') sales_group_name: string,
   ) {
     return this.salesGroupService.updateSalesGroupNameById(
+      organization_id,
       sales_group_id,
       sales_group_name,
     );
   }
 
   @Delete('/delete/:sales_group_id')
-  removeSalesGroup(@Param('sales_group_id') sales_group_id: string) {
-    return this.salesGroupService.deleteSalesGroupById(sales_group_id);
+  removeSalesGroup(
+    @Headers('organization_id') organization_id: string,
+    @Param('sales_group_id') sales_group_id: string,
+  ) {
+    return this.salesGroupService.deleteSalesGroupById(
+      organization_id,
+      sales_group_id,
+    );
   }
 }

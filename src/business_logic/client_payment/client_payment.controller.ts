@@ -43,17 +43,23 @@ export class ClientPaymentController {
   //   SET CLIENT PAYMENT STATUS TO PENDING
   @Patch('/update/status/pending/:payment_id')
   async setClientPaymentStatusToPending(
+    @Headers('organization_id') organization_id: string,
     @Param('payment_id') payment_id: string,
   ) {
     return await this.clientPaymentService.updateClientPaymentStatusToPendingById(
+      organization_id,
       payment_id,
     );
   }
 
   //   SET CLIENT PAYMENT STATUS TO PAID
   @Patch('/update/status/paid/:payment_id')
-  async setClientPaymentStatusToPaid(@Param('payment_id') payment_id: string) {
+  async setClientPaymentStatusToPaid(
+    @Headers('organization_id') organization_id: string,
+    @Param('payment_id') payment_id: string,
+  ) {
     return await this.clientPaymentService.updateClientPaymentStatusToPaidById(
+      organization_id,
       payment_id,
     );
   }
@@ -61,9 +67,11 @@ export class ClientPaymentController {
   //   SET CLIENT PAYMENT STATUS TO VERIFIED
   @Patch('/update/status/verified/:payment_id')
   async setClientPaymentStatusToVerified(
+    @Headers('organization_id') organization_id: string,
     @Param('payment_id') payment_id: string,
   ) {
     return await this.clientPaymentService.updateClientPaymentStatusToVerifiedById(
+      organization_id,
       payment_id,
     );
   }
@@ -71,23 +79,35 @@ export class ClientPaymentController {
   //   SET CLIENT PAYMENT STATUS TO REFUNDED
   @Patch('/update/status/refunded/:payment_id')
   async setClientPaymentStatusToRefunded(
+    @Headers('organization_id') organization_id: string,
     @Param('payment_id') payment_id: string,
   ) {
     return await this.clientPaymentService.updateClientPaymentStatusToRefundedById(
+      organization_id,
       payment_id,
     );
   }
 
   //   VIEW CLIENT PAYMENT BY ID
   @Get('/view/:payment_id')
-  async viewClientPayment(@Param('payment_id') payment_id: string) {
-    return await this.clientPaymentService.viewClientPaymentById(payment_id);
+  async viewClientPayment(
+    @Headers('organization_id') organization_id: string,
+    @Param('payment_id') payment_id: string,
+  ) {
+    return await this.clientPaymentService.viewClientPaymentById(
+      organization_id,
+      payment_id,
+    );
   }
 
   //   GET CLIENT PAYMENTS BY CLIENT ID
   @Get('/view/client/:client_id')
-  async viewClientPayments(@Param('client_id') client_id: string) {
+  async viewClientPayments(
+    @Headers('organization_id') organization_id: string,
+    @Param('client_id') client_id: string,
+  ) {
     return await this.clientPaymentService.getClientPaymentsByClientId(
+      organization_id,
       client_id,
     );
   }

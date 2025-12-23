@@ -49,29 +49,45 @@ export class OrganizationPaymentController {
   }
 
   @Patch('/update/status/pending/:payment_id')
-  updatePaymentStatusToPending(@Param('payment_id') payment_id: string) {
+  updatePaymentStatusToPending(
+    @Headers('organization_id') organization_id: string,
+    @Param('payment_id') payment_id: string,
+  ) {
     return this.paymentService.updateOrganizationPaymentStatusToPendingById(
+      organization_id,
       payment_id,
     );
   }
 
   @Patch('/update/status/paid/:payment_id')
-  updatePaymentStatusToPaid(@Param('payment_id') payment_id: string) {
+  updatePaymentStatusToPaid(
+    @Headers('organization_id') organization_id: string,
+    @Param('payment_id') payment_id: string,
+  ) {
     return this.paymentService.updateOrganizationPaymentStatusToPaidById(
+      organization_id,
       payment_id,
     );
   }
 
   @Patch('/update/status/verified/:payment_id')
-  updatePaymentStatusToVerified(@Param('payment_id') payment_id: string) {
+  updatePaymentStatusToVerified(
+    @Headers('organization_id') organization_id: string,
+    @Param('payment_id') payment_id: string,
+  ) {
     return this.paymentService.updateOrganizationPaymentStatusToVerifiedById(
+      organization_id,
       payment_id,
     );
   }
 
   @Patch('/update/status/refunded/:payment_id')
-  updatePaymentStatusToRefunded(@Param('payment_id') payment_id: string) {
+  updatePaymentStatusToRefunded(
+    @Headers('organization_id') organization_id: string,
+    @Param('payment_id') payment_id: string,
+  ) {
     return this.paymentService.updateOrganizationPaymentStatusToRefundedById(
+      organization_id,
       payment_id,
     );
   }

@@ -58,33 +58,52 @@ export class SaleController {
 
   @Get('/view/employee/:employee_id')
   async getSalesByEmployeeId(
+    @Headers('organization_id') organization_id: string,
     @Param('employee_id') employee_id: string,
   ): Promise<TSale[]> {
-    return await this.saleService.getSalesByEmployeeId(employee_id);
+    return await this.saleService.getSalesByEmployeeId(
+      organization_id,
+      employee_id,
+    );
   }
 
   @Get('/view/item/:item_id')
-  async getSalesByItemId(@Param('item_id') item_id: string): Promise<TSale[]> {
-    return await this.saleService.getSalesByItemId(item_id);
+  async getSalesByItemId(
+    @Headers('organization_id') organization_id: string,
+    @Param('item_id') item_id: string,
+  ): Promise<TSale[]> {
+    return await this.saleService.getSalesByItemId(organization_id, item_id);
   }
 
   @Get('/view/client/:client_id')
   async getSalesByClientId(
+    @Headers('organization_id') organization_id: string,
     @Param('client_id') client_id: string,
   ): Promise<TSale[]> {
-    return await this.saleService.getSalesByClientId(client_id);
+    return await this.saleService.getSalesByClientId(
+      organization_id,
+      client_id,
+    );
   }
 
   @Get('/view/date/:date')
-  async getSalesByDate(@Param('date') date: number): Promise<TSale[]> {
-    return await this.saleService.getSalesByDate(date);
+  async getSalesByDate(
+    @Headers('organization_id') organization_id: string,
+    @Param('date') date: number,
+  ): Promise<TSale[]> {
+    return await this.saleService.getSalesByDate(organization_id, date);
   }
 
   @Get('/view/date-range/:date_start/:dat_-end')
   async getSalesByDateRange(
+    @Headers('organization_id') organization_id: string,
     @Param('date_start') date_start: number,
     @Param('date_end') date_end: number,
   ): Promise<TSale[]> {
-    return await this.saleService.getSalesWithinDates(date_start, date_end);
+    return await this.saleService.getSalesWithinDates(
+      organization_id,
+      date_start,
+      date_end,
+    );
   }
 }
