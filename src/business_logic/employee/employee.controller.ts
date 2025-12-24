@@ -9,9 +9,12 @@ import {
   Patch,
   Post,
   Query,
+  UsePipes,
 } from '@nestjs/common';
 import { EmployeeService } from './employee.service';
 import { v4 as uuid } from 'uuid';
+import ZodSchemaValidationPipe from '../../pipes/schema_validation.pipe';
+import { SchemaEmployee } from '../../schemas';
 
 @Controller('employee')
 export class EmployeeController {
@@ -51,6 +54,7 @@ export class EmployeeController {
   }
 
   @Post()
+  @UsePipes(new ZodSchemaValidationPipe(SchemaEmployee))
   addEmployee(
     @Headers('organization_id') organization_id: string,
     @Body('employee_username') employee_username: string,
