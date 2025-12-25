@@ -29,10 +29,11 @@ export const EPGAccountStatus = pgEnum('EAccountStatus', EAccountStatus);
 export const organizations = pgTable(
   'organizations',
   {
-    // FIX: Added .unique()
     organization_id: text().unique().notNull(),
     organization_stripe_customer_id: text().unique().notNull(),
     organization_name: text().unique().notNull(),
+    organization_email: text().unique().notNull(),
+    organization_phone: text().unique().notNull(),
     organization_registration_date: integer().notNull(),
     organization_subscription_end_date: integer().notNull(),
     organization_status: EPGOrganizationStatus()
