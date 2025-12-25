@@ -9,6 +9,7 @@ import {
   InternalServerErrorException,
   Patch,
   Post,
+  UsePipes,
 } from '@nestjs/common';
 import { OrganizationService } from './organization.service';
 import { v4 as uuid } from 'uuid';
@@ -16,6 +17,8 @@ import { EOrganizationStatus, ESubscriptionStatus } from '../../types';
 import { StripeService } from '../../stripe/stripe.service';
 import type ILoggerService from '../../logger/logger.interface';
 import { TOKEN__LOGGER_FACTORY } from '../../logger/logger_factory/logger_factory.service';
+import { SchemaOrganization } from '../../schemas';
+import ZodSchemaValidationPipe from '../../pipes/schema_validation.pipe';
 
 @Controller('organization')
 export class OrganizationController {
@@ -47,7 +50,12 @@ export class OrganizationController {
   }
 
   @Post('/add')
-  async addOrganization(@Body('organization_name') organization_name: string) {
+  @UsePipes(new ZodSchemaValidationPipe(SchemaOrganization))
+  async addOrganization(
+    @Body('organization_name') organization_name: string,
+    @Body('organization_email') organization_email: string,
+    @Body('organization_phone') organization_phone: string,
+  ) {
     if (!organization_name) {
       throw new BadRequestException(
         '[-] Invalid request. Property organization_name is missing...',
@@ -59,6 +67,8 @@ export class OrganizationController {
         {
           organization_id: uuid().toString(),
           organization_name: organization_name,
+          organization_email: organization_email,
+          organization_phone: organization_phone,
           organization_status: EOrganizationStatus.ACTIVE,
           organization_subscription_status: ESubscriptionStatus.VALID,
           organization_stripe_customer_id: uuid().toString(),

@@ -8,6 +8,8 @@ export const SchemaEmployee = z.object({
 
 export const SchemaOrganization = z.object({
   organization_name: z.string(),
+  organization_email: z.string(),
+  organization_phone: z.string(),
 });
 
 export const SchemaClient = z.object({

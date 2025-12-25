@@ -1,11 +1,4 @@
-import {
-  index,
-  integer,
-  primaryKey,
-  real,
-  sqliteTable,
-  text,
-} from 'drizzle-orm/sqlite-core';
+import { index, integer, primaryKey, real, sqliteTable, text, } from 'drizzle-orm/sqlite-core';
 import { relations } from 'drizzle-orm';
 
 export const organizations = sqliteTable(
