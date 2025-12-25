@@ -13,6 +13,7 @@ import { ItemModule } from './business_logic/item/item.module';
 import { SalesGroupModule } from './business_logic/sales_group/sales_group.module';
 import { ClientModule } from './business_logic/client/client.module';
 import { SaleModule } from './business_logic/sale/sale.module';
+import { StripeModule } from './stripe/stripe.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { SaleModule } from './business_logic/sale/sale.module';
     LoggerModule,
     DrizzleModule,
     OrmModule,
+    StripeModule,
   ],
   controllers: [AppController],
   providers: [AppService],
