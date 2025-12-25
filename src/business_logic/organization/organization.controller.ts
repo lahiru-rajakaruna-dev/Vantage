@@ -6,56 +6,84 @@ import {
   Get,
   Headers,
   Inject,
+  InternalServerErrorException,
   Patch,
   Post,
 } from '@nestjs/common';
 import { OrganizationService } from './organization.service';
 import { v4 as uuid } from 'uuid';
-import { ConfigService } from '@nestjs/config';
 import { EOrganizationStatus, ESubscriptionStatus } from '../../types';
+import { StripeService } from '../../stripe/stripe.service';
+import type ILoggerService from '../../logger/logger.interface';
+import { TOKEN__LOGGER_FACTORY } from '../../logger/logger_factory/logger_factory.service';
 
 @Controller('organization')
 export class OrganizationController {
   private organizationService: OrganizationService;
-  private configService: ConfigService;
+  private readonly logger: ILoggerService;
+  private readonly stripe: StripeService;
 
   constructor(
-    @Inject() configService: ConfigService,
     @Inject() organizationService: OrganizationService,
+    @Inject() stripe: StripeService,
+    @Inject(TOKEN__LOGGER_FACTORY) logger: ILoggerService,
   ) {
     this.organizationService = organizationService;
-    this.configService = configService;
+    this.logger = logger;
+    this.stripe = stripe;
   }
 
   @Get('/view')
-  getOrganizationById(@Headers('organization_id') organization_id: string) {
+  async getOrganizationById(
+    @Headers('organization_id') organization_id: string,
+  ) {
     if (!organization_id) {
       throw new BadRequestException('[-] Invalid request...');
     }
 
-    return this.organizationService.getOrganizationDetailsById(organization_id);
+    return await this.organizationService.getOrganizationDetailsById(
+      organization_id,
+    );
   }
 
   @Post('/add')
-  addOrganization(@Body('organization_name') organization_name: string) {
+  async addOrganization(@Body('organization_name') organization_name: string) {
     if (!organization_name) {
       throw new BadRequestException(
         '[-] Invalid request. Property organization_name is missing...',
       );
     }
 
-    return this.organizationService.addOrganization({
-      organization_id:
-        this.configService.get('NODE_ENV') === 'DEVELOPMENT'
-          ? '0000-000-000'
-          : uuid().toString(),
-      organization_name: organization_name,
-      organization_status: EOrganizationStatus.ACTIVE,
-      organization_subscription_status: ESubscriptionStatus.VALID,
-      organization_stripe_customer_id: uuid().toString(),
-      organization_registration_date: Date.now(),
-      organization_subscription_end_date: Date.now() + 28 * 24 * 60 * 60 * 1000,
-    });
+    try {
+      const organizationRecord = await this.organizationService.addOrganization(
+        {
+          organization_id: uuid().toString(),
+          organization_name: organization_name,
+          organization_status: EOrganizationStatus.ACTIVE,
+          organization_subscription_status: ESubscriptionStatus.VALID,
+          organization_stripe_customer_id: uuid().toString(),
+          organization_registration_date: Date.now(),
+          organization_subscription_end_date:
+            Date.now() + 28 * 24 * 60 * 60 * 1000,
+        },
+      );
+
+      const organizationStripeAccount = await this.stripe.addOrganization(
+        organizationRecord.organization_email,
+        organizationRecord.organization_name,
+        organizationRecord.organization_phone,
+      );
+
+      const organizationOnboardingDetails =
+        await this.stripe.onBoardOrganizationToThePlatform(
+          organizationStripeAccount.id,
+        );
+
+      return organizationOnboardingDetails;
+    } catch (e) {
+      this.logger.log(JSON.stringify(e));
+      throw new InternalServerErrorException(`[-] ${(e as Error).message}`);
+    }
   }
 
   @Patch('/update/name')
