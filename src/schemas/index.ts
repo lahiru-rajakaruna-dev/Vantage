@@ -1,4 +1,4 @@
-import * as z from 'zod';
+import { z } from 'zod';
 
 export const SchemaEmployee = z.object({
   employee_username: z.string(),
@@ -6,11 +6,15 @@ export const SchemaEmployee = z.object({
   employee_nic_number: z.string(),
 });
 
+export type TEmployee = z.infer<typeof SchemaEmployee>;
+
 export const SchemaOrganization = z.object({
   organization_name: z.string(),
   organization_email: z.string(),
   organization_phone: z.string(),
 });
+
+export type TOrganization = z.infer<typeof SchemaOrganization>;
 
 export const SchemaClient = z.object({
   client_username: z.string(),
@@ -19,10 +23,14 @@ export const SchemaClient = z.object({
   client_email: z.string(),
 });
 
+export type TClient = z.infer<typeof SchemaClient>;
+
 export const SchemaItem = z.object({
   item_name: z.string(),
   item_stock_unit_count: z.int(),
 });
+
+export type TItem = z.infer<typeof SchemaItem>;
 
 export const SchemaSalesGroup = z.object({
   sales_group_name: z.string(),
