@@ -24,6 +24,7 @@ import { and, between, eq } from 'drizzle-orm';
 import { TOKEN__LOGGER_FACTORY } from '../../../logger/logger_factory/logger_factory.service';
 import type ILoggerService from '../../../logger/logger.interface';
 import * as schema from './drizzle-sqlite.schema';
+import { EDatabaseStrategy } from '../../../types';
 
 @Injectable()
 export class DrizzleSqliteService extends AbstractDrizzlerService {
@@ -37,7 +38,7 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
 
     this.driver = drizzle({
       connection: {
-        url: this.configService.get('SQLITE_DATABASE_URL') as string,
+        url: this.configService.get(EDatabaseStrategy.SQLITE) as string,
       },
       schema: schema,
     });

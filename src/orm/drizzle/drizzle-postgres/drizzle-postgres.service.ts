@@ -1,4 +1,4 @@
-import { POSTGRES_URL } from '../../../types';
+import { EEnvVars } from '../../../types';
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { drizzle, PostgresJsDatabase } from 'drizzle-orm/postgres-js';
@@ -37,7 +37,9 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
   ) {
     super(configService, logger);
 
-    const pgDriver = postgres(this.configService.get(POSTGRES_URL) as string);
+    const pgDriver = postgres(
+      this.configService.get(EEnvVars.POSTGRES_URL) as string,
+    );
     this.driver = drizzle(pgDriver, {
       schema: schema,
     });

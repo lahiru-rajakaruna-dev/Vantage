@@ -30,7 +30,7 @@ import { DrizzlePostgresService } from '../drizzle-postgres/drizzle-postgres.ser
 import { DrizzleSqliteService } from '../drizzle-sqlite/drizzle-sqlite.service';
 import { InternalServerErrorException } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
-import { EDatabaseStrategy } from '../../../types';
+import { EDatabaseStrategy, EEnvVars } from '../../../types';
 import AbstractDrizzlerService from '../abstract_drizzle.service';
 
 export const TOKEN__DRIZZLE_FACTORY = 'DrizzleFactory';
@@ -42,7 +42,7 @@ export const DrizzleFactory = {
     moduleRef: ModuleRef,
   ): Promise<AbstractDrizzlerService> {
     const databaseStrategy = (
-      configService.get('DATABASE_STRATEGY', EDatabaseStrategy.SQLITE) as string
+      configService.get(EEnvVars.DATABASE_STRATEGY) as string
     ).toLowerCase() as EDatabaseStrategy;
 
     switch (databaseStrategy) {

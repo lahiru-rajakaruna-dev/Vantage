@@ -7,6 +7,7 @@ import { Environment, LogLevel, Paddle } from '@paddle/paddle-node-sdk';
 import { ConfigService } from '@nestjs/config';
 import { TOKEN__LOGGER_FACTORY } from '../logger/logger_factory/logger_factory.service';
 import type ILoggerService from '../logger/logger.interface';
+import { EEnvVars, ENodeEnv } from '../types';
 
 @Injectable()
 export class PaddleService {
@@ -21,15 +22,20 @@ export class PaddleService {
     this.configService = configService;
     this.logger = logger;
     this.paddle = new Paddle(
-      this.configService.get('PADDLE_DEVELOPMENT_API_KEY') as string,
+      (this.configService.get(EEnvVars.NODE_ENV) as ENodeEnv) ===
+        ENodeEnv.DEVELOPMENT
+        ? (this.configService.get(
+            EEnvVars.PADDLE_DEVELOPMENT_API_KEY,
+          ) as string)
+        : (this.configService.get(
+            EEnvVars.PADDLE_PRODUCTION_API_KEY,
+          ) as string),
       {
         environment:
-          (this.configService.get('NODE_ENV') as
-            | 'DEVELOPMENT'
-            | 'PRODUCTION'
-            | 'TEST') === 'PRODUCTION'
-            ? Environment.production
-            : Environment.sandbox,
+          (this.configService.get(EEnvVars.NODE_ENV) as ENodeEnv) ===
+          ENodeEnv.DEVELOPMENT
+            ? Environment.sandbox
+            : Environment.production,
         logLevel: LogLevel.verbose,
       },
     );

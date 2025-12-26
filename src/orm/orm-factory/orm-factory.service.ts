@@ -1,4 +1,4 @@
-import { EOrmStrategy, ORM_STRATEGY } from './../../types';
+import { EEnvVars, EOrmStrategy } from './../../types';
 import { ConfigService } from '@nestjs/config';
 import { InternalServerErrorException } from '@nestjs/common';
 import { TOKEN__DRIZZLE_FACTORY } from '../drizzle/drizzle-factory/drizzle-factory.service';
@@ -13,7 +13,7 @@ export const OrmFactory = {
     drizzleService: AbstractDrizzlerService,
   ) {
     const ormStrategy = (
-      configService.get(ORM_STRATEGY, 'drizzle') as string
+      configService.get(EEnvVars.ORM_STRATEGY) as string
     ).toLowerCase() as EOrmStrategy;
 
     switch (ormStrategy) {
