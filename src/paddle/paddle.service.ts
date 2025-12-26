@@ -1,4 +1,78 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
+import { Environment, LogLevel, Paddle } from '@paddle/paddle-node-sdk';
+import { ConfigService } from '@nestjs/config';
+import { TOKEN__LOGGER_FACTORY } from '../logger/logger_factory/logger_factory.service';
+import type ILoggerService from '../logger/logger.interface';
 
 @Injectable()
-export class PaddleService {}
+export class PaddleService {
+  private readonly paddle: Paddle;
+  private readonly configService: ConfigService;
+  private readonly logger: ILoggerService;
+
+  constructor(
+    @Inject() configService: ConfigService,
+    @Inject(TOKEN__LOGGER_FACTORY) logger: ILoggerService,
+  ) {
+    this.configService = configService;
+    this.logger = logger;
+    this.paddle = new Paddle(
+      this.configService.get('PADDLE_DEVELOPMENT_API_KEY') as string,
+      {
+        environment:
+          (this.configService.get('NODE_ENV') as
+            | 'DEVELOPMENT'
+            | 'PRODUCTION'
+            | 'TEST') === 'PRODUCTION'
+            ? Environment.production
+            : Environment.sandbox,
+        logLevel: LogLevel.verbose,
+      },
+    );
+
+    this.logger.log('[+] Paddle payment service initialized...');
+  }
+
+  async addOrganizationAccount(
+    paddleCustomerAccountId: string,
+    organization_name: string,
+    organization_phone: string,
+  ) {
+    try {
+      const paddleBusinessAccountData = await this.paddle.businesses.create(
+        paddleCustomerAccountId,
+        {
+          name: organization_name,
+          companyNumber: organization_phone,
+        },
+      );
+
+      this.logger.log(paddleBusinessAccountData);
+
+      return paddleBusinessAccountData;
+    } catch (e) {
+      this.logger.log(e);
+      throw new InternalServerErrorException((e as Error).message);
+    }
+  }
+
+  async addCustomerAccount(name: string, email: string) {
+    try {
+      const paddleCustomerAccount = await this.paddle.customers.create({
+        name: name,
+        email: email,
+        locale: 'en-US',
+      });
+
+      this.logger.log(paddleCustomerAccount);
+      return paddleCustomerAccount;
+    } catch (e) {
+      this.logger.log(e);
+      throw new InternalServerErrorException((e as Error).message);
+    }
+  }
+}

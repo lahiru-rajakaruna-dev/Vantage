@@ -18,18 +18,23 @@ import type ILoggerService from '../../logger/logger.interface';
 import { TOKEN__LOGGER_FACTORY } from '../../logger/logger_factory/logger_factory.service';
 import { SchemaOrganization, type TOrganization } from '../../schemas';
 import ZodSchemaValidationPipe from '../../pipes/schema_validation.pipe';
+import { PaddleService } from '../../paddle/paddle.service';
+import { Business, Customer } from '@paddle/paddle-node-sdk';
 
 @Controller('organization')
 export class OrganizationController {
   private organizationService: OrganizationService;
   private readonly logger: ILoggerService;
+  private readonly paddle: PaddleService;
 
   constructor(
     @Inject() organizationService: OrganizationService,
     @Inject(TOKEN__LOGGER_FACTORY) logger: ILoggerService,
+    @Inject() paddle: PaddleService,
   ) {
     this.organizationService = organizationService;
     this.logger = logger;
+    this.paddle = paddle;
   }
 
   @Get('/view')
@@ -57,11 +62,38 @@ export class OrganizationController {
       );
     }
 
+    let paddleCustomerAccount: Customer;
+    let paddleBusinessAccount: Business;
+
+    // ADD PADDLE CUSTOMER ACCOUNT
+    try {
+      paddleCustomerAccount = await this.paddle.addCustomerAccount(
+        organization_name,
+        organization_email,
+      );
+    } catch (e) {
+      this.logger.log(e);
+      throw new InternalServerErrorException((e as Error).message);
+    }
+
+    // ADD PADDLE BUSINESS ACCOUNT
+    try {
+      paddleBusinessAccount = await this.paddle.addOrganizationAccount(
+        paddleCustomerAccount.id,
+        organization_name,
+        organization_phone,
+      );
+    } catch (e) {
+      this.logger.log(e);
+      throw new InternalServerErrorException((e as Error).message);
+    }
+
+    // ADD ORGANIZATION RECORD
     try {
       const organizationRecord = await this.organizationService.addOrganization(
         {
           organization_id: uuid().toString(),
-          organization_stripe_customer_id: uuid().toString(),
+          organization_stripe_customer_id: paddleCustomerAccount.id,
           organization_name,
           organization_email,
           organization_phone,
