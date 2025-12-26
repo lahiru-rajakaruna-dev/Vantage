@@ -14,26 +14,22 @@ import {
 import { OrganizationService } from './organization.service';
 import { v4 as uuid } from 'uuid';
 import { EOrganizationStatus, ESubscriptionStatus } from '../../types';
-import { StripeService } from '../../stripe/stripe.service';
 import type ILoggerService from '../../logger/logger.interface';
 import { TOKEN__LOGGER_FACTORY } from '../../logger/logger_factory/logger_factory.service';
-import { SchemaOrganization } from '../../schemas';
+import { SchemaOrganization, type TOrganization } from '../../schemas';
 import ZodSchemaValidationPipe from '../../pipes/schema_validation.pipe';
 
 @Controller('organization')
 export class OrganizationController {
   private organizationService: OrganizationService;
   private readonly logger: ILoggerService;
-  private readonly stripe: StripeService;
 
   constructor(
     @Inject() organizationService: OrganizationService,
-    @Inject() stripe: StripeService,
     @Inject(TOKEN__LOGGER_FACTORY) logger: ILoggerService,
   ) {
     this.organizationService = organizationService;
     this.logger = logger;
-    this.stripe = stripe;
   }
 
   @Get('/view')
@@ -51,12 +47,11 @@ export class OrganizationController {
 
   @Post('/add')
   @UsePipes(new ZodSchemaValidationPipe(SchemaOrganization))
-  async addOrganization(
-    @Body('organization_name') organization_name: string,
-    @Body('organization_email') organization_email: string,
-    @Body('organization_phone') organization_phone: string,
-  ) {
-    if (!organization_name) {
+  async addOrganization(@Body() organizationData: TOrganization) {
+    const { organization_name, organization_email, organization_phone } =
+      organizationData;
+
+    if (!organization_name || !organization_email || !organization_phone) {
       throw new BadRequestException(
         '[-] Invalid request. Property organization_name is missing...',
       );
@@ -66,32 +61,24 @@ export class OrganizationController {
       const organizationRecord = await this.organizationService.addOrganization(
         {
           organization_id: uuid().toString(),
-          organization_name: organization_name,
-          organization_email: organization_email,
-          organization_phone: organization_phone,
+          organization_stripe_customer_id: uuid().toString(),
+          organization_name,
+          organization_email,
+          organization_phone,
           organization_status: EOrganizationStatus.ACTIVE,
           organization_subscription_status: ESubscriptionStatus.VALID,
-          organization_stripe_customer_id: uuid().toString(),
           organization_registration_date: Date.now(),
           organization_subscription_end_date:
             Date.now() + 28 * 24 * 60 * 60 * 1000,
         },
       );
 
-      const organizationStripeAccount = await this.stripe.addOrganization(
-        organizationRecord.organization_email,
-        organizationRecord.organization_name,
-        organizationRecord.organization_phone,
-      );
+      this.logger.log('[+] Add organization stripe account to the platform');
+      this.logger.log(organizationRecord);
 
-      const organizationOnboardingDetails =
-        await this.stripe.onBoardOrganizationToThePlatform(
-          organizationStripeAccount.id,
-        );
-
-      return organizationOnboardingDetails;
+      return organizationRecord;
     } catch (e) {
-      this.logger.log(JSON.stringify(e));
+      this.logger.log(e);
       throw new InternalServerErrorException(`[-] ${(e as Error).message}`);
     }
   }
