@@ -7,10 +7,13 @@ import {
   Inject,
   Param,
   Post,
+  UsePipes,
 } from '@nestjs/common';
 import { SaleService } from './sale.service';
 import { v4 as uuid } from 'uuid';
-import { TSale } from '../../orm/drizzle/drizzle-postgres/drizzle-postgres.schema';
+import { TSale } from '../../schemas';
+import { z } from 'zod';
+import ZodSchemaValidationPipe from '../../pipes/schema_validation.pipe';
 
 @Controller('sale')
 export class SaleController {
@@ -21,13 +24,20 @@ export class SaleController {
   }
 
   @Post('/add')
+  @UsePipes(
+    new ZodSchemaValidationPipe(
+      z.object({
+        sale_employee_id: z.string().nonempty().nonoptional(),
+        sale_client_id: z.string().nonempty().nonoptional(),
+        sale_client_payment_id: z.string().nonempty().nonoptional(),
+        sale_item_id: z.string().nonempty().nonoptional(),
+        sale_item_unit_count: z.string().nonempty().nonoptional(),
+      }),
+    ),
+  )
   async addSale(
     @Headers('organization_id') organization_id: string,
-    @Body('sale_employee_id') sale_employee_id: string,
-    @Body('sale_client_id') sale_client_id: string,
-    @Body('sale_client_payment_id') sale_client_payment_id: string,
-    @Body('sale_item_id') sale_item_id: string,
-    @Body('sale_item_unit_count') sale_item_unit_count: number,
+    @Body() saleData: TSale,
   ): Promise<TSale> {
     if (!organization_id) {
       throw new BadRequestException('[-] Invalid request...');
@@ -36,11 +46,11 @@ export class SaleController {
     return await this.saleService.addSale({
       sale_id: uuid().toString(),
       sale_organization_id: organization_id,
-      sale_employee_id,
-      sale_client_id,
-      sale_client_payment_id,
-      sale_item_id,
-      sale_item_unit_count,
+      sale_employee_id: saleData.sale_employee_id,
+      sale_client_id: saleData.sale_client_id,
+      sale_client_payment_id: saleData.sale_client_payment_id,
+      sale_item_id: saleData.sale_item_id,
+      sale_item_unit_count: saleData.sale_item_unit_count,
       sale_date: Date.now(),
     });
   }

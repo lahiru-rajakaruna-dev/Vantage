@@ -9,9 +9,13 @@ import {
   Param,
   Patch,
   Post,
+  UsePipes,
 } from '@nestjs/common';
 import { SalesGroupService } from './sales_group.service';
 import { v4 as uuid } from 'uuid';
+import { z } from 'zod';
+import { TSalesGroup } from '../../schemas';
+import ZodSchemaValidationPipe from '../../pipes/schema_validation.pipe';
 
 @Controller('sales_group')
 export class SalesGroupController {
@@ -22,9 +26,16 @@ export class SalesGroupController {
   }
 
   @Post('/add')
+  @UsePipes(
+    new ZodSchemaValidationPipe(
+      z.object({
+        sales_group_name: z.string().nonempty().nonoptional(),
+      }),
+    ),
+  )
   addSalesGroup(
     @Headers('organization_id') organization_id: string,
-    @Body('sales_group_name') sales_group_name: string,
+    @Body() salesGroupData: TSalesGroup,
   ) {
     if (!organization_id) {
       throw new BadRequestException('[-] Invalid request...');
@@ -33,7 +44,7 @@ export class SalesGroupController {
     return this.salesGroupService.addSalesGroup({
       sales_group_id: uuid().toString(),
       sales_group_organization_id: organization_id,
-      sales_group_name: sales_group_name,
+      sales_group_name: salesGroupData.sales_group_name,
     });
   }
 
@@ -49,15 +60,22 @@ export class SalesGroupController {
   }
 
   @Patch('/update/name/:sales_group_id')
+  @UsePipes(
+    new ZodSchemaValidationPipe(
+      z.object({
+        sales_group_name: z.string().nonempty().nonoptional(),
+      }),
+    ),
+  )
   updateSalesGroupName(
     @Headers('organization_id') organization_id: string,
     @Param('sales_group_id') sales_group_id: string,
-    @Body('sales_group_name') sales_group_name: string,
+    @Body() salesGroupData: TSalesGroup,
   ) {
     return this.salesGroupService.updateSalesGroupNameById(
       organization_id,
       sales_group_id,
-      sales_group_name,
+      salesGroupData.sales_group_name,
     );
   }
 

@@ -44,7 +44,7 @@ export class ClientPaymentController {
   @Patch('/update/status/pending/:payment_id')
   async setClientPaymentStatusToPending(
     @Headers('organization_id') organization_id: string,
-    @Param('payment_id') payment_id: string,
+    @Param() payment_id: string,
   ) {
     return await this.clientPaymentService.updateClientPaymentStatusToPendingById(
       organization_id,

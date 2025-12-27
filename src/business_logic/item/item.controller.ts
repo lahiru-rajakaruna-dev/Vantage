@@ -10,9 +10,13 @@ import {
   Patch,
   Post,
   Query,
+  UsePipes,
 } from '@nestjs/common';
 import { ItemService } from './item.service';
 import { v4 as uuid } from 'uuid';
+import ZodSchemaValidationPipe from '../../pipes/schema_validation.pipe';
+import { z } from 'zod';
+import { type TItem } from '../../schemas';
 
 @Controller('item')
 export class ItemController {
@@ -35,15 +39,24 @@ export class ItemController {
     return this.itemService.getItemsByOrganizationId(organization_id);
   }
 
-  @Post()
+  @Post('/add')
+  @UsePipes(
+    new ZodSchemaValidationPipe(
+      z.object({
+        item_name: z.string().nonempty().nonoptional(),
+        item_stock_unit_count: z.int().nonoptional().default(1),
+      }),
+    ),
+  )
   async addItem(
     @Headers('organization_id') organization_id: string,
-    @Body('item_name') item_name: string,
-    @Body('item_stock_unit_count') item_stock_unit_count: number,
+    @Body() itemData: TItem,
   ) {
     if (!organization_id) {
       throw new BadRequestException('[-] Invalid request...');
     }
+
+    const { item_name, item_stock_unit_count } = itemData;
 
     return await this.itemService.addItem({
       item_id: uuid().toString(),
@@ -54,28 +67,38 @@ export class ItemController {
   }
 
   @Patch('/update/name/:item_id')
+  @UsePipes(
+    new ZodSchemaValidationPipe(
+      z.object({ item_name: z.string().nonempty().nonoptional() }),
+    ),
+  )
   async updateItemNameById(
     @Headers('organization_id') organization_id: string,
     @Param('item_id') item_id: string,
-    @Body('item_name') item_name: string,
+    @Body() itemData: Pick<TItem, 'item_name'>,
   ) {
     return await this.itemService.updateItemNameById(
       organization_id,
       item_id,
-      item_name,
+      itemData.item_name,
     );
   }
 
   @Patch('/update/stock/:item_id')
+  @UsePipes(
+    new ZodSchemaValidationPipe(
+      z.object({ item_stock_unit_count: z.int().nonoptional() }),
+    ),
+  )
   async updateItemStockById(
     @Headers('organization_id') organization_id: string,
     @Param('item_id') item_id: string,
-    @Body('item_stock_units') item_stock_units: number,
+    @Body() itemData: Pick<TItem, 'item_stock_unit_count'>,
   ) {
     return await this.itemService.updateItemStockById(
       organization_id,
       item_id,
-      item_stock_units,
+      itemData.item_stock_unit_count,
     );
   }
 

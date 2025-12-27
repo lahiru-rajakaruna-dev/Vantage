@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type IOrmInterface from '../../orm/orm.interface';
 import { TOKEN__ORM_FACTORY } from '../../orm/orm-factory/orm-factory.service';
-import { TOrganizationPayment } from '../../orm/drizzle/drizzle-postgres/drizzle-postgres.schema';
+import { TOrganizationPayment } from '../../schemas';
 import { EPaymentStatus } from '../../types';
 
 @Injectable()
@@ -15,7 +15,7 @@ export class OrganizationPaymentService {
   async addOrganizationPayment(
     paymentData: TOrganizationPayment,
   ): Promise<TOrganizationPayment> {
-    return this.orm.addOrganizationPayment(paymentData);
+    return await this.orm.addOrganizationPayment(paymentData);
   }
 
   async getOrganizationPaymentsByOrganizationId(
@@ -28,9 +28,13 @@ export class OrganizationPaymentService {
     organization_id: string,
     payment_id: string,
   ): Promise<TOrganizationPayment> {
-    return this.orm.updateOrganizationPaymentById(organization_id, payment_id, {
-      payment_status: EPaymentStatus.PENDING,
-    });
+    return await this.orm.updateOrganizationPaymentById(
+      organization_id,
+      payment_id,
+      {
+        payment_status: EPaymentStatus.PENDING,
+      },
+    );
   }
 
   async updateOrganizationPaymentStatusToPaidById(

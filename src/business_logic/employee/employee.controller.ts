@@ -14,7 +14,8 @@ import {
 import { EmployeeService } from './employee.service';
 import { v4 as uuid } from 'uuid';
 import ZodSchemaValidationPipe from '../../pipes/schema_validation.pipe';
-import { SchemaEmployee } from '../../schemas';
+import { SchemaEmployee, type TEmployee } from '../../schemas';
+import { z } from 'zod';
 
 @Controller('employee')
 export class EmployeeController {
@@ -24,48 +25,49 @@ export class EmployeeController {
   }
 
   @Get('/view')
-  getAllEmployeesByOrganizationId(
+ async  getAllEmployeesByOrganizationId(
     @Headers('organization_id') organization_id: string,
   ) {
     if (!organization_id) {
       throw new BadRequestException('[-] Invalid request...');
     }
 
-    return this.employeesService.getEmployeesByOrganizationId(organization_id);
+    return await this.employeesService.getEmployeesByOrganizationId(organization_id);
   }
 
   @Get('/sales-group/:sales_group_id')
-  getEmployeeByGroupId(
+  async getEmployeeByGroupId(
     @Headers('organization_id') organization_id: string,
     @Param('sales_group_id') sales_group_id: string,
   ) {
-    return this.employeesService.getEmployeesBySalesGroupId(
+    return await this.employeesService.getEmployeesBySalesGroupId(
       organization_id,
       sales_group_id,
     );
   }
 
   @Get('/view/:employee_id')
-  getEmployeeById(
+  async getEmployeeById(
     @Headers('organization_id') organization_id: string,
     @Param('employee_id') employee_id: string,
   ) {
-    return this.employeesService.viewEmployeeById(organization_id, employee_id);
+    return await this.employeesService.viewEmployeeById(organization_id, employee_id);
   }
 
   @Post()
   @UsePipes(new ZodSchemaValidationPipe(SchemaEmployee))
-  addEmployee(
+  async addEmployee(
     @Headers('organization_id') organization_id: string,
-    @Body('employee_username') employee_username: string,
-    @Body('employee_phone') employee_phone: string,
-    @Body('employee_nic_number') employee_nic_number: string,
+    @Body() employeeData: TEmployee,
   ) {
     if (!organization_id) {
       throw new BadRequestException('[-] Invalid request...');
     }
 
-    return this.employeesService.addEmployee({
+    const { employee_username, employee_nic_number, employee_phone } =
+      employeeData;
+
+    return await this.employeesService.addEmployee({
       employee_id: uuid().toString(),
       employee_organization_id: organization_id,
       employee_sales_group_id: undefined,
@@ -77,85 +79,112 @@ export class EmployeeController {
   }
 
   @Patch('/update/username/:employee_id')
-  updateEmployeeUserName(
+  @UsePipes(
+    new ZodSchemaValidationPipe(
+      z.object({ employee_username: z.string().nonempty().nonoptional() }),
+    ),
+  )
+  async updateEmployeeUserName(
     @Headers('organization_id') organization_id: string,
     @Param('employee_id') employee_id: string,
-    @Body('employee_username') employee_username: string,
+    @Body() employeeData: Pick<TEmployee, 'employee_username'>,
   ) {
-    return this.employeesService.updateEmployeeUsernameById(
+    return await this.employeesService.updateEmployeeUsernameById(
       organization_id,
       employee_id,
-      employee_username,
+      employeeData.employee_username,
     );
   }
 
   @Patch('/update/nic/:employee_id')
-  updateEmployeeNic(
+  @UsePipes(
+    new ZodSchemaValidationPipe(
+      z.object({ employee_nic_number: z.string().nonempty().nonoptional() }),
+    ),
+  )
+  async updateEmployeeNic(
     @Headers('organization_id') organization_id: string,
     @Param('employee_id') employee_id: string,
-    @Body('employee_nic_number') employee_nic_number: string,
+    @Body() employeeData: Pick<TEmployee, 'employee_nic_number'>,
   ) {
-    return this.employeesService.updateEmployeeNICById(
+    return await this.employeesService.updateEmployeeNICById(
       organization_id,
       employee_id,
-      employee_nic_number,
+      employeeData.employee_nic_number,
     );
   }
 
   @Patch('/update/phone/:employee_id')
-  updateEmployeePhone(
+  @UsePipes(
+    new ZodSchemaValidationPipe(
+      z.object({ employee_phone: z.string().nonempty().nonoptional() }),
+    ),
+  )
+  async updateEmployeePhone(
     @Headers('organization_id') organization_id: string,
     @Param('employee_id') employee_id: string,
-    @Body('employee_phone') employee_phone: string,
+    @Body() employeeData: Pick<TEmployee, 'employee_phone'>,
   ) {
-    return this.employeesService.updateEmployeePhoneById(
+    return await this.employeesService.updateEmployeePhoneById(
       organization_id,
       employee_id,
-      employee_phone,
+      employeeData.employee_phone,
     );
   }
 
   @Patch('/update/add-to-sales-group/')
-  addEmployeesToSalesGroup(
+  @UsePipes(
+    new ZodSchemaValidationPipe(
+      z.object({
+        employee_sales_group_id: z.string().nonempty().nonoptional(),
+      }),
+    ),
+  )
+  async addEmployeesToSalesGroup(
     @Headers('organization_id') organization_id: string,
     @Body('employees_ids') employees_ids: string[],
-    @Body('employee_sales_group_id') employee_sales_group_id: string,
+    @Body() employeeData: Pick<TEmployee, 'employee_sales_group_id'>,
   ) {
-    return this.employeesService.addEmployeesToSalesGroupByIds(
+    return await this.employeesService.addEmployeesToSalesGroupByIds(
       organization_id,
       employees_ids,
-      employee_sales_group_id,
+      employeeData.employee_sales_group_id,
     );
   }
 
   @Patch('/update/remove-from-sales-group/')
-  removeEmployeesFromSalesGroup(
+  @UsePipes(
+    new ZodSchemaValidationPipe(
+      z.object({ employees_ids: z.array(z.string()) }),
+    ),
+  )
+  async removeEmployeesFromSalesGroup(
     @Headers('organization_id') organization_id: string,
-    @Body('employees_ids') employees_ids: string[],
+    @Body() data: Record<'employees_ids', string[]>,
   ) {
-    return this.employeesService.removeEmployeesFromSalesGroup(
+    return await this.employeesService.removeEmployeesFromSalesGroup(
       organization_id,
-      employees_ids,
+      data.employees_ids,
     );
   }
 
   @Delete('/delete/:employee_id')
-  deleteEmployee(
+  async deleteEmployee(
     @Headers('organization_id') organization_id: string,
     @Param('employee_id') employee_id: string,
   ) {
-    return this.employeesService.deleteEmployeeById(
+    return await this.employeesService.deleteEmployeeById(
       organization_id,
       employee_id,
     );
   }
 
   @Delete('/delete')
-  deleteEmployees(
+  async deleteEmployees(
     @Headers('organization_id') organization_id: string,
     @Query('employees_ids') employees_ids: string[],
   ) {
-    return employees_ids.map((employee_id) => {
+    return await employees_ids.map((employee_id) => {
       return this.employeesService.deleteEmployeeById(
         organization_id,
         employee_id,

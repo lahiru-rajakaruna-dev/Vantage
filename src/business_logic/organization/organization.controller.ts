@@ -20,6 +20,7 @@ import { SchemaOrganization, type TOrganization } from '../../schemas';
 import ZodSchemaValidationPipe from '../../pipes/schema_validation.pipe';
 import { PaddleService } from '../../paddle/paddle.service';
 import { Business, Customer } from '@paddle/paddle-node-sdk';
+import { z } from 'zod';
 
 @Controller('organization')
 export class OrganizationController {
@@ -116,9 +117,14 @@ export class OrganizationController {
   }
 
   @Patch('/update/name')
+  @UsePipes(
+    new ZodSchemaValidationPipe(
+      z.object({ organization_name: z.string().nonempty().nonoptional() }),
+    ),
+  )
   updateOrganizationById(
     @Headers('organization_id') organization_id: string,
-    @Body('organization_name') organization_name: string,
+    @Body() organizationData: Pick<TOrganization, 'organization_name'>,
   ) {
     if (!organization_id) {
       throw new BadRequestException('[-] Invalid request...');
@@ -126,7 +132,7 @@ export class OrganizationController {
 
     return this.organizationService.updateOrganizationNameById(
       organization_id,
-      organization_name,
+      organizationData.organization_name,
     );
   }
 
@@ -157,18 +163,15 @@ export class OrganizationController {
   }
 
   @Patch('/update/subscription/date')
-  updateOrganizationSubscriptionEndDateById(
+  extendOrganizationSubscriptionEndDateBy30ById(
     @Headers('organization_id') organization_id: string,
-    @Body('organization_subscription_end_date')
-    organization_subscription_end_date: number,
   ) {
     if (!organization_id) {
       throw new BadRequestException('[-] Invalid request...');
     }
 
-    return this.organizationService.setOrganizationSubscriptionEndDateById(
+    return this.organizationService.setOrganizationSubscriptionEndDateBy30ById(
       organization_id,
-      organization_subscription_end_date,
     );
   }
 

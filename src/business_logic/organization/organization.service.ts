@@ -65,12 +65,16 @@ export class OrganizationService {
     });
   }
 
-  async setOrganizationSubscriptionEndDateById(
+  async setOrganizationSubscriptionEndDateBy30ById(
     organization_id: string,
-    organization_subscription_end_date: number,
   ): Promise<TOrganization> {
+    const currentSubscriptionEndDate = (
+      await this.orm.getOrganizationDetailsById(organization_id)
+    ).organization_subscription_end_date;
+
     return await this.orm.updateOrganizationById(organization_id, {
-      organization_subscription_end_date: organization_subscription_end_date,
+      organization_subscription_end_date:
+        currentSubscriptionEndDate + 60 * 60 * 24 * 30,
     });
   }
 }

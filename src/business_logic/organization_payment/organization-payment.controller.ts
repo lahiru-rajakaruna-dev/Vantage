@@ -8,10 +8,14 @@ import {
   Param,
   Patch,
   Post,
+  UsePipes,
 } from '@nestjs/common';
 import { v4 as uuid } from 'uuid';
 import { OrganizationPaymentService } from './organization-payment.service';
 import { EPaymentStatus } from '../../types';
+import { z } from 'zod';
+import ZodSchemaValidationPipe from '../../pipes/schema_validation.pipe';
+import { type TOrganizationPayment } from '../../schemas';
 
 @Controller('organization_payment')
 export class OrganizationPaymentController {
@@ -22,71 +26,78 @@ export class OrganizationPaymentController {
   }
 
   @Get('/view/:organization_id')
-  getPaymentsByOrganizationId(
+  async getPaymentsByOrganizationId(
     @Param('organization_id') organization_id: string,
   ) {
-    return this.paymentService.getOrganizationPaymentsByOrganizationId(
+    return await this.paymentService.getOrganizationPaymentsByOrganizationId(
       organization_id,
     );
   }
 
-  @Post('/add/')
-  addPayment(
+  @Post('/add')
+  @UsePipes(
+    new ZodSchemaValidationPipe(
+      z.object({
+        payment_amount: z.number().nonoptional(),
+      }),
+    ),
+  )
+  async addPayment(
     @Headers('organization_id') organization_id: string,
-    @Body('payment_amount') payment_amount: number,
+    @Body() paymentData: TOrganizationPayment,
   ) {
     if (!organization_id) {
       throw new BadRequestException('[-] Invalid request...');
     }
 
-    return this.paymentService.addOrganizationPayment({
+    return await this.paymentService.addOrganizationPayment({
       payment_id: uuid().toString(),
       payment_organization_id: organization_id,
-      payment_amount: payment_amount.toString(),
+      payment_amount: paymentData.payment_amount,
       payment_timestamp: Date.now(),
       payment_status: EPaymentStatus.PAID,
     });
   }
 
   @Patch('/update/status/pending/:payment_id')
-  updatePaymentStatusToPending(
+  async updatePaymentStatusToPending(
     @Headers('organization_id') organization_id: string,
     @Param('payment_id') payment_id: string,
   ) {
-    return this.paymentService.updateOrganizationPaymentStatusToPendingById(
+    return await this.paymentService.updateOrganizationPaymentStatusToPendingById(
       organization_id,
       payment_id,
     );
   }
 
   @Patch('/update/status/paid/:payment_id')
-  updatePaymentStatusToPaid(
+  async updatePaymentStatusToPaid(
     @Headers('organization_id') organization_id: string,
     @Param('payment_id') payment_id: string,
   ) {
-    return this.paymentService.updateOrganizationPaymentStatusToPaidById(
+    return await this.paymentService.updateOrganizationPaymentStatusToPaidById(
       organization_id,
       payment_id,
     );
   }
 
   @Patch('/update/status/verified/:payment_id')
-  updatePaymentStatusToVerified(
+  async updatePaymentStatusToVerified(
     @Headers('organization_id') organization_id: string,
     @Param('payment_id') payment_id: string,
   ) {
-    return this.paymentService.updateOrganizationPaymentStatusToVerifiedById(
+    return await this.paymentService.updateOrganizationPaymentStatusToVerifiedById(
       organization_id,
       payment_id,
     );
   }
 
   @Patch('/update/status/refunded/:payment_id')
-  updatePaymentStatusToRefunded(
+  async updatePaymentStatusToRefunded(
     @Headers('organization_id') organization_id: string,
     @Param('payment_id') payment_id: string,
   ) {
-    return this.paymentService.updateOrganizationPaymentStatusToRefundedById(
+    return await this.paymentService.updateOrganizationPaymentStatusToRefundedById(
       organization_id,
       payment_id,
     );

@@ -80,9 +80,8 @@ describe('OrganizationService', () => {
     });
 
     it('should update organization subscription end date', async () => {
-      const result = await service.setOrganizationSubscriptionEndDateById(
+      const result = await service.setOrganizationSubscriptionEndDateBy30ById(
         requestOrganizationData.organization_id,
-        Date.now() + 60 * 60 * 24 * 60,
       );
 
       expect(result).toHaveProperty(
