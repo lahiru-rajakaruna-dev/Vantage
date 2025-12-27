@@ -14,7 +14,7 @@ export const OrmFactory = {
   ) {
     const ormStrategy = (
       configService.get(EEnvVars.ORM_STRATEGY) as string
-    ).toLowerCase() as EOrmStrategy;
+    ).toUpperCase() as EOrmStrategy;
 
     switch (ormStrategy) {
       case EOrmStrategy.DRIZZLE.toLowerCase(): {

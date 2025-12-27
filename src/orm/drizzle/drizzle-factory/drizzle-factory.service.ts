@@ -43,7 +43,7 @@ export const DrizzleFactory = {
   ): Promise<AbstractDrizzlerService> {
     const databaseStrategy = (
       configService.get(EEnvVars.DATABASE_STRATEGY) as string
-    ).toLowerCase() as EDatabaseStrategy;
+    ).toUpperCase() as EDatabaseStrategy;
 
     switch (databaseStrategy) {
       case EDatabaseStrategy.POSTGRES: {

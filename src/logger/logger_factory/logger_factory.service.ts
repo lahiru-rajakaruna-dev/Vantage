@@ -14,9 +14,9 @@ export const LoggerFactory: Provider = {
     configService: ConfigService,
     moduleRef: ModuleRef,
   ): ILoggerService {
-    const loggerStrategy: ELoggerStrategy = configService.get(
-      EEnvVars.LOGGER_STRATEGY,
-    ) as ELoggerStrategy;
+    const loggerStrategy: ELoggerStrategy = configService
+      .get(EEnvVars.LOGGER_STRATEGY)
+      .toUpperCase() as ELoggerStrategy;
 
     switch (loggerStrategy) {
       case ELoggerStrategy.CONSOLE: {
