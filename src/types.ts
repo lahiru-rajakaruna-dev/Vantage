@@ -41,16 +41,11 @@ export enum EAccountStatus {
   UNVERIFIED = 'unverified',
 }
 
-export enum ELoggerStrategy {
-  CONSOLE = 'console',
-  WINSTON = 'winston',
-  PINO = 'pino',
-}
-
 export enum EEnvVars {
   NODE_ENV = 'NODE_ENV',
   POSTGRES_URL = 'POSTGRES_URL',
   SQLITE_URL = 'SQLITE_URL',
+  LOGGER_STRATEGY = 'LOGGER_STRATEGY',
   DATABASE_STRATEGY = 'DATABASE_STRATEGY',
   ORM_STRATEGY = 'ORM_STRATEGY',
   POSTGRES_USERNAME = 'POSTGREST_USERNAME',
@@ -72,4 +67,9 @@ export enum EDatabaseStrategy {
 
 export enum EOrmStrategy {
   DRIZZLE = 'DRIZZLE',
+}
+
+export enum ELoggerStrategy {
+  CONSOLE = 'CONSOLE',
+  WINSTON = 'WINSTON',
 }

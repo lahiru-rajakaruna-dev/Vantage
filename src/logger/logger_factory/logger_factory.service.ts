@@ -1,7 +1,7 @@
 import { InternalServerErrorException, Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import ILoggerService from '../logger.interface';
-import { ELoggerStrategy } from '../../types';
+import { EEnvVars, ELoggerStrategy } from '../../types';
 import { ModuleRef } from '@nestjs/core';
 import { ConsoleLoggerService } from '../console_logger/console_logger.service';
 import { WinstonLoggerService } from '../winston_logger/winston_logger.service';
@@ -15,7 +15,7 @@ export const LoggerFactory: Provider = {
     moduleRef: ModuleRef,
   ): ILoggerService {
     const loggerStrategy: ELoggerStrategy = configService.get(
-      'LOGGER_STRATEGY',
+      EEnvVars.LOGGER_STRATEGY,
     ) as ELoggerStrategy;
 
     switch (loggerStrategy) {
