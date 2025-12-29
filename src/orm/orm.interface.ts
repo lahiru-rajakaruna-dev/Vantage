@@ -1,13 +1,13 @@
 import {
-  TClient,
-  TClientPayment,
-  TEmployee,
-  TItem,
-  TOrganization,
-  TOrganizationPayment,
-  TSale,
-  TSalesGroup,
-} from './drizzle/drizzle-postgres/drizzle-postgres.schema';
+    TClient,
+    TClientPayment,
+    TEmployee,
+    TItem,
+    TOrganization,
+    TOrganizationPayment,
+    TSale,
+    TSalesGroup,
+} from '../schemas';
 
 export default interface IOrmInterface {
   addOrganization(organizationDetails: TOrganization): Promise<TOrganization>;

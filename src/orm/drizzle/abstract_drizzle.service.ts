@@ -10,7 +10,7 @@ import {
   TOrganizationPayment,
   TSale,
   TSalesGroup,
-} from './drizzle-postgres/drizzle-postgres.schema';
+} from '../../schemas';
 import type ILoggerService from '../../logger/logger.interface';
 import { TOKEN__LOGGER_FACTORY } from '../../logger/logger_factory/logger_factory.service';
 
