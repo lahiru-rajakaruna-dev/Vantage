@@ -14,9 +14,14 @@ import { SalesGroupModule } from './business_logic/sales_group/sales_group.modul
 import { ClientModule } from './business_logic/client/client.module';
 import { SaleModule } from './business_logic/sale/sale.module';
 import { PaddleModule } from './paddle/paddle.module';
+import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 
 @Module({
   imports: [
+    CacheModule.register({
+      ttl: 1000 * 60 * 60,
+    }),
     EmployeeModule,
     OrganizationModule,
     OrganizationPaymentModule,
@@ -36,6 +41,12 @@ import { PaddleModule } from './paddle/paddle.module';
     PaddleModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: CacheInterceptor,
+    },
+  ],
 })
 export class AppModule {}

@@ -21,11 +21,13 @@
   },
   "dependencies": {
     "@libsql/client": "^0.15.15",
+    "@nestjs/cache-manager": "^3.1.0",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.1",
     "@nestjs/platform-express": "^11.0.1",
     "@paddle/paddle-node-sdk": "^3.5.0",
+    "cache-manager": "^7.2.7",
     "drizzle-orm": "^0.45.1",
     "prisma": "^7.1.0",
     "reflect-metadata": "^0.2.2",
