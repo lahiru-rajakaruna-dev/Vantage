@@ -25,14 +25,16 @@ export class EmployeeController {
   }
 
   @Get('/view')
- async  getAllEmployeesByOrganizationId(
+  async getAllEmployeesByOrganizationId(
     @Headers('organization_id') organization_id: string,
   ) {
     if (!organization_id) {
       throw new BadRequestException('[-] Invalid request...');
     }
 
-    return await this.employeesService.getEmployeesByOrganizationId(organization_id);
+    return await this.employeesService.getEmployeesByOrganizationId(
+      organization_id,
+    );
   }
 
   @Get('/sales-group/:sales_group_id')
@@ -51,7 +53,10 @@ export class EmployeeController {
     @Headers('organization_id') organization_id: string,
     @Param('employee_id') employee_id: string,
   ) {
-    return await this.employeesService.viewEmployeeById(organization_id, employee_id);
+    return await this.employeesService.viewEmployeeById(
+      organization_id,
+      employee_id,
+    );
   }
 
   @Post()
