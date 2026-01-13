@@ -1,19 +1,6 @@
 import { relations } from 'drizzle-orm';
-import {
-  decimal,
-  index,
-  integer,
-  pgEnum,
-  pgTable,
-  primaryKey,
-  text,
-} from 'drizzle-orm/pg-core';
-import {
-  EAccountStatus,
-  EOrganizationStatus,
-  EPaymentStatus,
-  ESubscriptionStatus,
-} from '../../../types';
+import { decimal, index, integer, pgEnum, pgTable, primaryKey, text, } from 'drizzle-orm/pg-core';
+import { EAccountStatus, EOrganizationStatus, EPaymentStatus, ESubscriptionStatus, } from '../../../types';
 
 export const EPGPaymentStatus = pgEnum('EPaymentStatus', EPaymentStatus);
 export const EPGSubscriptionStatus = pgEnum(
@@ -30,6 +17,7 @@ export const organizations = pgTable(
   'organizations',
   {
     organization_id: text().unique().notNull(),
+    organization_admin_id: text().unique().notNull(),
     organization_stripe_customer_id: text().unique().notNull(),
     organization_name: text().unique().notNull(),
     organization_email: text().unique().notNull(),

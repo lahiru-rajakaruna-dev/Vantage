@@ -11,16 +11,16 @@ import {
   Post,
   UsePipes,
 } from '@nestjs/common';
-import { OrganizationService } from './organization.service';
+import { Business, Customer } from '@paddle/paddle-node-sdk';
 import { v4 as uuid } from 'uuid';
-import { EOrganizationStatus, ESubscriptionStatus } from '../../types';
+import { z } from 'zod';
 import type ILoggerService from '../../logger/logger.interface';
 import { TOKEN__LOGGER_FACTORY } from '../../logger/logger_factory/logger_factory.service';
-import { SchemaOrganization, type TOrganization } from '../../schemas';
-import ZodSchemaValidationPipe from '../../pipes/schema_validation.pipe';
 import { PaddleService } from '../../paddle/paddle.service';
-import { Business, Customer } from '@paddle/paddle-node-sdk';
-import { z } from 'zod';
+import ZodSchemaValidationPipe from '../../pipes/schema_validation.pipe';
+import { SchemaOrganization, type TOrganization } from '../../schemas';
+import { EOrganizationStatus, ESubscriptionStatus } from '../../types';
+import { OrganizationService } from './organization.service';
 
 @Controller('organization')
 export class OrganizationController {
@@ -53,7 +53,10 @@ export class OrganizationController {
 
   @Post('/add')
   @UsePipes(new ZodSchemaValidationPipe(SchemaOrganization))
-  async addOrganization(@Body() organizationData: TOrganization) {
+  async addOrganization(
+    @Headers('user_id') user_id: string,
+    @Body() organizationData: TOrganization,
+  ) {
     const { organization_name, organization_email, organization_phone } =
       organizationData;
 
@@ -88,12 +91,14 @@ export class OrganizationController {
       this.logger.log(e);
       throw new InternalServerErrorException((e as Error).message);
     }
+    this.logger.log('[+] Add organization payment account to the platform');
 
     // ADD ORGANIZATION RECORD
     try {
       const organizationRecord = await this.organizationService.addOrganization(
         {
           organization_id: uuid().toString(),
+          organization_admin_id: user_id,
           organization_stripe_customer_id: paddleCustomerAccount.id,
           organization_name,
           organization_email,
@@ -106,7 +111,6 @@ export class OrganizationController {
         },
       );
 
-      this.logger.log('[+] Add organization stripe account to the platform');
       this.logger.log(organizationRecord);
 
       return organizationRecord;

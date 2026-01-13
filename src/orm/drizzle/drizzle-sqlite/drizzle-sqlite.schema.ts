@@ -12,6 +12,7 @@ export const organizations = sqliteTable(
   'organizations',
   {
     organization_id: text().unique().notNull(),
+    organization_admin_id: text().unique().notNull(),
     organization_stripe_customer_id: text().unique().notNull(),
     organization_name: text().unique().notNull(),
     organization_email: text().unique().notNull(),
