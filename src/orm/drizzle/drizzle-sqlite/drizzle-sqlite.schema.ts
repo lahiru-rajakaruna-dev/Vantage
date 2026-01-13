@@ -1,5 +1,12 @@
-import { index, integer, primaryKey, real, sqliteTable, text, } from 'drizzle-orm/sqlite-core';
 import { relations } from 'drizzle-orm';
+import {
+  index,
+  integer,
+  primaryKey,
+  real,
+  sqliteTable,
+  text,
+} from 'drizzle-orm/sqlite-core';
 
 export const organizations = sqliteTable(
   'organizations',
@@ -11,11 +18,13 @@ export const organizations = sqliteTable(
     organization_phone: text().unique().notNull(),
     organization_registration_date: integer().notNull(),
     organization_subscription_end_date: integer().notNull(),
-    organization_status: text({ enum: ['ACTIVE', 'DEACTIVATED'] })
+    organization_status: text({
+      enum: ['ACTIVE', 'DEACTIVATED', 'TRIAL', 'SUSPENDED'],
+    })
       .default('ACTIVE')
       .notNull(),
-    organization_subscription_status: text({ enum: ['valid', 'expired'] })
-      .default('valid')
+    organization_subscription_status: text({ enum: ['VALID', 'EXPIRED'] })
+      .default('VALID')
       .notNull(),
   },
   (table) => {
@@ -182,8 +191,8 @@ export const organizationsPayments = sqliteTable(
       .notNull()
       .references(() => organizations.organization_id),
     payment_amount: real().notNull(),
-    payment_status: text({ enum: ['pending', 'paid', 'verified'] }).default(
-      'verified',
+    payment_status: text({ enum: ['PENDING', 'PAID', 'VERIFIED'] }).default(
+      'VERIFIED',
     ),
     payment_date: integer().notNull(),
   },
@@ -215,10 +224,10 @@ export const clients = sqliteTable(
     client_email: text().notNull(),
     client_phone: text().notNull(),
     client_account_status: text({
-      enum: ['active', 'deactivated', 'unverified'],
+      enum: ['ACTIVE', 'DEACTIVATED', 'UNVERIFIED'],
     })
       .notNull()
-      .default('unverified'),
+      .default('UNVERIFIED'),
     client_registration_date: integer().notNull(),
   },
   (table) => {
@@ -254,9 +263,9 @@ export const clientsPayments = sqliteTable(
       .references(() => organizations.organization_id),
     client_payment_amount: real().notNull(),
     client_payment_date: integer().notNull(),
-    client_payment_status: text({ enum: ['pending', 'paid', 'verified'] })
+    client_payment_status: text({ enum: ['PENDING', 'PAID', 'VERIFIED'] })
       .notNull()
-      .default('verified'),
+      .default('VERIFIED'),
   },
   (table) => {
     return {
@@ -381,11 +390,12 @@ export const clientsPaymentsRelations = relations(
   },
 );
 
-export type TOrganization = typeof organizations.$inferInsert;
-export type TEmployee = typeof employees.$inferInsert;
-export type TItem = typeof items.$inferInsert;
-export type TSalesGroup = typeof salesGroups.$inferInsert;
-export type TSale = typeof sales.$inferInsert;
-export type TClient = typeof clients.$inferInsert;
-export type TClientPayment = typeof clientsPayments.$inferInsert;
-export type TOrganizationPayment = typeof organizationsPayments.$inferInsert;
+export type TSQLiteOrganization = typeof organizations.$inferInsert;
+export type TSQLiteEmployee = typeof employees.$inferInsert;
+export type TSQLiteItem = typeof items.$inferInsert;
+export type TSQLiteSalesGroup = typeof salesGroups.$inferInsert;
+export type TSQLiteSale = typeof sales.$inferInsert;
+export type TSQLiteClient = typeof clients.$inferInsert;
+export type TSQLiteClientPayment = typeof clientsPayments.$inferInsert;
+export type TSQLiteOrganizationPayment =
+  typeof organizationsPayments.$inferInsert;

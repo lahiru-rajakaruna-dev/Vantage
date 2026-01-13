@@ -1,8 +1,12 @@
-import { EEnvVars } from '../../../types';
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { and, between, eq } from 'drizzle-orm';
 import { drizzle, PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
+import type ILoggerService from '../../../logger/logger.interface';
+import { TOKEN__LOGGER_FACTORY } from '../../../logger/logger_factory/logger_factory.service';
+import { EEnvVars } from '../../../types';
+import AbstractDrizzlerService from '../abstract_drizzle.service';
 import * as schema from './drizzle-postgres.schema';
 import {
   clients,
@@ -13,19 +17,15 @@ import {
   organizationsPayments,
   sales,
   salesGroups,
-  TClient,
-  TClientPayment,
-  TEmployee,
-  TItem,
-  TOrganization,
-  TOrganizationPayment,
-  TSale,
-  TSalesGroup,
+  TPGClient,
+  TPGClientPayment,
+  TPGEmployee,
+  TPGItem,
+  TPGOrganization,
+  TPGOrganizationPayment,
+  TPGSale,
+  TPGSalesGroup
 } from './drizzle-postgres.schema';
-import AbstractDrizzlerService from '../abstract_drizzle.service';
-import { and, between, eq } from 'drizzle-orm';
-import { TOKEN__LOGGER_FACTORY } from '../../../logger/logger_factory/logger_factory.service';
-import type ILoggerService from '../../../logger/logger.interface';
 
 @Injectable()
 export class DrizzlePostgresService extends AbstractDrizzlerService {
@@ -46,8 +46,8 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
   }
 
   async addOrganization(
-    organizationDetails: TOrganization,
-  ): Promise<TOrganization> {
+    organizationDetails: TPGOrganization,
+  ): Promise<TPGOrganization> {
     const result = await this.driver
       .insert(organizations)
       .values(organizationDetails)
@@ -57,8 +57,8 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
 
   async updateOrganizationById(
     organization_id: string,
-    organizationUpdates: Partial<TOrganization>,
-  ): Promise<TOrganization> {
+    organizationUpdates: Partial<TPGOrganization>,
+  ): Promise<TPGOrganization> {
     const result = await this.driver
       .update(organizations)
       .set(organizationUpdates)
@@ -69,7 +69,7 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
 
   async getOrganizationDetailsById(
     organization_id: string,
-  ): Promise<TOrganization> {
+  ): Promise<TPGOrganization> {
     const result = await this.driver
       .select()
       .from(organizations)
@@ -77,7 +77,7 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     return this.logger.logAndReturn(result[0]);
   }
 
-  async addEmployee(employeeDetails: TEmployee): Promise<TEmployee> {
+  async addEmployee(employeeDetails: TPGEmployee): Promise<TPGEmployee> {
     const result = await this.driver
       .insert(employees)
       .values(employeeDetails)
@@ -85,7 +85,7 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     return this.logger.logAndReturn(result[0]);
   }
 
-  async viewEmployeeById(employee_id: string): Promise<TEmployee> {
+  async viewEmployeeById(employee_id: string): Promise<TPGEmployee> {
     const result = await this.driver
       .select()
       .from(employees)
@@ -95,7 +95,7 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
 
   async getEmployeesByOrganizationId(
     organization_id: string,
-  ): Promise<TEmployee[]> {
+  ): Promise<TPGEmployee[]> {
     return this.logger.logAndReturn(
       await this.driver
         .select()
@@ -106,7 +106,7 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
 
   async getEmployeesBySalesGroupId(
     sales_group_id: string,
-  ): Promise<TEmployee[]> {
+  ): Promise<TPGEmployee[]> {
     return this.logger.logAndReturn(
       await this.driver
         .select()
@@ -118,8 +118,8 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
   async updateEmployeeById(
     organization_id: string,
     employee_id: string,
-    employeeUpdates: Partial<TEmployee>,
-  ): Promise<TEmployee> {
+    employeeUpdates: Partial<TPGEmployee>,
+  ): Promise<TPGEmployee> {
     const result = await this.driver
       .update(employees)
       .set(employeeUpdates)
@@ -133,7 +133,7 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     return this.logger.logAndReturn(result[0]);
   }
 
-  async deleteEmployeeById(employee_id: string): Promise<TEmployee> {
+  async deleteEmployeeById(employee_id: string): Promise<TPGEmployee> {
     const result = await this.driver
       .delete(employees)
       .where(eq(employees.employee_id, employee_id))
@@ -141,7 +141,7 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     return this.logger.logAndReturn(result[0]);
   }
 
-  async addItem(itemDetails: TItem): Promise<TItem> {
+  async addItem(itemDetails: TPGItem): Promise<TPGItem> {
     const result = await this.driver
       .insert(items)
       .values(itemDetails)
@@ -149,7 +149,7 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     return this.logger.logAndReturn(result[0]);
   }
 
-  async viewItemById(item_id: string): Promise<TItem> {
+  async viewItemById(item_id: string): Promise<TPGItem> {
     const result = await this.driver
       .select()
       .from(items)
@@ -157,7 +157,7 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     return this.logger.logAndReturn(result[0]);
   }
 
-  async getItemsByOrganizationId(organization_id: string): Promise<TItem[]> {
+  async getItemsByOrganizationId(organization_id: string): Promise<TPGItem[]> {
     return this.logger.logAndReturn(
       await this.driver
         .select()
@@ -169,8 +169,8 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
   async updateItemById(
     organization_id: string,
     item_id: string,
-    itemUpdates: Partial<TItem>,
-  ): Promise<TItem> {
+    itemUpdates: Partial<TPGItem>,
+  ): Promise<TPGItem> {
     const result = await this.driver
       .update(items)
       .set(itemUpdates)
@@ -184,7 +184,7 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     return this.logger.logAndReturn(result[0]);
   }
 
-  async deleteItemById(item_id: string): Promise<TItem> {
+  async deleteItemById(item_id: string): Promise<TPGItem> {
     const result = await this.driver
       .delete(items)
       .where(eq(items.item_id, item_id))
@@ -192,7 +192,9 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     return this.logger.logAndReturn(result[0]);
   }
 
-  async addSalesGroup(salesGroupDetails: TSalesGroup): Promise<TSalesGroup> {
+  async addSalesGroup(
+    salesGroupDetails: TPGSalesGroup,
+  ): Promise<TPGSalesGroup> {
     const result = await this.driver
       .insert(salesGroups)
       .values(salesGroupDetails)
@@ -202,7 +204,7 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
 
   async getSalesGroupsByOrganizationId(
     organization_id: string,
-  ): Promise<TSalesGroup> {
+  ): Promise<TPGSalesGroup> {
     const result = await this.driver
       .select()
       .from(salesGroups)
@@ -213,8 +215,8 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
   async updateSalesGroupById(
     organization_id: string,
     sales_group_id: string,
-    salesGroupUpdates: Partial<TSalesGroup>,
-  ): Promise<TSalesGroup> {
+    salesGroupUpdates: Partial<TPGSalesGroup>,
+  ): Promise<TPGSalesGroup> {
     const result = await this.driver
       .update(salesGroups)
       .set(salesGroupUpdates)
@@ -228,7 +230,7 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     return this.logger.logAndReturn(result[0]);
   }
 
-  async deleteSalesGroupById(sales_group_id: string): Promise<TSalesGroup> {
+  async deleteSalesGroupById(sales_group_id: string): Promise<TPGSalesGroup> {
     const result = await this.driver
       .delete(salesGroups)
       .where(eq(salesGroups.sales_group_id, sales_group_id))
@@ -236,7 +238,7 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     return this.logger.logAndReturn(result[0]);
   }
 
-  async addClient(clientDetails: TClient): Promise<TClient> {
+  async addClient(clientDetails: TPGClient): Promise<TPGClient> {
     const result = await this.driver
       .insert(clients)
       .values(clientDetails)
@@ -244,7 +246,7 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     return this.logger.logAndReturn(result[0]);
   }
 
-  async getClientProfileById(client_id: string): Promise<TClient> {
+  async getClientProfileById(client_id: string): Promise<TPGClient> {
     const result = await this.driver
       .select()
       .from(clients)
@@ -255,7 +257,7 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
 
   async getClientsByOrganizationId(
     organization_id: string,
-  ): Promise<TClient[]> {
+  ): Promise<TPGClient[]> {
     return this.logger.logAndReturn(
       await this.driver
         .select()
@@ -267,8 +269,8 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
   async updateClientById(
     organization_id: string,
     client_id: string,
-    clientUpdates: Partial<TClient>,
-  ): Promise<TClient> {
+    clientUpdates: Partial<TPGClient>,
+  ): Promise<TPGClient> {
     const result = await this.driver
       .update(clients)
       .set(clientUpdates)
@@ -283,8 +285,8 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
   }
 
   async addOrganizationPayment(
-    paymentDetails: TOrganizationPayment,
-  ): Promise<TOrganizationPayment> {
+    paymentDetails: TPGOrganizationPayment,
+  ): Promise<TPGOrganizationPayment> {
     const result = await this.driver
       .insert(organizationsPayments)
       .values(paymentDetails)
@@ -294,7 +296,7 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
 
   async getOrganizationPaymentsByOrganizationId(
     organization_id: string,
-  ): Promise<TOrganizationPayment[]> {
+  ): Promise<TPGOrganizationPayment[]> {
     return this.logger.logAndReturn(
       await this.driver
         .select()
@@ -308,8 +310,8 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
   async updateOrganizationPaymentById(
     organization_id: string,
     payment_id: string,
-    paymentUpdates: Partial<TOrganizationPayment>,
-  ): Promise<TOrganizationPayment> {
+    paymentUpdates: Partial<TPGOrganizationPayment>,
+  ): Promise<TPGOrganizationPayment> {
     const result = await this.driver
       .update(organizationsPayments)
       .set(paymentUpdates)
@@ -324,8 +326,8 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
   }
 
   async addClientPayment(
-    paymentDetails: TClientPayment,
-  ): Promise<TClientPayment> {
+    paymentDetails: TPGClientPayment,
+  ): Promise<TPGClientPayment> {
     const result = await this.driver
       .insert(clientsPayments)
       .values(paymentDetails)
@@ -333,7 +335,7 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     return this.logger.logAndReturn(result[0]);
   }
 
-  async getClientPaymentById(payment_id: string): Promise<TClientPayment> {
+  async getClientPaymentById(payment_id: string): Promise<TPGClientPayment> {
     const result = await this.driver
       .select()
       .from(clientsPayments)
@@ -345,7 +347,7 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
 
   async getClientPaymentsByClientId(
     client_id: string,
-  ): Promise<TClientPayment[]> {
+  ): Promise<TPGClientPayment[]> {
     const result = await this.driver
       .select()
       .from(clientsPayments)
@@ -357,8 +359,8 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
   async updateClientPaymentById(
     organization_id: string,
     client_payment_id: string,
-    clientPaymentUpdates: Partial<TClientPayment>,
-  ): Promise<TClientPayment> {
+    clientPaymentUpdates: Partial<TPGClientPayment>,
+  ): Promise<TPGClientPayment> {
     const result = await this.driver
       .update(clientsPayments)
       .set(clientPaymentUpdates)
@@ -372,7 +374,7 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     return this.logger.logAndReturn(result[0]);
   }
 
-  async addSaleItem(saleDetails: TSale): Promise<TSale> {
+  async addSaleItem(saleDetails: TPGSale): Promise<TPGSale> {
     const result = await this.driver
       .insert(sales)
       .values(saleDetails)
@@ -380,7 +382,7 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     return this.logger.logAndReturn(result[0]);
   }
 
-  async viewSaleById(sale_id: string): Promise<TSale> {
+  async viewSaleById(sale_id: string): Promise<TPGSale> {
     const result = await this.driver
       .select()
       .from(sales)
@@ -388,7 +390,7 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     return this.logger.logAndReturn(result[0]);
   }
 
-  async getSalesByEmployeeId(employee_id: string): Promise<TSale[]> {
+  async getSalesByEmployeeId(employee_id: string): Promise<TPGSale[]> {
     return this.logger.logAndReturn(
       await this.driver
         .select()
@@ -397,7 +399,7 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     );
   }
 
-  async getSalesByItemId(item_id: string): Promise<TSale[]> {
+  async getSalesByItemId(item_id: string): Promise<TPGSale[]> {
     return this.logger.logAndReturn(
       await this.driver
         .select()
@@ -406,7 +408,7 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     );
   }
 
-  async getSalesByOrganizationId(organization_id: string): Promise<TSale[]> {
+  async getSalesByOrganizationId(organization_id: string): Promise<TPGSale[]> {
     return this.logger.logAndReturn(
       await this.driver
         .select()
@@ -415,7 +417,7 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     );
   }
 
-  async getSalesByClientId(client_id: string): Promise<TSale[]> {
+  async getSalesByClientId(client_id: string): Promise<TPGSale[]> {
     return this.logger.logAndReturn(
       await this.driver
         .select()
@@ -427,7 +429,7 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
   async getSalesByDate(
     organization_id: string,
     date: number,
-  ): Promise<TSale[]> {
+  ): Promise<TPGSale[]> {
     const result = await this.driver
       .select()
       .from(sales)
@@ -445,7 +447,7 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     organization_id: string,
     date_start: number,
     date_end: number,
-  ): Promise<TSale[]> {
+  ): Promise<TPGSale[]> {
     const result = await this.driver
       .select()
       .from(sales)

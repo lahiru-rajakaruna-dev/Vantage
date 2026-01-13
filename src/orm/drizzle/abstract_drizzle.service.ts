@@ -1,7 +1,8 @@
-import IOrmInterface from '../orm.interface';
 import { Inject } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import {
+import type ILoggerService from '../../logger/logger.interface';
+import { TOKEN__LOGGER_FACTORY } from '../../logger/logger_factory/logger_factory.service';
+import IOrmInterface, {
   TClient,
   TClientPayment,
   TEmployee,
@@ -10,15 +11,13 @@ import {
   TOrganizationPayment,
   TSale,
   TSalesGroup,
-} from '../../schemas';
-import type ILoggerService from '../../logger/logger.interface';
-import { TOKEN__LOGGER_FACTORY } from '../../logger/logger_factory/logger_factory.service';
+} from '../orm.interface';
 
 export default abstract class AbstractDrizzlerService implements IOrmInterface {
   protected readonly configService: ConfigService;
   protected readonly logger: ILoggerService;
 
-  constructor(
+  protected constructor(
     @Inject() configService: ConfigService,
     @Inject(TOKEN__LOGGER_FACTORY) logger: ILoggerService,
   ) {

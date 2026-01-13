@@ -1,3 +1,4 @@
+import { relations } from 'drizzle-orm';
 import {
   decimal,
   index,
@@ -7,7 +8,6 @@ import {
   primaryKey,
   text,
 } from 'drizzle-orm/pg-core';
-import { relations } from 'drizzle-orm';
 import {
   EAccountStatus,
   EOrganizationStatus,
@@ -400,11 +400,11 @@ export const clientsPaymentsRelations = relations(
   },
 );
 
-export type TOrganization = typeof organizations.$inferInsert;
-export type TEmployee = typeof employees.$inferInsert;
-export type TItem = typeof items.$inferInsert;
-export type TSalesGroup = typeof salesGroups.$inferInsert;
-export type TSale = typeof sales.$inferInsert;
-export type TClient = typeof clients.$inferInsert;
-export type TClientPayment = typeof clientsPayments.$inferInsert;
-export type TOrganizationPayment = typeof organizationsPayments.$inferInsert;
+export type TPGOrganization = typeof organizations.$inferInsert;
+export type TPGEmployee = typeof employees.$inferInsert;
+export type TPGItem = typeof items.$inferInsert;
+export type TPGSalesGroup = typeof salesGroups.$inferInsert;
+export type TPGSale = typeof sales.$inferInsert;
+export type TPGClient = typeof clients.$inferInsert;
+export type TPGClientPayment = typeof clientsPayments.$inferInsert;
+export type TPGOrganizationPayment = typeof organizationsPayments.$inferInsert;

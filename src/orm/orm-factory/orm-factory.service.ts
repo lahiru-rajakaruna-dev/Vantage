@@ -1,8 +1,8 @@
-import { EEnvVars, EOrmStrategy } from './../../types';
-import { ConfigService } from '@nestjs/config';
 import { InternalServerErrorException } from '@nestjs/common';
-import { TOKEN__DRIZZLE_FACTORY } from '../drizzle/drizzle-factory/drizzle-factory.service';
+import { ConfigService } from '@nestjs/config';
 import AbstractDrizzlerService from '../drizzle/abstract_drizzle.service';
+import { TOKEN__DRIZZLE_FACTORY } from '../drizzle/drizzle-factory/drizzle-factory.service';
+import { EEnvVars, EOrmStrategy } from './../../types';
 
 export const TOKEN__ORM_FACTORY = 'OrmFactory';
 
@@ -17,7 +17,7 @@ export const OrmFactory = {
     ).toUpperCase() as EOrmStrategy;
 
     switch (ormStrategy) {
-      case EOrmStrategy.DRIZZLE.toLowerCase(): {
+      case EOrmStrategy.DRIZZLE: {
         return drizzleService;
       }
 

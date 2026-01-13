@@ -1,7 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
-import AbstractDrizzlerService from '../abstract_drizzle.service';
 import { ConfigService } from '@nestjs/config';
+import { and, between, eq } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/libsql/node';
+import type ILoggerService from '../../../logger/logger.interface';
+import { TOKEN__LOGGER_FACTORY } from '../../../logger/logger_factory/logger_factory.service';
+import { EEnvVars } from '../../../types';
+import AbstractDrizzlerService from '../abstract_drizzle.service';
+import * as schema from './drizzle-sqlite.schema';
 import {
   clients,
   clientsPayments,
@@ -11,20 +16,15 @@ import {
   organizationsPayments,
   sales,
   salesGroups,
-  TClient,
-  TClientPayment,
-  TEmployee,
-  TItem,
-  TOrganization,
-  TOrganizationPayment,
-  TSale,
-  TSalesGroup,
-} from '../drizzle-postgres/drizzle-postgres.schema';
-import { and, between, eq } from 'drizzle-orm';
-import { TOKEN__LOGGER_FACTORY } from '../../../logger/logger_factory/logger_factory.service';
-import type ILoggerService from '../../../logger/logger.interface';
-import * as schema from './drizzle-sqlite.schema';
-import { EDatabaseStrategy } from '../../../types';
+  TSQLiteClient,
+  TSQLiteClientPayment,
+  TSQLiteEmployee,
+  TSQLiteItem,
+  TSQLiteOrganization,
+  TSQLiteOrganizationPayment,
+  TSQLiteSale,
+  TSQLiteSalesGroup,
+} from './drizzle-sqlite.schema';
 
 @Injectable()
 export class DrizzleSqliteService extends AbstractDrizzlerService {
@@ -38,15 +38,15 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
 
     this.driver = drizzle({
       connection: {
-        url: this.configService.get(EDatabaseStrategy.SQLITE) as string,
+        url: this.configService.get(EEnvVars.SQLITE_URL) as string,
       },
       schema: schema,
     });
   }
 
   async addOrganization(
-    organizationDetails: TOrganization,
-  ): Promise<TOrganization> {
+    organizationDetails: TSQLiteOrganization,
+  ): Promise<TSQLiteOrganization> {
     const result = await this.driver
       .insert(organizations)
       .values(organizationDetails)
@@ -56,8 +56,8 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
 
   async updateOrganizationById(
     organization_id: string,
-    organizationUpdates: Partial<TOrganization>,
-  ): Promise<TOrganization> {
+    organizationUpdates: Partial<TSQLiteOrganization>,
+  ): Promise<TSQLiteOrganization> {
     const result = await this.driver
       .update(organizations)
       .set(organizationUpdates)
@@ -68,7 +68,7 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
 
   async getOrganizationDetailsById(
     organization_id: string,
-  ): Promise<TOrganization> {
+  ): Promise<TSQLiteOrganization> {
     const result = await this.driver
       .select()
       .from(organizations)
@@ -76,7 +76,9 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
     return this.logger.logAndReturn(result[0]);
   }
 
-  async addEmployee(employeeDetails: TEmployee): Promise<TEmployee> {
+  async addEmployee(
+    employeeDetails: TSQLiteEmployee,
+  ): Promise<TSQLiteEmployee> {
     const result = await this.driver
       .insert(employees)
       .values(employeeDetails)
@@ -84,7 +86,7 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
     return this.logger.logAndReturn(result[0]);
   }
 
-  async viewEmployeeById(employee_id: string): Promise<TEmployee> {
+  async viewEmployeeById(employee_id: string): Promise<TSQLiteEmployee> {
     const result = await this.driver
       .select()
       .from(employees)
@@ -94,7 +96,7 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
 
   async getEmployeesByOrganizationId(
     organization_id: string,
-  ): Promise<TEmployee[]> {
+  ): Promise<TSQLiteEmployee[]> {
     return this.logger.logAndReturn(
       await this.driver
         .select()
@@ -105,7 +107,7 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
 
   async getEmployeesBySalesGroupId(
     sales_group_id: string,
-  ): Promise<TEmployee[]> {
+  ): Promise<TSQLiteEmployee[]> {
     return this.logger.logAndReturn(
       await this.driver
         .select()
@@ -117,8 +119,8 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
   async updateEmployeeById(
     organization_id: string,
     employee_id: string,
-    employeeUpdates: Partial<TEmployee>,
-  ): Promise<TEmployee> {
+    employeeUpdates: Partial<TSQLiteEmployee>,
+  ): Promise<TSQLiteEmployee> {
     const result = await this.driver
       .update(employees)
       .set(employeeUpdates)
@@ -132,7 +134,7 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
     return this.logger.logAndReturn(result[0]);
   }
 
-  async deleteEmployeeById(employee_id: string): Promise<TEmployee> {
+  async deleteEmployeeById(employee_id: string): Promise<TSQLiteEmployee> {
     const result = await this.driver
       .delete(employees)
       .where(eq(employees.employee_id, employee_id))
@@ -140,7 +142,7 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
     return this.logger.logAndReturn(result[0]);
   }
 
-  async addItem(itemDetails: TItem): Promise<TItem> {
+  async addItem(itemDetails: TSQLiteItem): Promise<TSQLiteItem> {
     const result = await this.driver
       .insert(items)
       .values(itemDetails)
@@ -148,7 +150,7 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
     return this.logger.logAndReturn(result[0]);
   }
 
-  async viewItemById(item_id: string): Promise<TItem> {
+  async viewItemById(item_id: string): Promise<TSQLiteItem> {
     const result = await this.driver
       .select()
       .from(items)
@@ -156,7 +158,9 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
     return this.logger.logAndReturn(result[0]);
   }
 
-  async getItemsByOrganizationId(organization_id: string): Promise<TItem[]> {
+  async getItemsByOrganizationId(
+    organization_id: string,
+  ): Promise<TSQLiteItem[]> {
     return this.logger.logAndReturn(
       await this.driver
         .select()
@@ -168,8 +172,8 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
   async updateItemById(
     organization_id: string,
     item_id: string,
-    itemUpdates: Partial<TItem>,
-  ): Promise<TItem> {
+    itemUpdates: Partial<TSQLiteItem>,
+  ): Promise<TSQLiteItem> {
     const result = await this.driver
       .update(items)
       .set(itemUpdates)
@@ -183,7 +187,7 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
     return this.logger.logAndReturn(result[0]);
   }
 
-  async deleteItemById(item_id: string): Promise<TItem> {
+  async deleteItemById(item_id: string): Promise<TSQLiteItem> {
     const result = await this.driver
       .delete(items)
       .where(eq(items.item_id, item_id))
@@ -191,7 +195,9 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
     return this.logger.logAndReturn(result[0]);
   }
 
-  async addSalesGroup(salesGroupDetails: TSalesGroup): Promise<TSalesGroup> {
+  async addSalesGroup(
+    salesGroupDetails: TSQLiteSalesGroup,
+  ): Promise<TSQLiteSalesGroup> {
     const result = await this.driver
       .insert(salesGroups)
       .values(salesGroupDetails)
@@ -201,7 +207,7 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
 
   async getSalesGroupsByOrganizationId(
     organization_id: string,
-  ): Promise<TSalesGroup> {
+  ): Promise<TSQLiteSalesGroup> {
     const result = await this.driver
       .select()
       .from(salesGroups)
@@ -212,8 +218,8 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
   async updateSalesGroupById(
     organization_id: string,
     sales_group_id: string,
-    salesGroupUpdates: Partial<TSalesGroup>,
-  ): Promise<TSalesGroup> {
+    salesGroupUpdates: Partial<TSQLiteSalesGroup>,
+  ): Promise<TSQLiteSalesGroup> {
     const result = await this.driver
       .update(salesGroups)
       .set(salesGroupUpdates)
@@ -227,7 +233,9 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
     return this.logger.logAndReturn(result[0]);
   }
 
-  async deleteSalesGroupById(sales_group_id: string): Promise<TSalesGroup> {
+  async deleteSalesGroupById(
+    sales_group_id: string,
+  ): Promise<TSQLiteSalesGroup> {
     const result = await this.driver
       .delete(salesGroups)
       .where(eq(salesGroups.sales_group_id, sales_group_id))
@@ -235,7 +243,7 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
     return this.logger.logAndReturn(result[0]);
   }
 
-  async addClient(clientDetails: TClient): Promise<TClient> {
+  async addClient(clientDetails: TSQLiteClient): Promise<TSQLiteClient> {
     const result = await this.driver
       .insert(clients)
       .values(clientDetails)
@@ -243,7 +251,7 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
     return this.logger.logAndReturn(result[0]);
   }
 
-  async getClientProfileById(organization_id: string): Promise<TClient> {
+  async getClientProfileById(organization_id: string): Promise<TSQLiteClient> {
     const result = await this.driver
       .select()
       .from(clients)
@@ -255,7 +263,7 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
 
   async getClientsByOrganizationId(
     organization_id: string,
-  ): Promise<TClient[]> {
+  ): Promise<TSQLiteClient[]> {
     return this.logger.logAndReturn(
       await this.driver
         .select()
@@ -267,8 +275,8 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
   async updateClientById(
     organization_id: string,
     client_id: string,
-    clientUpdates: Partial<TClient>,
-  ): Promise<TClient> {
+    clientUpdates: Partial<TSQLiteClient>,
+  ): Promise<TSQLiteClient> {
     const result = await this.driver
       .update(clients)
       .set(clientUpdates)
@@ -283,8 +291,8 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
   }
 
   async addOrganizationPayment(
-    paymentDetails: TOrganizationPayment,
-  ): Promise<TOrganizationPayment> {
+    paymentDetails: TSQLiteOrganizationPayment,
+  ): Promise<TSQLiteOrganizationPayment> {
     const result = await this.driver
       .insert(organizationsPayments)
       .values(paymentDetails)
@@ -294,7 +302,7 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
 
   async getOrganizationPaymentsByOrganizationId(
     organization_id: string,
-  ): Promise<TOrganizationPayment[]> {
+  ): Promise<TSQLiteOrganizationPayment[]> {
     return this.logger.logAndReturn(
       await this.driver
         .select()
@@ -308,8 +316,8 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
   async updateOrganizationPaymentById(
     organization_id: string,
     payment_id: string,
-    paymentUpdates: Partial<TOrganizationPayment>,
-  ): Promise<TOrganizationPayment> {
+    paymentUpdates: Partial<TSQLiteOrganizationPayment>,
+  ): Promise<TSQLiteOrganizationPayment> {
     const result = await this.driver
       .update(organizationsPayments)
       .set(paymentUpdates)
@@ -324,8 +332,8 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
   }
 
   async addClientPayment(
-    paymentDetails: TClientPayment,
-  ): Promise<TClientPayment> {
+    paymentDetails: TSQLiteClientPayment,
+  ): Promise<TSQLiteClientPayment> {
     const result = await this.driver
       .insert(clientsPayments)
       .values(paymentDetails)
@@ -333,7 +341,9 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
     return this.logger.logAndReturn(result[0]);
   }
 
-  async getClientPaymentById(payment_id: string): Promise<TClientPayment> {
+  async getClientPaymentById(
+    payment_id: string,
+  ): Promise<TSQLiteClientPayment> {
     const result = await this.driver
       .select()
       .from(clientsPayments)
@@ -345,7 +355,7 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
 
   async getClientPaymentsByClientId(
     client_id: string,
-  ): Promise<TClientPayment[]> {
+  ): Promise<TSQLiteClientPayment[]> {
     return this.logger.logAndReturn(
       await this.driver
         .select()
@@ -357,8 +367,8 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
   async updateClientPaymentById(
     organization_id: string,
     client_payment_id: string,
-    clientPaymentUpdates: Partial<TClientPayment>,
-  ): Promise<TClientPayment> {
+    clientPaymentUpdates: Partial<TSQLiteClientPayment>,
+  ): Promise<TSQLiteClientPayment> {
     const result = await this.driver
       .update(clientsPayments)
       .set(clientPaymentUpdates)
@@ -372,7 +382,7 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
     return this.logger.logAndReturn(result[0]);
   }
 
-  async addSaleItem(saleDetails: TSale): Promise<TSale> {
+  async addSaleItem(saleDetails: TSQLiteSale): Promise<TSQLiteSale> {
     const result = await this.driver
       .insert(sales)
       .values(saleDetails)
@@ -380,7 +390,7 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
     return this.logger.logAndReturn(result[0]);
   }
 
-  async viewSaleById(sale_id: string): Promise<TSale> {
+  async viewSaleById(sale_id: string): Promise<TSQLiteSale> {
     const result = await this.driver
       .select()
       .from(sales)
@@ -388,7 +398,7 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
     return this.logger.logAndReturn(result[0]);
   }
 
-  async getSalesByEmployeeId(employee_id: string): Promise<TSale[]> {
+  async getSalesByEmployeeId(employee_id: string): Promise<TSQLiteSale[]> {
     return this.logger.logAndReturn(
       await this.driver
         .select()
@@ -397,7 +407,7 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
     );
   }
 
-  async getSalesByItemId(item_id: string): Promise<TSale[]> {
+  async getSalesByItemId(item_id: string): Promise<TSQLiteSale[]> {
     return this.logger.logAndReturn(
       await this.driver
         .select()
@@ -406,7 +416,9 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
     );
   }
 
-  async getSalesByOrganizationId(organization_id: string): Promise<TSale[]> {
+  async getSalesByOrganizationId(
+    organization_id: string,
+  ): Promise<TSQLiteSale[]> {
     return this.logger.logAndReturn(
       await this.driver
         .select()
@@ -415,7 +427,7 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
     );
   }
 
-  async getSalesByClientId(client_id: string): Promise<TSale[]> {
+  async getSalesByClientId(client_id: string): Promise<TSQLiteSale[]> {
     return this.logger.logAndReturn(
       await this.driver
         .select()
@@ -427,7 +439,7 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
   async getSalesByDate(
     organization_id: string,
     date: number,
-  ): Promise<TSale[]> {
+  ): Promise<TSQLiteSale[]> {
     const result = await this.driver
       .select()
       .from(sales)
@@ -445,7 +457,7 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
     organization_id: string,
     date_start: number,
     date_end: number,
-  ): Promise<TSale[]> {
+  ): Promise<TSQLiteSale[]> {
     const result = await this.driver
       .select()
       .from(sales)
