@@ -11,11 +11,11 @@ import {
   Post,
   UsePipes,
 } from '@nestjs/common';
-import { SalesGroupService } from './sales_group.service';
 import { v4 as uuid } from 'uuid';
 import { z } from 'zod';
-import { TSalesGroup } from '../../schemas';
+import { type TSalesGroup } from '../../orm/orm.interface';
 import ZodSchemaValidationPipe from '../../pipes/schema_validation.pipe';
+import { SalesGroupService } from './sales_group.service';
 
 @Controller('sales_group')
 export class SalesGroupController {

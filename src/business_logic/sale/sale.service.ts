@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
-import type IOrmInterface from '../../orm/orm.interface';
 import { TOKEN__ORM_FACTORY } from '../../orm/orm-factory/orm-factory.service';
-import { TSale } from '../../orm/drizzle/drizzle-postgres/drizzle-postgres.schema';
+import type IOrmInterface from '../../orm/orm.interface';
+import { type TSale } from '../../orm/orm.interface';
 
 @Injectable()
 export class SaleService {

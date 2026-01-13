@@ -11,11 +11,11 @@ import {
   Query,
   UsePipes,
 } from '@nestjs/common';
-import { EmployeeService } from './employee.service';
 import { v4 as uuid } from 'uuid';
+import { z } from 'zod';
 import ZodSchemaValidationPipe from '../../pipes/schema_validation.pipe';
 import { SchemaEmployee, type TEmployee } from '../../schemas';
-import { z } from 'zod';
+import { EmployeeService } from './employee.service';
 
 @Controller('employee')
 export class EmployeeController {
@@ -189,8 +189,8 @@ export class EmployeeController {
     @Headers('organization_id') organization_id: string,
     @Query('employees_ids') employees_ids: string[],
   ) {
-    return await employees_ids.map((employee_id) => {
-      return this.employeesService.deleteEmployeeById(
+    return employees_ids.map(async (employee_id) => {
+      return await this.employeesService.deleteEmployeeById(
         organization_id,
         employee_id,
       );

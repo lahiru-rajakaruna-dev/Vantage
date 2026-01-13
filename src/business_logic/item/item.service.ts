@@ -1,7 +1,7 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import type IOrmInterface from '../../orm/orm.interface';
 import { TOKEN__ORM_FACTORY } from 'src/orm/orm-factory/orm-factory.service';
-import { TItem } from 'src/orm/drizzle/drizzle-postgres/drizzle-postgres.schema';
+import type IOrmInterface from '../../orm/orm.interface';
+import { type TItem } from '../../orm/orm.interface';
 
 @Injectable()
 export class ItemService {
@@ -71,21 +71,10 @@ export class ItemService {
     organization_id: string,
     item_ids: string[],
   ): Promise<TItem[]> {
-    const deletedItems = await Promise.all(
+    return await Promise.all(
       item_ids.map(async (item_id) => {
-        const deletedItem = await this.orm.deleteItemById(
-          organization_id,
-          item_id,
-        );
-
-        if (!deletedItem) {
-          throw new NotFoundException(`Item with ID "${item_id}" not found`);
-        }
-
-        return deletedItem;
+        return await this.orm.deleteItemById(organization_id, item_id);
       }),
     );
-
-    return deletedItems;
   }
 }

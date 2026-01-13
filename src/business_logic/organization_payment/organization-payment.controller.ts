@@ -11,11 +11,11 @@ import {
   UsePipes,
 } from '@nestjs/common';
 import { v4 as uuid } from 'uuid';
-import { OrganizationPaymentService } from './organization-payment.service';
-import { EPaymentStatus } from '../../types';
 import { z } from 'zod';
+import { type TOrganizationPayment } from '../../orm/orm.interface';
 import ZodSchemaValidationPipe from '../../pipes/schema_validation.pipe';
-import { type TOrganizationPayment } from '../../schemas';
+import { EPaymentStatus } from '../../types';
+import { OrganizationPaymentService } from './organization-payment.service';
 
 @Controller('organization_payment')
 export class OrganizationPaymentController {
@@ -38,7 +38,7 @@ export class OrganizationPaymentController {
   @UsePipes(
     new ZodSchemaValidationPipe(
       z.object({
-        payment_amount: z.number().nonoptional(),
+        payment_amount: z.string().nonoptional(),
       }),
     ),
   )
@@ -53,7 +53,7 @@ export class OrganizationPaymentController {
     return await this.paymentService.addOrganizationPayment({
       payment_id: uuid().toString(),
       payment_organization_id: organization_id,
-      payment_amount: paymentData.payment_amount,
+      payment_amount: paymentData.payment_amount as string,
       payment_timestamp: Date.now(),
       payment_status: EPaymentStatus.PAID,
     });

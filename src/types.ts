@@ -31,7 +31,7 @@ export enum EPaymentStatus {
 
 export enum ESaleStatus {
   DRAFT = 'DRAFT',
-  SYNCED = 'SYNCED', // Crucial for your Offline Sync requirement
+  SYNCED = 'SYNCED',
   CANCELLED = 'CANCELLED',
 }
 

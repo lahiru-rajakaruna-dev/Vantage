@@ -12,11 +12,11 @@ import {
   Query,
   UsePipes,
 } from '@nestjs/common';
-import { ItemService } from './item.service';
 import { v4 as uuid } from 'uuid';
-import ZodSchemaValidationPipe from '../../pipes/schema_validation.pipe';
 import { z } from 'zod';
-import { type TItem } from '../../schemas';
+import { type TItem } from '../../orm/orm.interface';
+import ZodSchemaValidationPipe from '../../pipes/schema_validation.pipe';
+import { ItemService } from './item.service';
 
 @Controller('item')
 export class ItemController {
@@ -98,7 +98,7 @@ export class ItemController {
     return await this.itemService.updateItemStockById(
       organization_id,
       item_id,
-      itemData.item_stock_unit_count,
+      itemData.item_stock_unit_count!,
     );
   }
 
