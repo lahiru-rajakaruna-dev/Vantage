@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "34194e81-13d5-4a1e-9324-0c1be05d30cd",
+  "id": "54d1594f-c86b-4dd8-9352-a4e47ae7e385",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "clients": {
@@ -62,7 +62,7 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": "'unverified'"
+          "default": "'UNVERIFIED'"
         },
         "client_registration_date": {
           "name": "client_registration_date",
@@ -75,17 +75,23 @@
       "indexes": {
         "clients_client_id_unique": {
           "name": "clients_client_id_unique",
-          "columns": ["client_id"],
+          "columns": [
+            "client_id"
+          ],
           "isUnique": true
         },
         "client_organization_id_fk_idx": {
           "name": "client_organization_id_fk_idx",
-          "columns": ["client_organization_id"],
+          "columns": [
+            "client_organization_id"
+          ],
           "isUnique": false
         },
         "client_stripe_customer_id_idx": {
           "name": "client_stripe_customer_id_idx",
-          "columns": ["client_stripe_customer_id"],
+          "columns": [
+            "client_stripe_customer_id"
+          ],
           "isUnique": false
         }
       },
@@ -94,8 +100,12 @@
           "name": "clients_client_organization_id_organizations_organization_id_fk",
           "tableFrom": "clients",
           "tableTo": "organizations",
-          "columnsFrom": ["client_organization_id"],
-          "columnsTo": ["organization_id"],
+          "columnsFrom": [
+            "client_organization_id"
+          ],
+          "columnsTo": [
+            "organization_id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -157,28 +167,36 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": "'verified'"
+          "default": "'VERIFIED'"
         }
       },
       "indexes": {
         "client_payments_client_payment_id_unique": {
           "name": "client_payments_client_payment_id_unique",
-          "columns": ["client_payment_id"],
+          "columns": [
+            "client_payment_id"
+          ],
           "isUnique": true
         },
         "client_payment_id_idx": {
           "name": "client_payment_id_idx",
-          "columns": ["client_payment_id"],
+          "columns": [
+            "client_payment_id"
+          ],
           "isUnique": false
         },
         "client_payment_client_id_fk_idx": {
           "name": "client_payment_client_id_fk_idx",
-          "columns": ["client_payment_client_id"],
+          "columns": [
+            "client_payment_client_id"
+          ],
           "isUnique": false
         },
         "client_payment_organization_id_fk_idx": {
           "name": "client_payment_organization_id_fk_idx",
-          "columns": ["client_payment_organization_id"],
+          "columns": [
+            "client_payment_organization_id"
+          ],
           "isUnique": false
         }
       },
@@ -187,8 +205,12 @@
           "name": "client_payments_client_payment_client_id_clients_client_id_fk",
           "tableFrom": "client_payments",
           "tableTo": "clients",
-          "columnsFrom": ["client_payment_client_id"],
-          "columnsTo": ["client_id"],
+          "columnsFrom": [
+            "client_payment_client_id"
+          ],
+          "columnsTo": [
+            "client_id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -196,8 +218,12 @@
           "name": "client_payments_client_payment_organization_id_organizations_organization_id_fk",
           "tableFrom": "client_payments",
           "tableTo": "organizations",
-          "columnsFrom": ["client_payment_organization_id"],
-          "columnsTo": ["organization_id"],
+          "columnsFrom": [
+            "client_payment_organization_id"
+          ],
+          "columnsTo": [
+            "organization_id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -271,32 +297,44 @@
       "indexes": {
         "employees_employee_id_unique": {
           "name": "employees_employee_id_unique",
-          "columns": ["employee_id"],
+          "columns": [
+            "employee_id"
+          ],
           "isUnique": true
         },
         "employees_employee_nic_number_unique": {
           "name": "employees_employee_nic_number_unique",
-          "columns": ["employee_nic_number"],
+          "columns": [
+            "employee_nic_number"
+          ],
           "isUnique": true
         },
         "employee_id_idx": {
           "name": "employee_id_idx",
-          "columns": ["employee_id"],
+          "columns": [
+            "employee_id"
+          ],
           "isUnique": false
         },
         "employee_organization_id_fk_idx": {
           "name": "employee_organization_id_fk_idx",
-          "columns": ["employee_organization_id"],
+          "columns": [
+            "employee_organization_id"
+          ],
           "isUnique": false
         },
         "employee_sales_group_id_fk_idx": {
           "name": "employee_sales_group_id_fk_idx",
-          "columns": ["employee_sales_group_id"],
+          "columns": [
+            "employee_sales_group_id"
+          ],
           "isUnique": false
         },
         "employee_nic_number_unique_idx": {
           "name": "employee_nic_number_unique_idx",
-          "columns": ["employee_nic_number"],
+          "columns": [
+            "employee_nic_number"
+          ],
           "isUnique": false
         }
       },
@@ -305,8 +343,12 @@
           "name": "employees_employee_organization_id_organizations_organization_id_fk",
           "tableFrom": "employees",
           "tableTo": "organizations",
-          "columnsFrom": ["employee_organization_id"],
-          "columnsTo": ["organization_id"],
+          "columnsFrom": [
+            "employee_organization_id"
+          ],
+          "columnsTo": [
+            "organization_id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -314,15 +356,22 @@
           "name": "employees_employee_sales_group_id_sales_groups_sales_group_id_fk",
           "tableFrom": "employees",
           "tableTo": "sales_groups",
-          "columnsFrom": ["employee_sales_group_id"],
-          "columnsTo": ["sales_group_id"],
+          "columnsFrom": [
+            "employee_sales_group_id"
+          ],
+          "columnsTo": [
+            "sales_group_id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {
         "employee_primary_key": {
-          "columns": ["employee_id", "employee_organization_id"],
+          "columns": [
+            "employee_id",
+            "employee_organization_id"
+          ],
           "name": "employee_primary_key"
         }
       },
@@ -365,17 +414,23 @@
       "indexes": {
         "items_item_id_unique": {
           "name": "items_item_id_unique",
-          "columns": ["item_id"],
+          "columns": [
+            "item_id"
+          ],
           "isUnique": true
         },
         "item_id_idx": {
           "name": "item_id_idx",
-          "columns": ["item_id"],
+          "columns": [
+            "item_id"
+          ],
           "isUnique": false
         },
         "item_organization_id_fk_idx": {
           "name": "item_organization_id_fk_idx",
-          "columns": ["item_organization_id"],
+          "columns": [
+            "item_organization_id"
+          ],
           "isUnique": false
         }
       },
@@ -384,15 +439,22 @@
           "name": "items_item_organization_id_organizations_organization_id_fk",
           "tableFrom": "items",
           "tableTo": "organizations",
-          "columnsFrom": ["item_organization_id"],
-          "columnsTo": ["organization_id"],
+          "columnsFrom": [
+            "item_organization_id"
+          ],
+          "columnsTo": [
+            "organization_id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {
         "items_primary_key": {
-          "columns": ["item_id", "item_organization_id"],
+          "columns": [
+            "item_id",
+            "item_organization_id"
+          ],
           "name": "items_primary_key"
         }
       },
@@ -409,6 +471,13 @@
           "notNull": true,
           "autoincrement": false
         },
+        "organization_admin_id": {
+          "name": "organization_admin_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
         "organization_stripe_customer_id": {
           "name": "organization_stripe_customer_id",
           "type": "text",
@@ -418,6 +487,27 @@
         },
         "organization_name": {
           "name": "organization_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "organization_admin_email": {
+          "name": "organization_admin_email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "organization_admin_phone": {
+          "name": "organization_admin_phone",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "organization_logo_url": {
+          "name": "organization_logo_url",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
@@ -451,40 +541,81 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": "'valid'"
+          "default": "'VALID'"
         }
       },
       "indexes": {
         "organizations_organization_id_unique": {
           "name": "organizations_organization_id_unique",
-          "columns": ["organization_id"],
+          "columns": [
+            "organization_id"
+          ],
+          "isUnique": true
+        },
+        "organizations_organization_admin_id_unique": {
+          "name": "organizations_organization_admin_id_unique",
+          "columns": [
+            "organization_admin_id"
+          ],
           "isUnique": true
         },
         "organizations_organization_stripe_customer_id_unique": {
           "name": "organizations_organization_stripe_customer_id_unique",
-          "columns": ["organization_stripe_customer_id"],
+          "columns": [
+            "organization_stripe_customer_id"
+          ],
           "isUnique": true
         },
         "organizations_organization_name_unique": {
           "name": "organizations_organization_name_unique",
-          "columns": ["organization_name"],
+          "columns": [
+            "organization_name"
+          ],
+          "isUnique": true
+        },
+        "organizations_organization_admin_email_unique": {
+          "name": "organizations_organization_admin_email_unique",
+          "columns": [
+            "organization_admin_email"
+          ],
+          "isUnique": true
+        },
+        "organizations_organization_admin_phone_unique": {
+          "name": "organizations_organization_admin_phone_unique",
+          "columns": [
+            "organization_admin_phone"
+          ],
+          "isUnique": true
+        },
+        "organizations_organization_logo_url_unique": {
+          "name": "organizations_organization_logo_url_unique",
+          "columns": [
+            "organization_logo_url"
+          ],
           "isUnique": true
         },
         "organization_id_idx": {
           "name": "organization_id_idx",
-          "columns": ["organization_id"],
+          "columns": [
+            "organization_id"
+          ],
           "isUnique": false
         },
         "organization_stripe_customer_id_idx": {
           "name": "organization_stripe_customer_id_idx",
-          "columns": ["organization_stripe_customer_id"],
+          "columns": [
+            "organization_stripe_customer_id"
+          ],
           "isUnique": false
         }
       },
       "foreignKeys": {},
       "compositePrimaryKeys": {
         "organization_primary_key": {
-          "columns": ["organization_id", "organization_stripe_customer_id"],
+          "columns": [
+            "organization_id",
+            "organization_stripe_customer_id"
+          ],
           "name": "organization_primary_key"
         }
       },
@@ -521,7 +652,7 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false,
-          "default": "'verified'"
+          "default": "'VERIFIED'"
         },
         "payment_date": {
           "name": "payment_date",
@@ -534,17 +665,23 @@
       "indexes": {
         "organizations_payments_payment_id_unique": {
           "name": "organizations_payments_payment_id_unique",
-          "columns": ["payment_id"],
+          "columns": [
+            "payment_id"
+          ],
           "isUnique": true
         },
         "organization_payment_id_idx": {
           "name": "organization_payment_id_idx",
-          "columns": ["payment_id"],
+          "columns": [
+            "payment_id"
+          ],
           "isUnique": false
         },
         "organization_payment_organization_id_fk_idx": {
           "name": "organization_payment_organization_id_fk_idx",
-          "columns": ["payment_organization_id"],
+          "columns": [
+            "payment_organization_id"
+          ],
           "isUnique": false
         }
       },
@@ -553,15 +690,22 @@
           "name": "organizations_payments_payment_organization_id_organizations_organization_id_fk",
           "tableFrom": "organizations_payments",
           "tableTo": "organizations",
-          "columnsFrom": ["payment_organization_id"],
-          "columnsTo": ["organization_id"],
+          "columnsFrom": [
+            "payment_organization_id"
+          ],
+          "columnsTo": [
+            "organization_id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {
         "organization_payments_primary_key": {
-          "columns": ["payment_id", "payment_organization_id"],
+          "columns": [
+            "payment_id",
+            "payment_organization_id"
+          ],
           "name": "organization_payments_primary_key"
         }
       },
@@ -632,37 +776,51 @@
       "indexes": {
         "sales_sale_id_unique": {
           "name": "sales_sale_id_unique",
-          "columns": ["sale_id"],
+          "columns": [
+            "sale_id"
+          ],
           "isUnique": true
         },
         "sale_id_idx": {
           "name": "sale_id_idx",
-          "columns": ["sale_id"],
+          "columns": [
+            "sale_id"
+          ],
           "isUnique": false
         },
         "sale_organization_id_fk_idx": {
           "name": "sale_organization_id_fk_idx",
-          "columns": ["sale_organization_id"],
+          "columns": [
+            "sale_organization_id"
+          ],
           "isUnique": false
         },
         "sale_employee_id_fk_idx": {
           "name": "sale_employee_id_fk_idx",
-          "columns": ["sale_employee_id"],
+          "columns": [
+            "sale_employee_id"
+          ],
           "isUnique": false
         },
         "sale_client_id_fk_idx": {
           "name": "sale_client_id_fk_idx",
-          "columns": ["sale_client_id"],
+          "columns": [
+            "sale_client_id"
+          ],
           "isUnique": false
         },
         "sale_client_payment_id_fk_idx": {
           "name": "sale_client_payment_id_fk_idx",
-          "columns": ["sale_client_payment_id"],
+          "columns": [
+            "sale_client_payment_id"
+          ],
           "isUnique": false
         },
         "sale_item_id_fk_idx": {
           "name": "sale_item_id_fk_idx",
-          "columns": ["sale_item_id"],
+          "columns": [
+            "sale_item_id"
+          ],
           "isUnique": false
         }
       },
@@ -671,8 +829,12 @@
           "name": "sales_sale_organization_id_organizations_organization_id_fk",
           "tableFrom": "sales",
           "tableTo": "organizations",
-          "columnsFrom": ["sale_organization_id"],
-          "columnsTo": ["organization_id"],
+          "columnsFrom": [
+            "sale_organization_id"
+          ],
+          "columnsTo": [
+            "organization_id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -680,8 +842,12 @@
           "name": "sales_sale_employee_id_employees_employee_id_fk",
           "tableFrom": "sales",
           "tableTo": "employees",
-          "columnsFrom": ["sale_employee_id"],
-          "columnsTo": ["employee_id"],
+          "columnsFrom": [
+            "sale_employee_id"
+          ],
+          "columnsTo": [
+            "employee_id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -689,8 +855,12 @@
           "name": "sales_sale_client_id_clients_client_id_fk",
           "tableFrom": "sales",
           "tableTo": "clients",
-          "columnsFrom": ["sale_client_id"],
-          "columnsTo": ["client_id"],
+          "columnsFrom": [
+            "sale_client_id"
+          ],
+          "columnsTo": [
+            "client_id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -698,8 +868,12 @@
           "name": "sales_sale_client_payment_id_client_payments_client_payment_id_fk",
           "tableFrom": "sales",
           "tableTo": "client_payments",
-          "columnsFrom": ["sale_client_payment_id"],
-          "columnsTo": ["client_payment_id"],
+          "columnsFrom": [
+            "sale_client_payment_id"
+          ],
+          "columnsTo": [
+            "client_payment_id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -707,8 +881,12 @@
           "name": "sales_sale_item_id_items_item_id_fk",
           "tableFrom": "sales",
           "tableTo": "items",
-          "columnsFrom": ["sale_item_id"],
-          "columnsTo": ["item_id"],
+          "columnsFrom": [
+            "sale_item_id"
+          ],
+          "columnsTo": [
+            "item_id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -757,22 +935,30 @@
       "indexes": {
         "sales_groups_sales_group_id_unique": {
           "name": "sales_groups_sales_group_id_unique",
-          "columns": ["sales_group_id"],
+          "columns": [
+            "sales_group_id"
+          ],
           "isUnique": true
         },
         "sales_groups_sales_group_name_unique": {
           "name": "sales_groups_sales_group_name_unique",
-          "columns": ["sales_group_name"],
+          "columns": [
+            "sales_group_name"
+          ],
           "isUnique": true
         },
         "sales_group_organization_id_fk_idx": {
           "name": "sales_group_organization_id_fk_idx",
-          "columns": ["sales_group_organization_id"],
+          "columns": [
+            "sales_group_organization_id"
+          ],
           "isUnique": false
         },
         "sales_group_name_unique_idx": {
           "name": "sales_group_name_unique_idx",
-          "columns": ["sales_group_name"],
+          "columns": [
+            "sales_group_name"
+          ],
           "isUnique": false
         }
       },
@@ -781,15 +967,22 @@
           "name": "sales_groups_sales_group_organization_id_organizations_organization_id_fk",
           "tableFrom": "sales_groups",
           "tableTo": "organizations",
-          "columnsFrom": ["sales_group_organization_id"],
-          "columnsTo": ["organization_id"],
+          "columnsFrom": [
+            "sales_group_organization_id"
+          ],
+          "columnsTo": [
+            "organization_id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {
         "sales_group_primary_key": {
-          "columns": ["sales_group_id", "sales_group_organization_id"],
+          "columns": [
+            "sales_group_id",
+            "sales_group_organization_id"
+          ],
           "name": "sales_group_primary_key"
         }
       },

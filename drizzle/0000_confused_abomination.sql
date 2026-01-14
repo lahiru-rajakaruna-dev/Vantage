@@ -7,7 +7,7 @@ CREATE TABLE `clients`
     `client_nic_number`         text                      NOT NULL,
     `client_email`              text                      NOT NULL,
     `client_phone`              text                      NOT NULL,
-    `client_account_status`     text DEFAULT 'unverified' NOT NULL,
+    `client_account_status`     text DEFAULT 'UNVERIFIED' NOT NULL,
     `client_registration_date`  integer                   NOT NULL,
     PRIMARY KEY (`client_id`, `client_organization_id`, `client_stripe_customer_id`),
     FOREIGN KEY (`client_organization_id`) REFERENCES `organizations` (`organization_id`) ON UPDATE no action ON DELETE no action
@@ -23,7 +23,7 @@ CREATE TABLE `client_payments`
     `client_payment_organization_id` text                    NOT NULL,
     `client_payment_amount`          real                    NOT NULL,
     `client_payment_date`            integer                 NOT NULL,
-    `client_payment_status`          text DEFAULT 'verified' NOT NULL,
+    `client_payment_status`          text DEFAULT 'VERIFIED' NOT NULL,
     PRIMARY KEY (`client_payment_id`, `client_payment_client_id`, `client_payment_organization_id`),
     FOREIGN KEY (`client_payment_client_id`) REFERENCES `clients` (`client_id`) ON UPDATE no action ON DELETE no action,
     FOREIGN KEY (`client_payment_organization_id`) REFERENCES `organizations` (`organization_id`) ON UPDATE no action ON DELETE no action
@@ -69,18 +69,26 @@ CREATE INDEX `item_organization_id_fk_idx` ON `items` (`item_organization_id`);-
 CREATE TABLE `organizations`
 (
     `organization_id`                    text                  NOT NULL,
+    `organization_admin_id`              text                  NOT NULL,
     `organization_stripe_customer_id`    text                  NOT NULL,
     `organization_name`                  text                  NOT NULL,
+    `organization_admin_email`           text                  NOT NULL,
+    `organization_admin_phone`           text                  NOT NULL,
+    `organization_logo_url`              text                  NOT NULL,
     `organization_registration_date`     integer               NOT NULL,
     `organization_subscription_end_date` integer               NOT NULL,
     `organization_status`                text DEFAULT 'ACTIVE' NOT NULL,
-    `organization_subscription_status`   text DEFAULT 'valid'  NOT NULL,
+    `organization_subscription_status`   text DEFAULT 'VALID'  NOT NULL,
     PRIMARY KEY (`organization_id`, `organization_stripe_customer_id`)
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `organizations_organization_id_unique` ON `organizations` (`organization_id`);--> statement-breakpoint
+CREATE UNIQUE INDEX `organizations_organization_admin_id_unique` ON `organizations` (`organization_admin_id`);--> statement-breakpoint
 CREATE UNIQUE INDEX `organizations_organization_stripe_customer_id_unique` ON `organizations` (`organization_stripe_customer_id`);--> statement-breakpoint
 CREATE UNIQUE INDEX `organizations_organization_name_unique` ON `organizations` (`organization_name`);--> statement-breakpoint
+CREATE UNIQUE INDEX `organizations_organization_admin_email_unique` ON `organizations` (`organization_admin_email`);--> statement-breakpoint
+CREATE UNIQUE INDEX `organizations_organization_admin_phone_unique` ON `organizations` (`organization_admin_phone`);--> statement-breakpoint
+CREATE UNIQUE INDEX `organizations_organization_logo_url_unique` ON `organizations` (`organization_logo_url`);--> statement-breakpoint
 CREATE INDEX `organization_id_idx` ON `organizations` (`organization_id`);--> statement-breakpoint
 CREATE INDEX `organization_stripe_customer_id_idx` ON `organizations` (`organization_stripe_customer_id`);--> statement-breakpoint
 CREATE TABLE `organizations_payments`
@@ -88,7 +96,7 @@ CREATE TABLE `organizations_payments`
     `payment_id`              text    NOT NULL,
     `payment_organization_id` text    NOT NULL,
     `payment_amount`          real    NOT NULL,
-    `payment_status`          text DEFAULT 'verified',
+    `payment_status`          text DEFAULT 'VERIFIED',
     `payment_date`            integer NOT NULL,
     PRIMARY KEY (`payment_id`, `payment_organization_id`),
     FOREIGN KEY (`payment_organization_id`) REFERENCES `organizations` (`organization_id`) ON UPDATE no action ON DELETE no action
