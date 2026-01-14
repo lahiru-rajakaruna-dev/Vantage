@@ -1,13 +1,20 @@
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-import * as z from 'zod';
+import { NestFactory }                                         from '@nestjs/core';
+import * as z                                                  from 'zod';
+import { AppModule }                                           from './app.module';
 import { EDatabaseStrategy, EEnvVars, ENodeEnv, EOrmStrategy } from './types';
 
 async function bootstrap() {
   checkEnv();
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    cors: {
+      credentials: true,
+      preflightContinue: false,
+      origin: true,
+    },
+  });
   await app.listen(process.env.PORT ?? 3000);
 }
+
 bootstrap();
 
 async function checkEnv() {
