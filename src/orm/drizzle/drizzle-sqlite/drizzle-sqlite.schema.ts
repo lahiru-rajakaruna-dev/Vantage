@@ -15,8 +15,9 @@ export const organizations = sqliteTable(
     organization_admin_id: text().unique().notNull(),
     organization_stripe_customer_id: text().unique().notNull(),
     organization_name: text().unique().notNull(),
-    organization_email: text().unique().notNull(),
-    organization_phone: text().unique().notNull(),
+    organization_admin_email: text().unique().notNull(),
+    organization_admin_phone: text().unique().notNull(),
+    organization_logo_url: text().unique().notNull(),
     organization_registration_date: integer().notNull(),
     organization_subscription_end_date: integer().notNull(),
     organization_status: text({
