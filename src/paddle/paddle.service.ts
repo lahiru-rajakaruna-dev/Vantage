@@ -1,9 +1,9 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Inject, Injectable }            from '@nestjs/common';
+import { ConfigService }                 from '@nestjs/config';
 import { Environment, LogLevel, Paddle } from '@paddle/paddle-node-sdk';
-import type ILoggerService from '../logger/logger.interface';
-import { TOKEN__LOGGER_FACTORY } from '../logger/logger_factory/logger_factory.service';
-import { EEnvVars, ENodeEnv } from '../types';
+import type ILoggerService               from '../logger/logger.interface';
+import { TOKEN__LOGGER_FACTORY }         from '../logger/logger_factory/logger_factory.service';
+import { EEnvVars, ENodeEnv }            from '../types';
 
 @Injectable()
 export class PaddleService {
