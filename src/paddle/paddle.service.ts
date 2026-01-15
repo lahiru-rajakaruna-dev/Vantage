@@ -3,10 +3,10 @@ import {
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { Environment, LogLevel, Paddle } from '@paddle/paddle-node-sdk';
 import { ConfigService } from '@nestjs/config';
-import { TOKEN__LOGGER_FACTORY } from '../logger/logger_factory/logger_factory.service';
+import { Environment, LogLevel, Paddle } from '@paddle/paddle-node-sdk';
 import type ILoggerService from '../logger/logger.interface';
+import { TOKEN__LOGGER_FACTORY } from '../logger/logger_factory/logger_factory.service';
 import { EEnvVars, ENodeEnv } from '../types';
 
 @Injectable()
@@ -80,5 +80,26 @@ export class PaddleService {
       this.logger.log(e);
       throw new InternalServerErrorException((e as Error).message);
     }
+  }
+
+  async activateCustomerAccount(customerId: string) {
+    const paddleCustomerAccount = await this.paddle.customers.update(
+      customerId,
+      { status: 'active' },
+    );
+
+    this.logger.log(paddleCustomerAccount);
+    return paddleCustomerAccount;
+  }
+
+  async activateBusinessAccount(customerId: string, businessId: string) {
+    const paddleCustomerAccount = await this.paddle.businesses.update(
+      customerId,
+      businessId,
+      { status: 'active' },
+    );
+
+    this.logger.log(paddleCustomerAccount);
+    return paddleCustomerAccount;
   }
 }
