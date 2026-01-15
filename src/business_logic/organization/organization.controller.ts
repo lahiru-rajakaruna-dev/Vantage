@@ -18,7 +18,7 @@ import type ILoggerService from '../../logger/logger.interface';
 import { TOKEN__LOGGER_FACTORY } from '../../logger/logger_factory/logger_factory.service';
 import { PaddleService } from '../../paddle/paddle.service';
 import ZodSchemaValidationPipe from '../../pipes/schema_validation.pipe';
-import { SchemaOrganization, type TOrganization } from '../../schemas';
+import { type TOrganization } from '../../schemas';
 import { EOrganizationStatus, ESubscriptionStatus } from '../../types';
 import { OrganizationService } from './organization.service';
 
@@ -52,17 +52,41 @@ export class OrganizationController {
   }
 
   @Post('/add')
-  @UsePipes(new ZodSchemaValidationPipe(SchemaOrganization))
+  @UsePipes(
+    new ZodSchemaValidationPipe(
+      z.object({
+        organization_name: z.string().nonoptional(),
+        organization_logo_url: z.string().nonoptional(),
+        organization_admin_email: z.email().nonoptional(),
+        organization_admin_phone: z.string(),
+      }),
+    ),
+  )
   async addOrganization(
     @Headers('user_id') user_id: string,
-    @Body() organizationData: TOrganization,
+    @Body()
+    organizationData: {
+      organization_name: string;
+      organization_admin_email: string;
+      organization_logo_url: string;
+      organization_admin_phone: string;
+    },
   ) {
-    const { organization_name, organization_email, organization_phone } =
-      organizationData;
+    const {
+      organization_name,
+      organization_logo_url,
+      organization_admin_email,
+      organization_admin_phone,
+    } = organizationData;
 
-    if (!organization_name || !organization_email || !organization_phone) {
+    if (
+      !organization_name ||
+      !organization_logo_url ||
+      !organization_admin_email ||
+      !organization_admin_phone
+    ) {
       throw new BadRequestException(
-        '[-] Invalid request. Property organization_name is missing...',
+        '[-] Invalid request. Required data is missing...',
       );
     }
 
@@ -73,7 +97,7 @@ export class OrganizationController {
     try {
       paddleCustomerAccount = await this.paddle.addCustomerAccount(
         organization_name,
-        organization_email,
+        organization_admin_email,
       );
     } catch (e) {
       this.logger.log(e);
@@ -85,7 +109,7 @@ export class OrganizationController {
       paddleBusinessAccount = await this.paddle.addOrganizationAccount(
         paddleCustomerAccount.id,
         organization_name,
-        organization_phone,
+        organization_admin_phone,
       );
     } catch (e) {
       this.logger.log(e);
@@ -101,8 +125,9 @@ export class OrganizationController {
           organization_admin_id: user_id,
           organization_stripe_customer_id: paddleCustomerAccount.id,
           organization_name,
-          organization_email,
-          organization_phone,
+          organization_admin_email,
+          organization_admin_phone,
+          organization_logo_url,
           organization_status: EOrganizationStatus.ACTIVE,
           organization_subscription_status: ESubscriptionStatus.VALID,
           organization_registration_date: Date.now(),
@@ -123,7 +148,9 @@ export class OrganizationController {
   @Patch('/update/name')
   @UsePipes(
     new ZodSchemaValidationPipe(
-      z.object({ organization_name: z.string().nonempty().nonoptional() }),
+      z.object({
+        organization_name: z.string().nonempty().nonoptional(),
+      }),
     ),
   )
   updateOrganizationById(
