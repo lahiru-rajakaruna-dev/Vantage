@@ -1,27 +1,14 @@
-import {
-  BadRequestException,
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Headers,
-  Inject,
-  InternalServerErrorException,
-  Patch,
-  Post,
-  Req,
-  UsePipes,
-} from '@nestjs/common';
-import { Business, Customer } from '@paddle/paddle-node-sdk';
-import { v4 as uuid } from 'uuid';
-import { z } from 'zod';
-import type ILoggerService from '../../logger/logger.interface';
-import { TOKEN__LOGGER_FACTORY } from '../../logger/logger_factory/logger_factory.service';
-import { PaddleService } from '../../paddle/paddle.service';
-import ZodSchemaValidationPipe from '../../pipes/schema_validation.pipe';
-import { type TOrganization } from '../../schemas';
-import { EOrganizationStatus, ESubscriptionStatus } from '../../types';
-import { OrganizationService } from './organization.service';
+import { BadRequestException, Body, Controller, Delete, Get, Headers, Inject, InternalServerErrorException, Patch, Post, Req, UsePipes, } from '@nestjs/common';
+import { Business, Customer }                                                                                                             from '@paddle/paddle-node-sdk';
+import { v4 as uuid }                                                                                                                     from 'uuid';
+import { z }                                                                                                                              from 'zod';
+import type ILoggerService                                                                                                                from '../../logger/logger.interface';
+import { TOKEN__LOGGER_FACTORY }                                                                                                          from '../../logger/logger_factory/logger_factory.service';
+import { PaddleService }                                                                                                                  from '../../paddle/paddle.service';
+import ZodSchemaValidationPipe                                                                                                            from '../../pipes/schema_validation.pipe';
+import { type TOrganization }                                                                                                             from '../../schemas';
+import { EOrganizationStatus, ESubscriptionStatus }                                                                                       from '../../types';
+import { OrganizationService }                                                                                                            from './organization.service';
 
 @Controller('organization')
 export class OrganizationController {
