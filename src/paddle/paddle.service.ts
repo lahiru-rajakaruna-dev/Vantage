@@ -1,8 +1,4 @@
-import {
-  Inject,
-  Injectable,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Environment, LogLevel, Paddle } from '@paddle/paddle-node-sdk';
 import type ILoggerService from '../logger/logger.interface';
@@ -48,38 +44,28 @@ export class PaddleService {
     organization_name: string,
     organization_phone: string,
   ) {
-    try {
-      const paddleBusinessAccountData = await this.paddle.businesses.create(
-        paddleCustomerAccountId,
-        {
-          name: organization_name,
-          companyNumber: organization_phone,
-        },
-      );
+    const paddleBusinessAccountData = await this.paddle.businesses.create(
+      paddleCustomerAccountId,
+      {
+        name: organization_name,
+        companyNumber: organization_phone,
+      },
+    );
 
-      this.logger.log(paddleBusinessAccountData);
+    this.logger.log(paddleBusinessAccountData);
 
-      return paddleBusinessAccountData;
-    } catch (e) {
-      this.logger.log(e);
-      throw new InternalServerErrorException((e as Error).message);
-    }
+    return paddleBusinessAccountData;
   }
 
   async addCustomerAccount(name: string, email: string) {
-    try {
-      const paddleCustomerAccount = await this.paddle.customers.create({
-        name: name,
-        email: email,
-        locale: 'en-US',
-      });
+    const paddleCustomerAccount = await this.paddle.customers.create({
+      name: name,
+      email: email,
+      locale: 'en-US',
+    });
 
-      this.logger.log(paddleCustomerAccount);
-      return paddleCustomerAccount;
-    } catch (e) {
-      this.logger.log(e);
-      throw new InternalServerErrorException((e as Error).message);
-    }
+    this.logger.log(paddleCustomerAccount);
+    return paddleCustomerAccount;
   }
 
   async activateCustomerAccount(customerId: string) {
