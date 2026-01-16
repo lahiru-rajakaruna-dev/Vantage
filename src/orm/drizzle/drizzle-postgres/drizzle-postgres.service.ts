@@ -24,7 +24,7 @@ import {
   TPGOrganization,
   TPGOrganizationPayment,
   TPGSale,
-  TPGSalesGroup
+  TPGSalesGroup,
 } from './drizzle-postgres.schema';
 
 @Injectable()
@@ -74,6 +74,16 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
       .select()
       .from(organizations)
       .where(eq(organizations.organization_id, organization_id));
+    return this.logger.logAndReturn(result[0]);
+  }
+
+  async getOrganizationDetailsByAdminId(
+    admin_id: string,
+  ): Promise<TPGOrganization> {
+    const result = await this.driver
+      .select()
+      .from(organizations)
+      .where(eq(organizations.organization_admin_id, admin_id));
     return this.logger.logAndReturn(result[0]);
   }
 

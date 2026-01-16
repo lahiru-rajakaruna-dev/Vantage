@@ -38,6 +38,10 @@ export default abstract class AbstractDrizzlerService implements IOrmInterface {
     organization_id: string,
   ): Promise<TOrganization>;
 
+  abstract getOrganizationDetailsByAdminId(
+    admin_id: string,
+  ): Promise<TOrganization>;
+
   abstract addEmployee(employeeDetails: TEmployee): Promise<TEmployee>;
 
   abstract viewEmployeeById(employee_id: string): Promise<TEmployee>;

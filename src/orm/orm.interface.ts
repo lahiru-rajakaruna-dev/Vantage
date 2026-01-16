@@ -1,22 +1,5 @@
-import {
-  TPGClient,
-  TPGClientPayment,
-  TPGEmployee,
-  TPGItem,
-  TPGOrganization,
-  TPGOrganizationPayment,
-  TPGSale,
-  TPGSalesGroup,
-} from './drizzle/drizzle-postgres/drizzle-postgres.schema';
-import {
-  TSQLiteClient,
-  TSQLiteClientPayment,
-  TSQLiteItem,
-  TSQLiteOrganization,
-  TSQLiteOrganizationPayment,
-  TSQLiteSale,
-  TSQLiteSalesGroup,
-} from './drizzle/drizzle-sqlite/drizzle-sqlite.schema';
+import { TPGClient, TPGClientPayment, TPGEmployee, TPGItem, TPGOrganization, TPGOrganizationPayment, TPGSale, TPGSalesGroup, }                from './drizzle/drizzle-postgres/drizzle-postgres.schema';
+import { TSQLiteClient, TSQLiteClientPayment, TSQLiteItem, TSQLiteOrganization, TSQLiteOrganizationPayment, TSQLiteSale, TSQLiteSalesGroup, } from './drizzle/drizzle-sqlite/drizzle-sqlite.schema';
 
 export type TOrganization = TPGOrganization | TSQLiteOrganization;
 export type TEmployee = TPGEmployee | TSQLiteOrganization;
@@ -31,8 +14,8 @@ export type TClientPayment = TPGClientPayment | TSQLiteClientPayment;
 
 export default interface IOrmInterface {
   addOrganization(organizationDetails: TOrganization): Promise<TOrganization>;
-
   getOrganizationDetailsById(organization_id: string): Promise<TOrganization>;
+  getOrganizationDetailsByAdminId(admin_id: string): Promise<TOrganization>;
   updateOrganizationById(
     organization_id: string,
     organizationUpdates: Partial<TOrganization>,

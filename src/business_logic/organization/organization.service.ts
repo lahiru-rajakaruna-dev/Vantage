@@ -24,6 +24,12 @@ export class OrganizationService {
     return await this.orm.getOrganizationDetailsById(organization_id);
   }
 
+  async getOrganizationDetailsAdminId(
+    admin_id: string,
+  ): Promise<TOrganization> {
+    return await this.orm.getOrganizationDetailsByAdminId(admin_id);
+  }
+
   async updateOrganizationNameById(
     organization_id: string,
     organization_name: string,

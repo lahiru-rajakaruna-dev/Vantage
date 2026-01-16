@@ -1,30 +1,13 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { and, between, eq } from 'drizzle-orm';
-import { drizzle } from 'drizzle-orm/libsql/node';
-import type ILoggerService from '../../../logger/logger.interface';
-import { TOKEN__LOGGER_FACTORY } from '../../../logger/logger_factory/logger_factory.service';
-import { EEnvVars } from '../../../types';
-import AbstractDrizzlerService from '../abstract_drizzle.service';
-import * as schema from './drizzle-sqlite.schema';
-import {
-  clients,
-  clientsPayments,
-  employees,
-  items,
-  organizations,
-  organizationsPayments,
-  sales,
-  salesGroups,
-  TSQLiteClient,
-  TSQLiteClientPayment,
-  TSQLiteEmployee,
-  TSQLiteItem,
-  TSQLiteOrganization,
-  TSQLiteOrganizationPayment,
-  TSQLiteSale,
-  TSQLiteSalesGroup,
-} from './drizzle-sqlite.schema';
+import { Inject, Injectable }                                                                                                                                                                                                                                       from '@nestjs/common';
+import { ConfigService }                                                                                                                                                                                                                                            from '@nestjs/config';
+import { and, between, eq }                                                                                                                                                                                                                                         from 'drizzle-orm';
+import { drizzle }                                                                                                                                                                                                                                                  from 'drizzle-orm/libsql/node';
+import type ILoggerService                                                                                                                                                                                                                                          from '../../../logger/logger.interface';
+import { TOKEN__LOGGER_FACTORY }                                                                                                                                                                                                                                    from '../../../logger/logger_factory/logger_factory.service';
+import { EEnvVars }                                                                                                                                                                                                                                                 from '../../../types';
+import AbstractDrizzlerService                                                                                                                                                                                                                                      from '../abstract_drizzle.service';
+import * as schema                                                                                                                                                                                                                                                  from './drizzle-sqlite.schema';
+import { clients, clientsPayments, employees, items, organizations, organizationsPayments, sales, salesGroups, TSQLiteClient, TSQLiteClientPayment, TSQLiteEmployee, TSQLiteItem, TSQLiteOrganization, TSQLiteOrganizationPayment, TSQLiteSale, TSQLiteSalesGroup } from './drizzle-sqlite.schema';
 
 @Injectable()
 export class DrizzleSqliteService extends AbstractDrizzlerService {
@@ -73,6 +56,16 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
       .select()
       .from(organizations)
       .where(eq(organizations.organization_id, organization_id));
+    return this.logger.logAndReturn(result[0]);
+  }
+
+  async getOrganizationDetailsByAdminId(
+    admin_id: string,
+  ): Promise<TSQLiteOrganization> {
+    const result = await this.driver
+      .select()
+      .from(organizations)
+      .where(eq(organizations.organization_admin_id, admin_id));
     return this.logger.logAndReturn(result[0]);
   }
 
