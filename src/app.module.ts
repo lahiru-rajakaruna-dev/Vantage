@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AuthenticationModule } from './authentication/authentication.module';
 import { ClientModule } from './business_logic/client/client.module';
 import { ClientPaymentModule } from './business_logic/client_payment/client_payment.module';
 import { EmployeeModule } from './business_logic/employee/employee.module';
@@ -39,6 +40,7 @@ import { PaddleModule } from './paddle/paddle.module';
     DrizzleModule,
     OrmModule,
     PaddleModule,
+    AuthenticationModule,
   ],
   controllers: [AppController],
   providers: [

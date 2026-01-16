@@ -1,7 +1,7 @@
-import { NestFactory }                                         from '@nestjs/core';
-import cookieParser                                            from 'cookie-parser';
-import * as z                                                  from 'zod';
-import { AppModule }                                           from './app.module';
+import { NestFactory } from '@nestjs/core';
+import cookieParser from 'cookie-parser';
+import * as z from 'zod';
+import { AppModule } from './app.module';
 import { EDatabaseStrategy, EEnvVars, ENodeEnv, EOrmStrategy } from './types';
 
 async function bootstrap() {
@@ -30,6 +30,7 @@ async function checkEnv() {
     [EEnvVars.POSTGRES_URL]: z.string().nonempty().nonoptional(),
     [EEnvVars.POSTGRES_USERNAME]: z.string().nonempty().nonoptional(),
     [EEnvVars.POSTGRES_PASSWORD]: z.string().nonempty().nonoptional(),
+    [EEnvVars.JWT_SECRET_KEY]: z.string().nonempty().nonoptional(),
   });
 
   const drizzle_sqlite = z.object({
@@ -38,6 +39,7 @@ async function checkEnv() {
     [EEnvVars.ORM_STRATEGY]: z.enum(EOrmStrategy),
     [EEnvVars.DATABASE_STRATEGY]: z.enum(EDatabaseStrategy),
     [EEnvVars.SQLITE_URL]: z.string().nonempty().nonoptional(),
+    [EEnvVars.JWT_SECRET_KEY]: z.string().nonempty().nonoptional(),
   });
 
   const applicationConfigStrategy = z.xor([drizzle_sqlite, drizzle_postgres]);
