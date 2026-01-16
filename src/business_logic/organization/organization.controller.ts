@@ -26,6 +26,28 @@ export class OrganizationController {
     this.paddle = paddle;
   }
 
+  @Get('/is_registered')
+  async isRegistered(@Req() request: Request) {
+    const user_id = request['cookies']['user_id'];
+
+    if (!user_id) {
+      throw new BadRequestException('[-] Unauthenticated request...');
+    }
+
+    const organization =
+      await this.organizationService.getOrganizationDetailsAdminId(user_id);
+
+    if (organization) {
+      return {
+        isRegistered: true,
+      };
+    }
+
+    return {
+      isRegistered: false,
+    };
+  }
+
   @Get('/view')
   async getOrganizationById(
     @Headers('organization_id') organization_id: string,
