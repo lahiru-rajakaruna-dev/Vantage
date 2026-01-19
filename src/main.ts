@@ -1,7 +1,7 @@
-import { NestFactory }                                         from '@nestjs/core';
-import cookieParser                                            from 'cookie-parser';
-import * as z                                                  from 'zod';
-import { AppModule }                                           from './app.module';
+import { NestFactory } from '@nestjs/core';
+import cookieParser from 'cookie-parser';
+import * as z from 'zod';
+import { AppModule } from './app.module';
 import { EDatabaseStrategy, EEnvVars, ENodeEnv, EOrmStrategy } from './types';
 
 async function bootstrap() {
@@ -11,6 +11,7 @@ async function bootstrap() {
       credentials: true,
       preflightContinue: false,
       origin: true,
+      optionsSuccessStatus: 200,
     },
   });
   app.use(cookieParser());

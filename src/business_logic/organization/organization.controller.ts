@@ -31,7 +31,7 @@ export class OrganizationController {
     const user_id = request['cookies']['user_id'];
 
     if (!user_id) {
-      throw new BadRequestException('[-] Unauthenticated request...');
+      throw new BadRequestException('[-] Cookie not found...');
     }
 
     const organization =
