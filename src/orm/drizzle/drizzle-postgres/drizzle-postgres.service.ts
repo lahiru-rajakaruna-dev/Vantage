@@ -214,11 +214,28 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
 
   async getSalesGroupsByOrganizationId(
     organization_id: string,
-  ): Promise<TPGSalesGroup> {
+  ): Promise<TPGSalesGroup[]> {
     const result = await this.driver
       .select()
       .from(salesGroups)
       .where(eq(salesGroups.sales_group_organization_id, organization_id));
+    return this.logger.logAndReturn(result);
+  }
+
+  async getSalesGroupDetailsById(
+    organization_id: string,
+    sales_group_id: string,
+  ): Promise<TPGSalesGroup> {
+    const result = await this.driver
+      .select()
+      .from(salesGroups)
+      .where(
+        and(
+          eq(salesGroups.sales_group_organization_id, organization_id),
+          eq(salesGroups.sales_group_id, sales_group_id),
+        ),
+      );
+
     return this.logger.logAndReturn(result[0]);
   }
 

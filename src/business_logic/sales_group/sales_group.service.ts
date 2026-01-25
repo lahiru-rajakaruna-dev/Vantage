@@ -17,8 +17,18 @@ export class SalesGroupService {
 
   async getSalesGroupsByOrganizationId(
     organization_id: string,
-  ): Promise<TSalesGroup | undefined> {
+  ): Promise<TSalesGroup[] | undefined> {
     return await this.orm.getSalesGroupsByOrganizationId(organization_id);
+  }
+
+  async getSalesGroupDetailsById(
+    organization_id: string,
+    sales_group_id: string,
+  ): Promise<TSalesGroup | undefined> {
+    return await this.orm.getSalesGroupDetailsById(
+      organization_id,
+      sales_group_id,
+    );
   }
 
   async updateSalesGroupNameById(

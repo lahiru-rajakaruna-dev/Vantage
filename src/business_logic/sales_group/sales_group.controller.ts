@@ -59,6 +59,21 @@ export class SalesGroupController {
     );
   }
 
+  @Get('/view/:sales_group_id')
+  getSalesGroupDetails(
+    @Headers('organization_id') organization_id: string,
+    @Param('sales_group_id') sales_group_id: string,
+  ) {
+    if (!organization_id) {
+      throw new BadRequestException('[-] Invalid request...');
+    }
+
+    return this.salesGroupService.getSalesGroupDetailsById(
+      organization_id,
+      sales_group_id,
+    );
+  }
+
   @Patch('/update/name/:sales_group_id')
   @UsePipes(
     new ZodSchemaValidationPipe(

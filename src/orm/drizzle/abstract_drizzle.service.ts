@@ -80,6 +80,11 @@ export default abstract class AbstractDrizzlerService implements IOrmInterface {
 
   abstract getSalesGroupsByOrganizationId(
     organization_id: string,
+  ): Promise<TSalesGroup[]>;
+
+  abstract getSalesGroupDetailsById(
+    organization_id: string,
+    sales_group_id: string,
   ): Promise<TSalesGroup>;
 
   abstract updateSalesGroupById(

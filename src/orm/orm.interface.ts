@@ -1,5 +1,24 @@
-import { TPGClient, TPGClientPayment, TPGEmployee, TPGItem, TPGOrganization, TPGOrganizationPayment, TPGSale, TPGSalesGroup, }                from './drizzle/drizzle-postgres/drizzle-postgres.schema';
-import { TSQLiteClient, TSQLiteClientPayment, TSQLiteItem, TSQLiteOrganization, TSQLiteOrganizationPayment, TSQLiteSale, TSQLiteSalesGroup, } from './drizzle/drizzle-sqlite/drizzle-sqlite.schema';
+import {
+  TPGClient,
+  TPGClientPayment,
+  TPGEmployee,
+  TPGItem,
+  TPGOrganization,
+  TPGOrganizationPayment,
+  TPGSale,
+  TPGSalesGroup,
+} from './drizzle/drizzle-postgres/drizzle-postgres.schema';
+import {
+  TSQLiteClient,
+  TSQLiteClientPayment,
+  TSQLiteItem,
+  TSQLiteOrganization,
+  TSQLiteOrganizationPayment,
+  TSQLiteSale,
+  TSQLiteSalesGroup,
+} from './drizzle/drizzle-sqlite/drizzle-sqlite.schema';
+
+
 
 export type TOrganization = TPGOrganization | TSQLiteOrganization;
 export type TEmployee = TPGEmployee | TSQLiteOrganization;
@@ -55,7 +74,13 @@ export default interface IOrmInterface {
 
   //   SALES_GROUP
   addSalesGroup(salesGroupDetails: TSalesGroup): Promise<TSalesGroup>;
-  getSalesGroupsByOrganizationId(organization_id: string): Promise<TSalesGroup>;
+  getSalesGroupsByOrganizationId(
+    organization_id: string,
+  ): Promise<TSalesGroup[]>;
+  getSalesGroupDetailsById(
+    organization_id: string,
+    sales_group_id: string,
+  ): Promise<TSalesGroup>;
   updateSalesGroupById(
     organization_id: string,
     sales_group_id: string,
