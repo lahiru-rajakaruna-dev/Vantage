@@ -1,7 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { TOKEN__ORM_FACTORY } from '../../orm/orm-factory/orm-factory.service';
-import type IOrmInterface from '../../orm/orm.interface';
-import { type TSale } from '../../orm/orm.interface';
+import type IOrmInterface     from '../../orm/orm.interface';
+import { type TSale }         from '../../orm/orm.interface';
+
+
 
 @Injectable()
 export class SaleService {
@@ -11,7 +13,7 @@ export class SaleService {
     this.orm = orm;
   }
 
-  async addSale(saleData: TSale): Promise<TSale> {
+  async addSale(saleData: TSale): Promise<TSale[]> {
     return await this.orm.addSaleItem(saleData);
   }
 

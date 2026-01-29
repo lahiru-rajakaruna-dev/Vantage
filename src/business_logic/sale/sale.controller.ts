@@ -38,7 +38,7 @@ export class SaleController {
   async addSale(
     @Headers('organization_id') organization_id: string,
     @Body() saleData: TSale,
-  ): Promise<TSale> {
+  ): Promise<TSale[]> {
     if (!organization_id) {
       throw new BadRequestException('[-] Invalid request...');
     }
