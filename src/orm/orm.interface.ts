@@ -11,6 +11,7 @@ import {
 import {
   TSQLiteClient,
   TSQLiteClientPayment,
+  TSQLiteEmployee,
   TSQLiteItem,
   TSQLiteOrganization,
   TSQLiteOrganizationPayment,
@@ -21,7 +22,7 @@ import {
 
 
 export type TOrganization = TPGOrganization | TSQLiteOrganization;
-export type TEmployee = TPGEmployee | TSQLiteOrganization;
+export type TEmployee = TPGEmployee | TSQLiteEmployee;
 export type TItem = TPGItem | TSQLiteItem;
 export type TSalesGroup = TPGSalesGroup | TSQLiteSalesGroup;
 export type TClient = TPGClient | TSQLiteClient;
