@@ -9,8 +9,8 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { ClientPaymentService } from './client_payment.service';
 import { v4 as uuid } from 'uuid';
+import { ClientPaymentService } from './client_payment.service';
 
 @Controller('client-payment')
 export class ClientPaymentController {
@@ -35,7 +35,7 @@ export class ClientPaymentController {
       client_payment_id: uuid().toString(),
       client_payment_organization_id: organization_id,
       client_payment_client_id: client_id,
-      client_payment_amount: client_payment_amount.toString(),
+      client_payment_amount: client_payment_amount,
       client_payment_date: Date.now(),
     });
   }

@@ -1,8 +1,10 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { TOKEN__ORM_FACTORY } from '../../orm/orm-factory/orm-factory.service';
-import type IOrmInterface from '../../orm/orm.interface';
+import { Inject, Injectable }  from '@nestjs/common';
+import { TOKEN__ORM_FACTORY }  from '../../orm/orm-factory/orm-factory.service';
+import type IOrmInterface      from '../../orm/orm.interface';
 import { type TClientPayment } from '../../orm/orm.interface';
-import { EPaymentStatus } from '../../types';
+import { EPaymentStatus }      from '../../types';
+
+
 
 @Injectable()
 export class ClientPaymentService {
@@ -15,7 +17,7 @@ export class ClientPaymentService {
   //   ADD CLIENT PAYMENT
   async addClientPayment(
     paymentDetails: TClientPayment,
-  ): Promise<TClientPayment> {
+  ): Promise<TClientPayment[]> {
     return this.orm.addClientPayment(paymentDetails);
   }
 
@@ -23,7 +25,7 @@ export class ClientPaymentService {
   async updateClientPaymentStatusToPendingById(
     organization_id: string,
     payment_id: string,
-  ): Promise<TClientPayment> {
+  ): Promise<TClientPayment[]> {
     return this.orm.updateClientPaymentById(organization_id, payment_id, {
       client_payment_status: EPaymentStatus.PENDING,
     });
@@ -32,7 +34,7 @@ export class ClientPaymentService {
   async updateClientPaymentStatusToPaidById(
     organization_id: string,
     payment_id: string,
-  ): Promise<TClientPayment> {
+  ): Promise<TClientPayment[]> {
     return this.orm.updateClientPaymentById(organization_id, payment_id, {
       client_payment_status: EPaymentStatus.PAID,
     });
@@ -41,7 +43,7 @@ export class ClientPaymentService {
   async updateClientPaymentStatusToVerifiedById(
     organization_id: string,
     payment_id: string,
-  ): Promise<TClientPayment> {
+  ): Promise<TClientPayment[]> {
     return this.orm.updateClientPaymentById(organization_id, payment_id, {
       client_payment_status: EPaymentStatus.VERIFIED,
     });
@@ -50,7 +52,7 @@ export class ClientPaymentService {
   async updateClientPaymentStatusToRefundedById(
     organization_id: string,
     payment_id: string,
-  ): Promise<TClientPayment> {
+  ): Promise<TClientPayment[]> {
     return this.orm.updateClientPaymentById(organization_id, payment_id, {
       client_payment_status: EPaymentStatus.REFUNDED,
     });
