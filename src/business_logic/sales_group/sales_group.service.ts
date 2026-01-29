@@ -1,7 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { TOKEN__ORM_FACTORY } from '../../orm/orm-factory/orm-factory.service';
-import type IOrmInterface from '../../orm/orm.interface';
-import { type TSalesGroup } from '../../orm/orm.interface';
+import type IOrmInterface     from '../../orm/orm.interface';
+import { type TSalesGroup }   from '../../orm/orm.interface';
+
+
 
 @Injectable()
 export class SalesGroupService {
@@ -11,7 +13,7 @@ export class SalesGroupService {
     this.orm = orm;
   }
 
-  async addSalesGroup(salesGroupData: TSalesGroup): Promise<TSalesGroup> {
+  async addSalesGroup(salesGroupData: TSalesGroup): Promise<TSalesGroup[]> {
     return await this.orm.addSalesGroup(salesGroupData);
   }
 
@@ -35,7 +37,7 @@ export class SalesGroupService {
     organization_id: string,
     sales_group_id: string,
     sales_group_name: string,
-  ): Promise<TSalesGroup> {
+  ): Promise<TSalesGroup[]> {
     return await this.orm.updateSalesGroupById(
       organization_id,
       sales_group_id,
@@ -48,7 +50,7 @@ export class SalesGroupService {
   async deleteSalesGroupById(
     organization_id: string,
     sales_group_id: string,
-  ): Promise<TSalesGroup> {
+  ): Promise<TSalesGroup[]> {
     return await this.orm.deleteSalesGroupById(organization_id, sales_group_id);
   }
 }

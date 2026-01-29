@@ -9,12 +9,15 @@ import {
   Param,
   Patch,
   Post,
+  Req,
+  UnauthorizedException,
   UsePipes,
 } from '@nestjs/common';
 import { v4 as uuid } from 'uuid';
 import { z } from 'zod';
 import { type TSalesGroup } from '../../orm/orm.interface';
 import ZodSchemaValidationPipe from '../../pipes/schema_validation.pipe';
+import type { TOrganization } from '../../schemas';
 import { SalesGroupService } from './sales_group.service';
 
 @Controller('sales_group')
@@ -30,45 +33,58 @@ export class SalesGroupController {
     new ZodSchemaValidationPipe(
       z.object({
         sales_group_name: z.string().nonempty().nonoptional(),
+        sales_group_territory: z.string().nonempty().nonoptional(),
       }),
     ),
   )
-  addSalesGroup(
-    @Headers('organization_id') organization_id: string,
+  async addSalesGroup(
+    @Req() req: { organization: TOrganization } & Request,
     @Body() salesGroupData: TSalesGroup,
   ) {
-    if (!organization_id) {
+    const organization = req.organization;
+
+    if (!organization.organization_id) {
       throw new BadRequestException('[-] Invalid request...');
     }
 
-    return this.salesGroupService.addSalesGroup({
+    return await this.salesGroupService.addSalesGroup({
       sales_group_id: uuid().toString(),
-      sales_group_organization_id: organization_id,
+      sales_group_organization_id: organization.organization_id,
       sales_group_name: salesGroupData.sales_group_name,
+      sales_group_territory: salesGroupData.sales_group_territory,
     });
   }
 
   @Get('/view')
-  getSalesGroups(@Headers('organization_id') organization_id: string) {
+  async getSalesGroups(
+    @Req() request: Request & { organization: TOrganization },
+  ) {
+    const organization_id = request.organization.organization_id;
     if (!organization_id) {
-      throw new BadRequestException('[-] Invalid request...');
+      throw new BadRequestException('Organization not found');
     }
 
-    return this.salesGroupService.getSalesGroupsByOrganizationId(
+    return await this.salesGroupService.getSalesGroupsByOrganizationId(
       organization_id,
     );
   }
 
   @Get('/view/:sales_group_id')
-  getSalesGroupDetails(
-    @Headers('organization_id') organization_id: string,
+  async getSalesGroupDetails(
+    @Req() request: Request & { organization: TOrganization },
     @Param('sales_group_id') sales_group_id: string,
   ) {
+    const organization_id = request.organization.organization_id;
+
     if (!organization_id) {
-      throw new BadRequestException('[-] Invalid request...');
+      throw new BadRequestException('Unauthorized request');
     }
 
-    return this.salesGroupService.getSalesGroupDetailsById(
+    if (!sales_group_id || sales_group_id.length <= 0) {
+      throw new BadRequestException('Invalid sales group id');
+    }
+
+    return await this.salesGroupService.getSalesGroupDetailsById(
       organization_id,
       sales_group_id,
     );
@@ -82,12 +98,12 @@ export class SalesGroupController {
       }),
     ),
   )
-  updateSalesGroupName(
+  async updateSalesGroupName(
     @Headers('organization_id') organization_id: string,
     @Param('sales_group_id') sales_group_id: string,
     @Body() salesGroupData: TSalesGroup,
   ) {
-    return this.salesGroupService.updateSalesGroupNameById(
+    return await this.salesGroupService.updateSalesGroupNameById(
       organization_id,
       sales_group_id,
       salesGroupData.sales_group_name,
@@ -95,12 +111,16 @@ export class SalesGroupController {
   }
 
   @Delete('/delete/:sales_group_id')
-  removeSalesGroup(
-    @Headers('organization_id') organization_id: string,
+  async removeSalesGroup(
+    @Req() request: Request & { organization: TOrganization },
     @Param('sales_group_id') sales_group_id: string,
   ) {
-    return this.salesGroupService.deleteSalesGroupById(
-      organization_id,
+    if (!request.organization) {
+      throw new UnauthorizedException('Organization not found');
+    }
+
+    return await this.salesGroupService.deleteSalesGroupById(
+      request.organization.organization_id,
       sales_group_id,
     );
   }
