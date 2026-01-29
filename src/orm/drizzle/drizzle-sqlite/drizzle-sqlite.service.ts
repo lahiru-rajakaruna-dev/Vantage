@@ -1,31 +1,45 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { and, between, eq } from 'drizzle-orm';
-import { drizzle } from 'drizzle-orm/libsql/node';
-import type ILoggerService from '../../../logger/logger.interface';
-import { TOKEN__LOGGER_FACTORY } from '../../../logger/logger_factory/logger_factory.service';
-import { EEnvVars } from '../../../types';
-import { TEmployee, TSale } from '../../orm.interface';
-import AbstractDrizzlerService from '../abstract_drizzle.service';
-import * as schema from './drizzle-sqlite.schema';
+import { createClient }              from '@libsql/client';
+import { Inject, Injectable }        from '@nestjs/common';
+import { ConfigService }             from '@nestjs/config';
+import { and, between, eq, inArray } from 'drizzle-orm';
+import { drizzle }                   from 'drizzle-orm/libsql/node';
+import type ILoggerService           from '../../../logger/logger.interface';
 import {
-  clients,
-  clientsPayments,
-  employees,
-  items,
-  organizations,
-  organizationsPayments,
-  sales,
-  salesGroups,
-  TSQLiteClient,
-  TSQLiteClientPayment,
-  TSQLiteEmployee,
-  TSQLiteItem,
-  TSQLiteOrganization,
-  TSQLiteOrganizationPayment,
-  TSQLiteSale,
-  TSQLiteSalesGroup,
-} from './drizzle-sqlite.schema';
+    TOKEN__LOGGER_FACTORY
+}                                    from '../../../logger/logger_factory/logger_factory.service';
+import { EEnvVars }                  from '../../../types';
+import {
+    TClient,
+    TClientPayment,
+    TEmployee,
+    TItem,
+    TOrganization,
+    TOrganizationPayment,
+    TSale,
+    TSalesGroup,
+}                                    from '../../orm.interface';
+import AbstractDrizzlerService       from '../abstract_drizzle.service';
+import * as schema                   from './drizzle-sqlite.schema';
+import {
+    clients,
+    clientsPayments,
+    employees,
+    items,
+    organizations,
+    organizationsPayments,
+    sales,
+    salesGroups,
+    TSQLiteClient,
+    TSQLiteClientPayment,
+    TSQLiteEmployee,
+    TSQLiteItem,
+    TSQLiteOrganization,
+    TSQLiteOrganizationPayment,
+    TSQLiteSale,
+    TSQLiteSalesGroup
+}                                    from './drizzle-sqlite.schema';
+
+
 
 @Injectable()
 export class DrizzleSqliteService extends AbstractDrizzlerService {
@@ -37,33 +51,37 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
   ) {
     super(configService, logger);
 
-    this.driver = drizzle({
-      connection: {
-        url: this.configService.get(EEnvVars.SQLITE_URL) as string,
-      },
+    const sqliteClient = createClient({
+      url: this.configService.get(EEnvVars.SQLITE_URL) as string,
+    });
+
+    sqliteClient.execute('PRAGMA journal_mode = WAL;');
+
+    this.driver = drizzle(sqliteClient, {
       schema: schema,
     });
   }
 
   async addOrganization(
-    organizationDetails: TSQLiteOrganization,
-  ): Promise<TSQLiteOrganization> {
-    const result = await this.driver
-      .insert(organizations)
-      .values(organizationDetails)
-      .returning();
+    organizationDetails: TOrganization,
+  ): Promise<TOrganization> {
+    const result = await this.driver.transaction(async (tx) => {
+      return tx.insert(organizations).values(organizationDetails).returning();
+    });
     return this.logger.logAndReturn(result[0], 'operation: add_organization');
   }
 
   async updateOrganizationById(
     organization_id: string,
-    organizationUpdates: Partial<TSQLiteOrganization>,
-  ): Promise<TSQLiteOrganization> {
-    const result = await this.driver
-      .update(organizations)
-      .set(organizationUpdates)
-      .where(eq(organizations.organization_id, organization_id))
-      .returning();
+    organizationUpdates: Partial<TOrganization>,
+  ): Promise<TOrganization> {
+    const result = await this.driver.transaction(async (tx) => {
+      return tx
+        .update(organizations)
+        .set(organizationUpdates)
+        .where(eq(organizations.organization_id, organization_id))
+        .returning();
+    });
     return this.logger.logAndReturn(
       result[0],
       'operation: update_organization_by_id',
@@ -96,14 +114,20 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
     );
   }
 
-  async addEmployee(
-    employeeDetails: TSQLiteEmployee,
-  ): Promise<TSQLiteEmployee> {
-    const result = await this.driver
-      .insert(employees)
-      .values(employeeDetails)
-      .returning();
-    return this.logger.logAndReturn(result[0], 'operation: add_employee');
+  async addEmployee(employeeDetails: TEmployee): Promise<TEmployee[]> {
+    const result = await this.driver.transaction(async (tx) => {
+      await tx.insert(employees).values(employeeDetails);
+      return tx
+        .select()
+        .from(employees)
+        .where(
+          eq(
+            employees.employee_organization_id,
+            employeeDetails.employee_organization_id,
+          ),
+        );
+    });
+    return this.logger.logAndReturn(result, 'operation: add_employee');
   }
 
   async viewEmployeeById(employee_id: string): Promise<TSQLiteEmployee> {
@@ -144,41 +168,81 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
   async updateEmployeeById(
     organization_id: string,
     employee_id: string,
-    employeeUpdates: Partial<TSQLiteEmployee>,
-  ): Promise<TSQLiteEmployee> {
-    const result = await this.driver
-      .update(employees)
-      .set(employeeUpdates)
-      .where(
-        and(
-          eq(employees.employee_organization_id, organization_id),
-          eq(employees.employee_id, employee_id),
-        ),
-      )
-      .returning();
-    return this.logger.logAndReturn(
-      result[0],
-      'operation: update_employee_by_id',
-    );
+    employeeUpdates: Partial<TEmployee>,
+  ): Promise<TEmployee[]> {
+    const result = await this.driver.transaction(async (tx) => {
+      await tx
+        .update(employees)
+        .set(employeeUpdates)
+        .where(
+          and(
+            eq(employees.employee_organization_id, organization_id),
+            eq(employees.employee_id, employee_id),
+          ),
+        );
+      return tx
+        .select()
+        .from(employees)
+        .where(eq(employees.employee_organization_id, organization_id));
+    });
+    return this.logger.logAndReturn(result, 'operation: update_employee_by_id');
   }
 
-  async deleteEmployeeById(employee_id: string): Promise<TSQLiteEmployee> {
-    const result = await this.driver
-      .delete(employees)
-      .where(eq(employees.employee_id, employee_id))
-      .returning();
-    return this.logger.logAndReturn(
-      result[0],
-      'operation: delete_employee_by_id',
-    );
+  async updateEmployeesByIds(
+    organization_id: string,
+    employees_ids: string[],
+    employeeUpdates: Partial<TEmployee>,
+  ): Promise<TEmployee[]> {
+    const result = await this.driver.transaction(async (tx) => {
+      await tx
+        .update(employees)
+        .set(employeeUpdates)
+        .where(
+          and(
+            eq(employees.employee_organization_id, organization_id),
+            inArray(employees.employee_id, employees_ids),
+          ),
+        );
+      return tx
+        .select()
+        .from(employees)
+        .where(eq(employees.employee_organization_id, organization_id));
+    });
+    return this.logger.logAndReturn(result, 'operation: update_employee_by_id');
   }
 
-  async addItem(itemDetails: TSQLiteItem): Promise<TSQLiteItem> {
-    const result = await this.driver
-      .insert(items)
-      .values(itemDetails)
-      .returning();
-    return this.logger.logAndReturn(result[0], 'operation: add_item');
+  async deleteEmployeeById(
+    organization_id: string,
+    employee_id: string,
+  ): Promise<TEmployee[]> {
+    const result = await this.driver.transaction(async (tx) => {
+      await tx
+        .delete(employees)
+        .where(
+          and(
+            eq(employees.employee_organization_id, organization_id),
+            eq(employees.employee_id, employee_id),
+          ),
+        );
+      return tx
+        .select()
+        .from(employees)
+        .where(eq(employees.employee_organization_id, organization_id));
+    });
+    return this.logger.logAndReturn(result, 'operation: delete_employee_by_id');
+  }
+
+  async addItem(itemDetails: TItem): Promise<TItem[]> {
+    const result = await this.driver.transaction(async (tx) => {
+      await tx.insert(items).values(itemDetails);
+      return tx
+        .select()
+        .from(items)
+        .where(
+          eq(items.item_organization_id, itemDetails.item_organization_id),
+        );
+    });
+    return this.logger.logAndReturn(result, 'operation: add_item');
   }
 
   async viewItemById(item_id: string): Promise<TSQLiteItem> {
@@ -205,36 +269,104 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
     organization_id: string,
     item_id: string,
     itemUpdates: Partial<TSQLiteItem>,
-  ): Promise<TSQLiteItem> {
-    const result = await this.driver
-      .update(items)
-      .set(itemUpdates)
-      .where(
-        and(
-          eq(items.item_organization_id, organization_id),
-          eq(items.item_id, item_id),
-        ),
-      )
-      .returning();
-    return this.logger.logAndReturn(result[0], 'operation: update_item_by_id');
+  ): Promise<TItem[]> {
+    const result = await this.driver.transaction(async (tx) => {
+      await tx
+        .update(items)
+        .set(itemUpdates)
+        .where(
+          and(
+            eq(items.item_organization_id, organization_id),
+            eq(items.item_id, item_id),
+          ),
+        );
+      return tx
+        .select()
+        .from(items)
+        .where(eq(items.item_organization_id, organization_id));
+    });
+    return this.logger.logAndReturn(result, 'operation: update_item_by_id');
   }
 
-  async deleteItemById(item_id: string): Promise<TSQLiteItem> {
-    const result = await this.driver
-      .delete(items)
-      .where(eq(items.item_id, item_id))
-      .returning();
-    return this.logger.logAndReturn(result[0], 'operation: delete_item_by_id');
+  async updateItemsByIds(
+    organization_id: string,
+    items_ids: string[],
+    itemUpdates: Partial<TSQLiteItem>,
+  ): Promise<TItem[]> {
+    const result = await this.driver.transaction(async (tx) => {
+      await tx
+        .update(items)
+        .set(itemUpdates)
+        .where(
+          and(
+            eq(items.item_organization_id, organization_id),
+            inArray(items.item_id, items_ids),
+          ),
+        );
+      return tx
+        .select()
+        .from(items)
+        .where(eq(items.item_organization_id, organization_id));
+    });
+    return this.logger.logAndReturn(result, 'operation: update_item_by_id');
   }
 
-  async addSalesGroup(
-    salesGroupDetails: TSQLiteSalesGroup,
-  ): Promise<TSQLiteSalesGroup> {
-    const result = await this.driver
-      .insert(salesGroups)
-      .values(salesGroupDetails)
-      .returning();
-    return this.logger.logAndReturn(result[0], 'operation: add_sales_group');
+  async deleteItemById(
+    organization_id: string,
+    item_id: string,
+  ): Promise<TItem[]> {
+    const result = await this.driver.transaction(async (tx) => {
+      await tx
+        .delete(items)
+        .where(
+          and(
+            eq(items.item_organization_id, organization_id),
+            eq(items.item_id, item_id),
+          ),
+        );
+      return tx
+        .select()
+        .from(items)
+        .where(eq(items.item_organization_id, organization_id));
+    });
+    return this.logger.logAndReturn(result, 'operation: delete_item_by_id');
+  }
+
+  async deleteItemsByIds(
+    organization_id: string,
+    items_ids: string[],
+  ): Promise<TItem[]> {
+    const result = await this.driver.transaction(async (tx) => {
+      await tx
+        .delete(items)
+        .where(
+          and(
+            eq(items.item_organization_id, organization_id),
+            inArray(items.item_id, items_ids),
+          ),
+        );
+      return tx
+        .select()
+        .from(items)
+        .where(eq(items.item_organization_id, organization_id));
+    });
+    return this.logger.logAndReturn(result, 'operation: delete_item_by_id');
+  }
+
+  async addSalesGroup(salesGroupDetails: TSalesGroup): Promise<TSalesGroup[]> {
+    const result = await this.driver.transaction(async (tx) => {
+      await tx.insert(salesGroups).values(salesGroupDetails);
+      return tx
+        .select()
+        .from(salesGroups)
+        .where(
+          eq(
+            salesGroups.sales_group_organization_id,
+            salesGroupDetails.sales_group_organization_id,
+          ),
+        );
+    });
+    return this.logger.logAndReturn(result, 'operation: add_sales_group');
   }
 
   async getSalesGroupsByOrganizationId(
@@ -260,6 +392,7 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
       >;
     }
   > {
+    console.log('org:', organization_id, 'sales_group:', sales_group_id);
     const sales_group_details = await this.driver
       .select()
       .from(salesGroups)
@@ -269,7 +402,7 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
           eq(salesGroups.sales_group_id, sales_group_id),
         ),
       )[0];
-    this.logger.log(sales_group_details);
+    console.log('sales_group:', sales_group_details);
     const sales_group_employees = await this.driver
       .select({
         employee_id: employees.employee_id,
@@ -311,20 +444,25 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
   async updateSalesGroupById(
     organization_id: string,
     sales_group_id: string,
-    salesGroupUpdates: Partial<TSQLiteSalesGroup>,
-  ): Promise<TSQLiteSalesGroup> {
-    const result = await this.driver
-      .update(salesGroups)
-      .set(salesGroupUpdates)
-      .where(
-        and(
-          eq(salesGroups.sales_group_organization_id, organization_id),
-          eq(salesGroups.sales_group_id, sales_group_id),
-        ),
-      )
-      .returning();
+    salesGroupUpdates: Partial<TSalesGroup>,
+  ): Promise<TSalesGroup[]> {
+    const result = await this.driver.transaction(async (tx) => {
+      await tx
+        .update(salesGroups)
+        .set(salesGroupUpdates)
+        .where(
+          and(
+            eq(salesGroups.sales_group_organization_id, organization_id),
+            eq(salesGroups.sales_group_id, sales_group_id),
+          ),
+        );
+      return tx
+        .select()
+        .from(salesGroups)
+        .where(eq(salesGroups.sales_group_organization_id, organization_id));
+    });
     return this.logger.logAndReturn(
-      result[0],
+      result,
       'operation: update_sales_group_by_id',
     );
   }
@@ -332,28 +470,41 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
   async deleteSalesGroupById(
     organization_id: string,
     sales_group_id: string,
-  ): Promise<TSQLiteSalesGroup> {
-    const result = await this.driver
-      .delete(salesGroups)
-      .where(
-        and(
-          eq(salesGroups.sales_group_organization_id, organization_id),
-          eq(salesGroups.sales_group_id, sales_group_id),
-        ),
-      )
-      .returning();
+  ): Promise<TSalesGroup[]> {
+    const result = await this.driver.transaction(async (tx) => {
+      await tx
+        .delete(salesGroups)
+        .where(
+          and(
+            eq(salesGroups.sales_group_organization_id, organization_id),
+            eq(salesGroups.sales_group_id, sales_group_id),
+          ),
+        );
+      return tx
+        .select()
+        .from(salesGroups)
+        .where(eq(salesGroups.sales_group_organization_id, organization_id));
+    });
     return this.logger.logAndReturn(
-      result[0],
+      result,
       'operation: delete_sales_group_by_id',
     );
   }
 
-  async addClient(clientDetails: TSQLiteClient): Promise<TSQLiteClient> {
-    const result = await this.driver
-      .insert(clients)
-      .values(clientDetails)
-      .returning();
-    return this.logger.logAndReturn(result[0], 'operation: add_client');
+  async addClient(clientDetails: TClient): Promise<TClient[]> {
+    const result = await this.driver.transaction(async (tx) => {
+      await tx.insert(clients).values(clientDetails);
+      return tx
+        .select()
+        .from(clients)
+        .where(
+          eq(
+            clients.client_organization_id,
+            clientDetails.client_organization_id,
+          ),
+        );
+    });
+    return this.logger.logAndReturn(result, 'operation: add_client');
   }
 
   async getClientProfileById(organization_id: string): Promise<TSQLiteClient> {
@@ -383,33 +534,66 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
   async updateClientById(
     organization_id: string,
     client_id: string,
-    clientUpdates: Partial<TSQLiteClient>,
-  ): Promise<TSQLiteClient> {
-    const result = await this.driver
-      .update(clients)
-      .set(clientUpdates)
-      .where(
-        and(
-          eq(clients.client_organization_id, organization_id),
-          eq(clients.client_id, client_id),
-        ),
-      )
-      .returning();
-    return this.logger.logAndReturn(
-      result[0],
-      'operation: update_client_by_id',
-    );
+    clientUpdates: Partial<TClient>,
+  ): Promise<TClient[]> {
+    const result = await this.driver.transaction(async (tx) => {
+      await tx
+        .update(clients)
+        .set(clientUpdates)
+        .where(
+          and(
+            eq(clients.client_organization_id, organization_id),
+            eq(clients.client_id, client_id),
+          ),
+        );
+      return tx
+        .select()
+        .from(clients)
+        .where(eq(clients.client_organization_id, organization_id));
+    });
+    return this.logger.logAndReturn(result, 'operation: update_client_by_id');
+  }
+
+  async updateClientsByIds(
+    organization_id: string,
+    clients_ids: string[],
+    clientUpdates: Partial<TClient>,
+  ): Promise<TClient[]> {
+    const result = await this.driver.transaction(async (tx) => {
+      await tx
+        .update(clients)
+        .set(clientUpdates)
+        .where(
+          and(
+            eq(clients.client_organization_id, organization_id),
+            inArray(clients.client_id, clients_ids),
+          ),
+        );
+      return tx
+        .select()
+        .from(clients)
+        .where(eq(clients.client_organization_id, organization_id));
+    });
+    return this.logger.logAndReturn(result, 'operation: update_client_by_id');
   }
 
   async addOrganizationPayment(
-    paymentDetails: TSQLiteOrganizationPayment,
-  ): Promise<TSQLiteOrganizationPayment> {
-    const result = await this.driver
-      .insert(organizationsPayments)
-      .values(paymentDetails)
-      .returning();
+    paymentDetails: TOrganizationPayment,
+  ): Promise<TOrganizationPayment[]> {
+    const result = await this.driver.transaction(async (tx) => {
+      await tx.insert(organizationsPayments).values(paymentDetails);
+      return tx
+        .select()
+        .from(organizationsPayments)
+        .where(
+          eq(
+            organizationsPayments.payment_organization_id,
+            paymentDetails.payment_organization_id,
+          ),
+        );
+    });
     return this.logger.logAndReturn(
-      result[0],
+      result,
       'operation: add_organization_payment',
     );
   }
@@ -431,32 +615,47 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
   async updateOrganizationPaymentById(
     organization_id: string,
     payment_id: string,
-    paymentUpdates: Partial<TSQLiteOrganizationPayment>,
-  ): Promise<TSQLiteOrganizationPayment> {
-    const result = await this.driver
-      .update(organizationsPayments)
-      .set(paymentUpdates)
-      .where(
-        and(
+    paymentUpdates: Partial<TOrganizationPayment>,
+  ): Promise<TOrganizationPayment[]> {
+    const result = await this.driver.transaction(async (tx) => {
+      await tx
+        .update(organizationsPayments)
+        .set(paymentUpdates)
+        .where(
+          and(
+            eq(organizationsPayments.payment_organization_id, organization_id),
+            eq(organizationsPayments.payment_id, payment_id),
+          ),
+        );
+      return tx
+        .select()
+        .from(organizationsPayments)
+        .where(
           eq(organizationsPayments.payment_organization_id, organization_id),
-          eq(organizationsPayments.payment_id, payment_id),
-        ),
-      )
-      .returning();
+        );
+    });
     return this.logger.logAndReturn(
-      result[0],
+      result,
       'operation: update_organization_payment_by_id',
     );
   }
 
   async addClientPayment(
-    paymentDetails: TSQLiteClientPayment,
-  ): Promise<TSQLiteClientPayment> {
-    const result = await this.driver
-      .insert(clientsPayments)
-      .values(paymentDetails)
-      .returning();
-    return this.logger.logAndReturn(result[0], 'operation: add_client_payment');
+    paymentDetails: TClientPayment,
+  ): Promise<TClientPayment[]> {
+    const result = await this.driver.transaction(async (tx) => {
+      await tx.insert(clientsPayments).values(paymentDetails);
+      return tx
+        .select()
+        .from(clientsPayments)
+        .where(
+          eq(
+            clientsPayments.client_payment_organization_id,
+            paymentDetails.client_payment_organization_id,
+          ),
+        );
+    });
+    return this.logger.logAndReturn(result, 'operation: add_client_payment');
   }
 
   async getClientPaymentById(
@@ -488,30 +687,42 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
   async updateClientPaymentById(
     organization_id: string,
     client_payment_id: string,
-    clientPaymentUpdates: Partial<TSQLiteClientPayment>,
-  ): Promise<TSQLiteClientPayment> {
-    const result = await this.driver
-      .update(clientsPayments)
-      .set(clientPaymentUpdates)
-      .where(
-        and(
+    clientPaymentUpdates: Partial<TClientPayment>,
+  ): Promise<TClientPayment[]> {
+    const result = await this.driver.transaction(async (tx) => {
+      await tx
+        .update(clientsPayments)
+        .set(clientPaymentUpdates)
+        .where(
+          and(
+            eq(clientsPayments.client_payment_organization_id, organization_id),
+            eq(clientsPayments.client_payment_id, client_payment_id),
+          ),
+        );
+      return tx
+        .select()
+        .from(clientsPayments)
+        .where(
           eq(clientsPayments.client_payment_organization_id, organization_id),
-          eq(clientsPayments.client_payment_id, client_payment_id),
-        ),
-      )
-      .returning();
+        );
+    });
     return this.logger.logAndReturn(
-      result[0],
+      result,
       'operation: update_client_payment_by_id',
     );
   }
 
-  async addSaleItem(saleDetails: TSQLiteSale): Promise<TSQLiteSale> {
-    const result = await this.driver
-      .insert(sales)
-      .values(saleDetails)
-      .returning();
-    return this.logger.logAndReturn(result[0], 'operation: add_sale_item');
+  async addSaleItem(saleDetails: TSale): Promise<TSale[]> {
+    const result = await this.driver.transaction(async (tx) => {
+      await tx.insert(sales).values(saleDetails);
+      return tx
+        .select()
+        .from(sales)
+        .where(
+          eq(sales.sale_organization_id, saleDetails.sale_organization_id),
+        );
+    });
+    return this.logger.logAndReturn(result, 'operation: add_sale_item');
   }
 
   async viewSaleById(sale_id: string): Promise<TSQLiteSale> {

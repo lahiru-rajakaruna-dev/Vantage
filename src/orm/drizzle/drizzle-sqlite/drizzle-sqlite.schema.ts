@@ -195,10 +195,10 @@ export const organizationsPayments = sqliteTable(
       .notNull()
       .references(() => organizations.organization_id),
     payment_amount: real().notNull(),
-    payment_status: text({ enum: ['PENDING', 'PAID', 'VERIFIED'] }).default(
-      'VERIFIED',
-    ),
-    payment_date: integer().notNull(),
+    payment_status: text({
+      enum: ['PENDING', 'PAID', 'VERIFIED', 'REFUNDED'],
+    }).default('VERIFIED'),
+    payment_timestamp: integer().notNull(),
   },
   (table) => {
     return {
@@ -267,7 +267,9 @@ export const clientsPayments = sqliteTable(
       .references(() => organizations.organization_id),
     client_payment_amount: real().notNull(),
     client_payment_date: integer().notNull(),
-    client_payment_status: text({ enum: ['PENDING', 'PAID', 'VERIFIED'] })
+    client_payment_status: text({
+      enum: ['PENDING', 'PAID', 'VERIFIED', 'REFUNDED'],
+    })
       .notNull()
       .default('VERIFIED'),
   },

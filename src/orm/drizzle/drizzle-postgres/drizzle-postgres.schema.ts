@@ -38,10 +38,14 @@ export const organizations = pgTable(
     organization_logo_url: text().unique().notNull(),
     organization_registration_date: integer().notNull(),
     organization_subscription_end_date: integer().notNull(),
-    organization_status: EPGOrganizationStatus()
+    organization_status: text('organization_status', {
+      enum: ['ACTIVE', 'DEACTIVATED', 'SUSPENDED', 'TRIAL'],
+    }) //EPGOrganizationStatus()
       .default(EOrganizationStatus.ACTIVE)
       .notNull(),
-    organization_subscription_status: EPGSubscriptionStatus()
+    organization_subscription_status: text('organization_subscription_status', {
+      enum: ['VALID', 'EXPIRED'],
+    }) //EPGSubscriptionStatus()
       .default(ESubscriptionStatus.VALID)
       .notNull(),
   },
@@ -209,8 +213,12 @@ export const organizationsPayments = pgTable(
     payment_organization_id: text()
       .notNull()
       .references(() => organizations.organization_id),
-    payment_amount: decimal().notNull(),
-    payment_status: EPGPaymentStatus().default(EPaymentStatus.VERIFIED),
+    payment_amount: decimal('payment_amount', { mode: 'number' }).notNull(),
+    payment_status: text('payment_status', {
+      enum: ['PENDING', 'PAID', 'VERIFIED', 'REFUNDED'],
+    })
+      // EPGPaymentStatus()
+      .default(EPaymentStatus.VERIFIED),
     payment_timestamp: integer().notNull(),
   },
   (table) => {
@@ -239,7 +247,9 @@ export const clients = pgTable(
     client_nic_number: text().notNull(),
     client_email: text().notNull(),
     client_phone: text().notNull(),
-    client_account_status: EPGAccountStatus()
+    client_account_status: text('client_account_status', {
+      enum: ['ACTIVE', 'DEACTIVATED', 'UNVERIFIED'],
+    }) // EPGAccountStatus()
       .notNull()
       .default(EAccountStatus.UNVERIFIED),
     client_registration_date: integer().notNull(),
@@ -275,9 +285,13 @@ export const clientsPayments = pgTable(
     client_payment_organization_id: text()
       .notNull()
       .references(() => organizations.organization_id),
-    client_payment_amount: decimal().notNull(),
+    client_payment_amount: decimal('client_payment_amount', {
+      mode: 'number',
+    }).notNull(),
     client_payment_date: integer().notNull(),
-    client_payment_status: EPGPaymentStatus()
+    client_payment_status: text('client_payment_status', {
+      enum: ['PENDING', 'PAID', 'VERIFIED', 'REFUNDED'],
+    }) // EPGPaymentStatus()
       .notNull()
       .default(EPaymentStatus.PENDING),
   },

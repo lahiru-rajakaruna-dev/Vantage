@@ -1,9 +1,7 @@
-import { Inject }          from '@nestjs/common';
-import { ConfigService }   from '@nestjs/config';
+import { Inject } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import type ILoggerService from '../../logger/logger.interface';
-import {
-  TOKEN__LOGGER_FACTORY
-}                          from '../../logger/logger_factory/logger_factory.service';
+import { TOKEN__LOGGER_FACTORY } from '../../logger/logger_factory/logger_factory.service';
 import IOrmInterface, {
   TClient,
   TClientPayment,
@@ -13,9 +11,7 @@ import IOrmInterface, {
   TOrganizationPayment,
   TSale,
   TSalesGroup,
-}                          from '../orm.interface';
-
-
+} from '../orm.interface';
 
 export default abstract class AbstractDrizzlerService implements IOrmInterface {
   protected readonly configService: ConfigService;
@@ -46,7 +42,7 @@ export default abstract class AbstractDrizzlerService implements IOrmInterface {
     admin_id: string,
   ): Promise<TOrganization>;
 
-  abstract addEmployee(employeeDetails: TEmployee): Promise<TEmployee>;
+  abstract addEmployee(employeeDetails: TEmployee): Promise<TEmployee[]>;
 
   abstract viewEmployeeById(employee_id: string): Promise<TEmployee>;
 
@@ -62,11 +58,20 @@ export default abstract class AbstractDrizzlerService implements IOrmInterface {
     organization_id: string,
     employee_id: string,
     employeeUpdates: Partial<TEmployee>,
-  ): Promise<TEmployee>;
+  ): Promise<TEmployee[]>;
 
-  abstract deleteEmployeeById(employee_id: string): Promise<TEmployee>;
+  abstract updateEmployeesByIds(
+    organization_id: string,
+    employees_ids: string[],
+    employeeUpdates: Partial<TEmployee>,
+  ): Promise<TEmployee[]>;
 
-  abstract addItem(itemDetails: TItem): Promise<TItem>;
+  abstract deleteEmployeeById(
+    organization_id: string,
+    employee_id: string,
+  ): Promise<TEmployee[]>;
+
+  abstract addItem(itemDetails: TItem): Promise<TItem[]>;
 
   abstract viewItemById(item_id: string): Promise<TItem>;
 
@@ -76,11 +81,27 @@ export default abstract class AbstractDrizzlerService implements IOrmInterface {
     organization_id: string,
     item_id: string,
     itemUpdates: Partial<TItem>,
-  ): Promise<TItem>;
+  ): Promise<TItem[]>;
 
-  abstract deleteItemById(item_id: string): Promise<TItem>;
+  abstract updateItemsByIds(
+    organization_id: string,
+    items_ids: string[],
+    itemUpdates: Partial<TItem>,
+  ): Promise<TItem[]>;
 
-  abstract addSalesGroup(salesGroupDetails: TSalesGroup): Promise<TSalesGroup>;
+  abstract deleteItemById(
+    organization_id: string,
+    item_id: string,
+  ): Promise<TItem[]>;
+
+  abstract deleteItemsByIds(
+    organization_id: string,
+    items_ids: string[],
+  ): Promise<TItem[]>;
+
+  abstract addSalesGroup(
+    salesGroupDetails: TSalesGroup,
+  ): Promise<TSalesGroup[]>;
 
   abstract getSalesGroupsByOrganizationId(
     organization_id: string,
@@ -95,14 +116,14 @@ export default abstract class AbstractDrizzlerService implements IOrmInterface {
     organization_id: string,
     sales_group_id: string,
     salesGroupUpdates: Partial<TSalesGroup>,
-  ): Promise<TSalesGroup>;
+  ): Promise<TSalesGroup[]>;
 
   abstract deleteSalesGroupById(
     organization_id: string,
     sales_group_id: string,
-  ): Promise<TSalesGroup>;
+  ): Promise<TSalesGroup[]>;
 
-  abstract addClient(clientDetails: TClient): Promise<TClient>;
+  abstract addClient(clientDetails: TClient): Promise<TClient[]>;
 
   abstract getClientProfileById(client_id: string): Promise<TClient>;
 
@@ -114,11 +135,17 @@ export default abstract class AbstractDrizzlerService implements IOrmInterface {
     organization_id: string,
     client_id: string,
     clientUpdates: Partial<TClient>,
-  ): Promise<TClient>;
+  ): Promise<TClient[]>;
+
+  abstract updateClientsByIds(
+    organization_id: string,
+    clients_ids: string[],
+    clientUpdates: Partial<TClient>,
+  ): Promise<TClient[]>;
 
   abstract addOrganizationPayment(
     paymentDetails: TOrganizationPayment,
-  ): Promise<TOrganizationPayment>;
+  ): Promise<TOrganizationPayment[]>;
 
   abstract getOrganizationPaymentsByOrganizationId(
     organization_id: string,
@@ -128,11 +155,11 @@ export default abstract class AbstractDrizzlerService implements IOrmInterface {
     organization_id: string,
     payment_id: string,
     paymentUpdates: Partial<TOrganizationPayment>,
-  ): Promise<TOrganizationPayment>;
+  ): Promise<TOrganizationPayment[]>;
 
   abstract addClientPayment(
     paymentDetails: TClientPayment,
-  ): Promise<TClientPayment>;
+  ): Promise<TClientPayment[]>;
 
   abstract getClientPaymentById(payment_id: string): Promise<TClientPayment>;
 
@@ -144,9 +171,9 @@ export default abstract class AbstractDrizzlerService implements IOrmInterface {
     organization_id: string,
     client_payment_id: string,
     clientPaymentUpdates: Partial<TClientPayment>,
-  ): Promise<TClientPayment>;
+  ): Promise<TClientPayment[]>;
 
-  abstract addSaleItem(saleDetails: TSale): Promise<TSale>;
+  abstract addSaleItem(saleDetails: TSale): Promise<TSale[]>;
 
   abstract viewSaleById(sale_id: string): Promise<TSale>;
 
