@@ -1,5 +1,7 @@
-import { z } from 'zod';
+import { z }              from 'zod';
 import { EPaymentStatus } from '../types';
+
+
 
 export const SchemaEmployee = z.object({
   employee_id: z.string(),
@@ -7,6 +9,7 @@ export const SchemaEmployee = z.object({
   employee_sales_group_id: z.string(),
   employee_username: z.string(),
   employee_phone: z.string(),
+  employee_active_territory: z.string(),
   employee_nic_number: z.string(),
 });
 
@@ -46,6 +49,7 @@ export const SchemaSalesGroup = z.object({
   sales_group_id: z.string(),
   sales_group_organization_id: z.string(),
   sales_group_name: z.string(),
+  sales_group_territory: z.string(),
 });
 
 export type TSalesGroup = z.infer<typeof SchemaSalesGroup>;
