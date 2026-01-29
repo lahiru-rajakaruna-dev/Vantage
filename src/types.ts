@@ -36,9 +36,9 @@ export enum ESaleStatus {
 }
 
 export enum EAccountStatus {
-  ACTIVE = 'active',
-  DEACTIVATED = 'deactivated',
-  UNVERIFIED = 'unverified',
+  ACTIVE = 'ACTIVE',
+  DEACTIVATED = 'DEACTIVATED',
+  UNVERIFIED = 'UNVERIFIED',
 }
 
 export enum EEnvVars {
