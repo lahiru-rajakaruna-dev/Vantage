@@ -1,7 +1,11 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { TOKEN__ORM_FACTORY } from 'src/orm/orm-factory/orm-factory.service';
-import type IOrmInterface from '../../orm/orm.interface';
-import { type TItem } from '../../orm/orm.interface';
+import {
+    TOKEN__ORM_FACTORY
+}                                                from 'src/orm/orm-factory/orm-factory.service';
+import type IOrmInterface                        from '../../orm/orm.interface';
+import { type TItem }                            from '../../orm/orm.interface';
+
+
 
 @Injectable()
 export class ItemService {
@@ -11,7 +15,7 @@ export class ItemService {
     this.orm = orm;
   }
 
-  async addItem(itemData: TItem): Promise<TItem> {
+  async addItem(itemData: TItem): Promise<TItem[]> {
     return await this.orm.addItem(itemData);
   }
 
@@ -33,7 +37,7 @@ export class ItemService {
     organization_id: string,
     item_id: string,
     item_name: string,
-  ): Promise<TItem> {
+  ): Promise<TItem[]> {
     const updatedItem = await this.orm.updateItemById(
       organization_id,
       item_id,
@@ -51,7 +55,7 @@ export class ItemService {
     organization_id: string,
     item_id: string,
     item_stock_units: number,
-  ): Promise<TItem> {
+  ): Promise<TItem[]> {
     const updatedItem = await this.orm.updateItemById(
       organization_id,
       item_id,
@@ -69,12 +73,8 @@ export class ItemService {
 
   async deleteItemsByIds(
     organization_id: string,
-    item_ids: string[],
+    items_ids: string[],
   ): Promise<TItem[]> {
-    return await Promise.all(
-      item_ids.map(async (item_id) => {
-        return await this.orm.deleteItemById(organization_id, item_id);
-      }),
-    );
+    return await this.orm.deleteItemsByIds(organization_id, items_ids);
   }
 }
