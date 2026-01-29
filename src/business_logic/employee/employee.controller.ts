@@ -1,24 +1,21 @@
 import {
-    BadRequestException,
-    Body,
-    Controller,
-    Delete,
-    Get,
-    Headers,
-    Param,
-    Patch,
-    Post,
-    Query,
-    UsePipes,
-}                                         from '@nestjs/common';
-import { v4 as uuid }                     from 'uuid';
-import { z }                              from 'zod';
-import ZodSchemaValidationPipe
-                                          from '../../pipes/schema_validation.pipe';
+  BadRequestException,
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Headers,
+  Param,
+  Patch,
+  Post,
+  Query,
+  UsePipes,
+} from '@nestjs/common';
+import { v4 as uuid } from 'uuid';
+import { z } from 'zod';
+import ZodSchemaValidationPipe from '../../pipes/schema_validation.pipe';
 import { SchemaEmployee, type TEmployee } from '../../schemas';
-import { EmployeeService }                from './employee.service';
-
-
+import { EmployeeService } from './employee.service';
 
 @Controller('employee')
 export class EmployeeController {
