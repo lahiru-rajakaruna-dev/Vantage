@@ -1,7 +1,12 @@
 import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';
-import { Module } from '@nestjs/common';
+import {
+  type MiddlewareConsumer,
+  Module,
+  type NestModule,
+} from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_INTERCEPTOR } from '@nestjs/core';
+import cookieParser from 'cookie-parser';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthenticationModule } from './authentication/authentication.module';
@@ -14,6 +19,8 @@ import { OrganizationPaymentModule } from './business_logic/organization_payment
 import { SaleModule } from './business_logic/sale/sale.module';
 import { SalesGroupModule } from './business_logic/sales_group/sales_group.module';
 import { LoggerModule } from './logger/logger.module';
+import { MiddlewareModule } from './middleware/middleware.module'; // import { MiddlewareModule } from './middleware/middleware.module';
+import { Middleware_OrganizationPuller } from './middleware/organization_puller.middleware';
 import { DrizzleModule } from './orm/drizzle/drizzle.module';
 import { OrmModule } from './orm/orm.module';
 import { PaddleModule } from './paddle/paddle.module';
@@ -41,6 +48,7 @@ import { PaddleModule } from './paddle/paddle.module';
     OrmModule,
     PaddleModule,
     AuthenticationModule,
+    MiddlewareModule,
   ],
   controllers: [AppController],
   providers: [
@@ -51,4 +59,10 @@ import { PaddleModule } from './paddle/paddle.module';
     },
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(cookieParser(), Middleware_OrganizationPuller)
+      .forRoutes('*');
+  }
+}
