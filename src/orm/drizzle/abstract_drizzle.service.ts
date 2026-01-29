@@ -1,7 +1,9 @@
-import { Inject } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Inject }          from '@nestjs/common';
+import { ConfigService }   from '@nestjs/config';
 import type ILoggerService from '../../logger/logger.interface';
-import { TOKEN__LOGGER_FACTORY } from '../../logger/logger_factory/logger_factory.service';
+import {
+  TOKEN__LOGGER_FACTORY
+}                          from '../../logger/logger_factory/logger_factory.service';
 import IOrmInterface, {
   TClient,
   TClientPayment,
@@ -11,7 +13,9 @@ import IOrmInterface, {
   TOrganizationPayment,
   TSale,
   TSalesGroup,
-} from '../orm.interface';
+}                          from '../orm.interface';
+
+
 
 export default abstract class AbstractDrizzlerService implements IOrmInterface {
   protected readonly configService: ConfigService;
@@ -93,7 +97,10 @@ export default abstract class AbstractDrizzlerService implements IOrmInterface {
     salesGroupUpdates: Partial<TSalesGroup>,
   ): Promise<TSalesGroup>;
 
-  abstract deleteSalesGroupById(sales_group_id: string): Promise<TSalesGroup>;
+  abstract deleteSalesGroupById(
+    organization_id: string,
+    sales_group_id: string,
+  ): Promise<TSalesGroup>;
 
   abstract addClient(clientDetails: TClient): Promise<TClient>;
 
