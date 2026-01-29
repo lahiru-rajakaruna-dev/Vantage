@@ -1,15 +1,13 @@
-import { Inject, Injectable }  from '@nestjs/common';
-import { ConfigService }       from '@nestjs/config';
-import { and, between, eq }    from 'drizzle-orm';
-import { drizzle }             from 'drizzle-orm/libsql/node';
-import type ILoggerService     from '../../../logger/logger.interface';
-import {
-  TOKEN__LOGGER_FACTORY
-}                              from '../../../logger/logger_factory/logger_factory.service';
-import { EEnvVars }            from '../../../types';
-import { TEmployee, TSale }    from '../../orm.interface';
+import { Inject, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { and, between, eq } from 'drizzle-orm';
+import { drizzle } from 'drizzle-orm/libsql/node';
+import type ILoggerService from '../../../logger/logger.interface';
+import { TOKEN__LOGGER_FACTORY } from '../../../logger/logger_factory/logger_factory.service';
+import { EEnvVars } from '../../../types';
+import { TEmployee, TSale } from '../../orm.interface';
 import AbstractDrizzlerService from '../abstract_drizzle.service';
-import * as schema             from './drizzle-sqlite.schema';
+import * as schema from './drizzle-sqlite.schema';
 import {
   clients,
   clientsPayments,
@@ -26,10 +24,8 @@ import {
   TSQLiteOrganization,
   TSQLiteOrganizationPayment,
   TSQLiteSale,
-  TSQLiteSalesGroup
-}                              from './drizzle-sqlite.schema';
-
-
+  TSQLiteSalesGroup,
+} from './drizzle-sqlite.schema';
 
 @Injectable()
 export class DrizzleSqliteService extends AbstractDrizzlerService {
@@ -56,7 +52,7 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
       .insert(organizations)
       .values(organizationDetails)
       .returning();
-    return this.logger.logAndReturn(result[0]);
+    return this.logger.logAndReturn(result[0], 'operation: add_organization');
   }
 
   async updateOrganizationById(
@@ -68,7 +64,10 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
       .set(organizationUpdates)
       .where(eq(organizations.organization_id, organization_id))
       .returning();
-    return this.logger.logAndReturn(result[0]);
+    return this.logger.logAndReturn(
+      result[0],
+      'operation: update_organization_by_id',
+    );
   }
 
   async getOrganizationDetailsById(
@@ -78,7 +77,10 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
       .select()
       .from(organizations)
       .where(eq(organizations.organization_id, organization_id));
-    return this.logger.logAndReturn(result[0]);
+    return this.logger.logAndReturn(
+      result[0],
+      'operation: get_organization_details_by_id',
+    );
   }
 
   async getOrganizationDetailsByAdminId(
@@ -88,7 +90,10 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
       .select()
       .from(organizations)
       .where(eq(organizations.organization_admin_id, admin_id));
-    return this.logger.logAndReturn(result[0]);
+    return this.logger.logAndReturn(
+      result[0],
+      'operation: get_organization_details_by_admin_id',
+    );
   }
 
   async addEmployee(
@@ -98,7 +103,7 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
       .insert(employees)
       .values(employeeDetails)
       .returning();
-    return this.logger.logAndReturn(result[0]);
+    return this.logger.logAndReturn(result[0], 'operation: add_employee');
   }
 
   async viewEmployeeById(employee_id: string): Promise<TSQLiteEmployee> {
@@ -106,7 +111,10 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
       .select()
       .from(employees)
       .where(eq(employees.employee_id, employee_id));
-    return this.logger.logAndReturn(result[0]);
+    return this.logger.logAndReturn(
+      result[0],
+      'operation: view_employee_by_id',
+    );
   }
 
   async getEmployeesByOrganizationId(
@@ -117,6 +125,7 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
         .select()
         .from(employees)
         .where(eq(employees.employee_organization_id, organization_id)),
+      'operation: get_employees_by_organization_id',
     );
   }
 
@@ -128,6 +137,7 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
         .select()
         .from(employees)
         .where(eq(employees.employee_sales_group_id, sales_group_id)),
+      'operation: get_employees_by_sales_group_id',
     );
   }
 
@@ -146,7 +156,10 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
         ),
       )
       .returning();
-    return this.logger.logAndReturn(result[0]);
+    return this.logger.logAndReturn(
+      result[0],
+      'operation: update_employee_by_id',
+    );
   }
 
   async deleteEmployeeById(employee_id: string): Promise<TSQLiteEmployee> {
@@ -154,7 +167,10 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
       .delete(employees)
       .where(eq(employees.employee_id, employee_id))
       .returning();
-    return this.logger.logAndReturn(result[0]);
+    return this.logger.logAndReturn(
+      result[0],
+      'operation: delete_employee_by_id',
+    );
   }
 
   async addItem(itemDetails: TSQLiteItem): Promise<TSQLiteItem> {
@@ -162,7 +178,7 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
       .insert(items)
       .values(itemDetails)
       .returning();
-    return this.logger.logAndReturn(result[0]);
+    return this.logger.logAndReturn(result[0], 'operation: add_item');
   }
 
   async viewItemById(item_id: string): Promise<TSQLiteItem> {
@@ -170,7 +186,7 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
       .select()
       .from(items)
       .where(eq(items.item_id, item_id));
-    return this.logger.logAndReturn(result[0]);
+    return this.logger.logAndReturn(result[0], 'operation: view_item_by_id');
   }
 
   async getItemsByOrganizationId(
@@ -181,6 +197,7 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
         .select()
         .from(items)
         .where(eq(items.item_organization_id, organization_id)),
+      'operation: get_items_by_organization_id',
     );
   }
 
@@ -199,7 +216,7 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
         ),
       )
       .returning();
-    return this.logger.logAndReturn(result[0]);
+    return this.logger.logAndReturn(result[0], 'operation: update_item_by_id');
   }
 
   async deleteItemById(item_id: string): Promise<TSQLiteItem> {
@@ -207,7 +224,7 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
       .delete(items)
       .where(eq(items.item_id, item_id))
       .returning();
-    return this.logger.logAndReturn(result[0]);
+    return this.logger.logAndReturn(result[0], 'operation: delete_item_by_id');
   }
 
   async addSalesGroup(
@@ -217,7 +234,7 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
       .insert(salesGroups)
       .values(salesGroupDetails)
       .returning();
-    return this.logger.logAndReturn(result[0]);
+    return this.logger.logAndReturn(result[0], 'operation: add_sales_group');
   }
 
   async getSalesGroupsByOrganizationId(
@@ -227,7 +244,10 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
       .select()
       .from(salesGroups)
       .where(eq(salesGroups.sales_group_organization_id, organization_id));
-    return this.logger.logAndReturn(result);
+    return this.logger.logAndReturn(
+      result,
+      'operation: get_sales_groups_by_organization_id',
+    );
   }
 
   async getSalesGroupDetailsById(
@@ -249,9 +269,7 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
           eq(salesGroups.sales_group_id, sales_group_id),
         ),
       )[0];
-
     this.logger.log(sales_group_details);
-
     const sales_group_employees = await this.driver
       .select({
         employee_id: employees.employee_id,
@@ -264,9 +282,7 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
           eq(employees.employee_sales_group_id, sales_group_id),
         ),
       );
-
     this.logger.log(sales_group_employees);
-
     const employees_with_sales = await Promise.all(
       sales_group_employees.map(async (employee) => {
         const employee_sales = await this.driver
@@ -278,19 +294,18 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
               eq(sales.sale_employee_id, employee.employee_id),
             ),
           );
-
         employee['employee_sales'] = employee_sales;
-
         return employee as typeof employee & { employee_sales: TSale[] };
       }),
     );
-
     this.logger.log(employees_with_sales);
-
-    return this.logger.logAndReturn({
-      ...sales_group_details,
-      sales_group_employees: employees_with_sales,
-    });
+    return this.logger.logAndReturn(
+      {
+        ...sales_group_details,
+        sales_group_employees: employees_with_sales,
+      },
+      'operation: get_sales_group_details_by_id',
+    );
   }
 
   async updateSalesGroupById(
@@ -308,7 +323,10 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
         ),
       )
       .returning();
-    return this.logger.logAndReturn(result[0]);
+    return this.logger.logAndReturn(
+      result[0],
+      'operation: update_sales_group_by_id',
+    );
   }
 
   async deleteSalesGroupById(
@@ -324,7 +342,10 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
         ),
       )
       .returning();
-    return this.logger.logAndReturn(result[0]);
+    return this.logger.logAndReturn(
+      result[0],
+      'operation: delete_sales_group_by_id',
+    );
   }
 
   async addClient(clientDetails: TSQLiteClient): Promise<TSQLiteClient> {
@@ -332,7 +353,7 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
       .insert(clients)
       .values(clientDetails)
       .returning();
-    return this.logger.logAndReturn(result[0]);
+    return this.logger.logAndReturn(result[0], 'operation: add_client');
   }
 
   async getClientProfileById(organization_id: string): Promise<TSQLiteClient> {
@@ -341,8 +362,10 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
       .from(clients)
       .where(eq(clients.client_organization_id, organization_id))
       .limit(1);
-
-    return this.logger.logAndReturn(result[0]);
+    return this.logger.logAndReturn(
+      result[0],
+      'operation: get_client_profile_by_id',
+    );
   }
 
   async getClientsByOrganizationId(
@@ -353,6 +376,7 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
         .select()
         .from(clients)
         .where(eq(clients.client_organization_id, organization_id)),
+      'operation: get_clients_by_organization_id',
     );
   }
 
@@ -371,7 +395,10 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
         ),
       )
       .returning();
-    return this.logger.logAndReturn(result[0]);
+    return this.logger.logAndReturn(
+      result[0],
+      'operation: update_client_by_id',
+    );
   }
 
   async addOrganizationPayment(
@@ -381,7 +408,10 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
       .insert(organizationsPayments)
       .values(paymentDetails)
       .returning();
-    return this.logger.logAndReturn(result[0]);
+    return this.logger.logAndReturn(
+      result[0],
+      'operation: add_organization_payment',
+    );
   }
 
   async getOrganizationPaymentsByOrganizationId(
@@ -394,6 +424,7 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
         .where(
           eq(organizationsPayments.payment_organization_id, organization_id),
         ),
+      'operation: get_organization_payments_by_organization_id',
     );
   }
 
@@ -412,7 +443,10 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
         ),
       )
       .returning();
-    return this.logger.logAndReturn(result[0]);
+    return this.logger.logAndReturn(
+      result[0],
+      'operation: update_organization_payment_by_id',
+    );
   }
 
   async addClientPayment(
@@ -422,7 +456,7 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
       .insert(clientsPayments)
       .values(paymentDetails)
       .returning();
-    return this.logger.logAndReturn(result[0]);
+    return this.logger.logAndReturn(result[0], 'operation: add_client_payment');
   }
 
   async getClientPaymentById(
@@ -433,8 +467,10 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
       .from(clientsPayments)
       .where(eq(clientsPayments.client_payment_id, payment_id))
       .limit(1);
-
-    return this.logger.logAndReturn(result[0]);
+    return this.logger.logAndReturn(
+      result[0],
+      'operation: get_client_payment_by_id',
+    );
   }
 
   async getClientPaymentsByClientId(
@@ -445,6 +481,7 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
         .select()
         .from(clientsPayments)
         .where(eq(clientsPayments.client_payment_client_id, client_id)),
+      'operation: get_client_payments_by_client_id',
     );
   }
 
@@ -463,7 +500,10 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
         ),
       )
       .returning();
-    return this.logger.logAndReturn(result[0]);
+    return this.logger.logAndReturn(
+      result[0],
+      'operation: update_client_payment_by_id',
+    );
   }
 
   async addSaleItem(saleDetails: TSQLiteSale): Promise<TSQLiteSale> {
@@ -471,7 +511,7 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
       .insert(sales)
       .values(saleDetails)
       .returning();
-    return this.logger.logAndReturn(result[0]);
+    return this.logger.logAndReturn(result[0], 'operation: add_sale_item');
   }
 
   async viewSaleById(sale_id: string): Promise<TSQLiteSale> {
@@ -479,7 +519,7 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
       .select()
       .from(sales)
       .where(eq(sales.sale_id, sale_id));
-    return this.logger.logAndReturn(result[0]);
+    return this.logger.logAndReturn(result[0], 'operation: view_sale_by_id');
   }
 
   async getSalesByEmployeeId(employee_id: string): Promise<TSQLiteSale[]> {
@@ -488,6 +528,7 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
         .select()
         .from(sales)
         .where(eq(sales.sale_employee_id, employee_id)),
+      'operation: get_sales_by_employee_id',
     );
   }
 
@@ -497,6 +538,7 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
         .select()
         .from(sales)
         .where(eq(sales.sale_item_id, item_id)),
+      'operation: get_sales_by_item_id',
     );
   }
 
@@ -508,6 +550,7 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
         .select()
         .from(sales)
         .where(eq(sales.sale_organization_id, organization_id)),
+      'operation: get_sales_by_organization_id',
     );
   }
 
@@ -517,6 +560,7 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
         .select()
         .from(sales)
         .where(eq(sales.sale_client_id, client_id)),
+      'operation: get_sales_by_client_id',
     );
   }
 
@@ -533,8 +577,7 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
           eq(sales.sale_date, date),
         ),
       );
-
-    return this.logger.logAndReturn(result);
+    return this.logger.logAndReturn(result, 'operation: get_sales_by_date');
   }
 
   async getSalesWithinDates(
@@ -551,7 +594,9 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
           between(sales.sale_date, date_start, date_end),
         ),
       );
-
-    return this.logger.logAndReturn(result);
+    return this.logger.logAndReturn(
+      result,
+      'operation: get_sales_within_dates',
+    );
   }
 }
