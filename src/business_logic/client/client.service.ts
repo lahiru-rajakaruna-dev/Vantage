@@ -1,8 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { TOKEN__ORM_FACTORY } from '../../orm/orm-factory/orm-factory.service';
-import type IOrmInterface from '../../orm/orm.interface';
-import { type TClient } from '../../orm/orm.interface';
-import { EAccountStatus } from '../../types';
+import type IOrmInterface     from '../../orm/orm.interface';
+import { type TClient }       from '../../orm/orm.interface';
+import { EAccountStatus }     from '../../types';
+
+
 
 @Injectable()
 export class ClientService {
@@ -13,7 +15,7 @@ export class ClientService {
   }
 
   //   ADD CLIENT
-  async addClient(clientDetails: TClient): Promise<TClient> {
+  async addClient(clientDetails: TClient): Promise<TClient[]> {
     return this.orm.addClient(clientDetails);
   }
 
