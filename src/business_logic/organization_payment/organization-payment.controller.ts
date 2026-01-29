@@ -53,7 +53,7 @@ export class OrganizationPaymentController {
     return await this.paymentService.addOrganizationPayment({
       payment_id: uuid().toString(),
       payment_organization_id: organization_id,
-      payment_amount: paymentData.payment_amount as string,
+      payment_amount: paymentData.payment_amount,
       payment_timestamp: Date.now(),
       payment_status: EPaymentStatus.PAID,
     });
