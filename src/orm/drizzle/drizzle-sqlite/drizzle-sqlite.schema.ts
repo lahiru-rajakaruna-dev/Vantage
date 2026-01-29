@@ -59,6 +59,7 @@ export const employees = sqliteTable(
     employee_username: text().notNull(),
     employee_phone: text().notNull(),
     employee_nic_number: text().notNull().unique(),
+    employee_active_territory: text().notNull(),
     employee_registration_date: integer().notNull(),
   },
   (table) => {
@@ -90,6 +91,7 @@ export const salesGroups = sqliteTable(
       .notNull()
       .references(() => organizations.organization_id),
     sales_group_name: text().unique().notNull(),
+    sales_group_territory: text().notNull(),
   },
   (table) => {
     return {

@@ -1,8 +1,8 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "7240ac1e-38ce-4fc4-bed2-67c562cddf36",
-  "prevId": "54d1594f-c86b-4dd8-9352-a4e47ae7e385",
+  "id": "cd9307ae-c7cd-44bb-9ec7-4a1217a8997f",
+  "prevId": "7240ac1e-38ce-4fc4-bed2-67c562cddf36",
   "tables": {
     "clients": {
       "name": "clients",
@@ -255,6 +255,13 @@
         },
         "employee_nic_number": {
           "name": "employee_nic_number",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "employee_active_territory": {
+          "name": "employee_active_territory",
           "type": "text",
           "primaryKey": false,
           "notNull": true,

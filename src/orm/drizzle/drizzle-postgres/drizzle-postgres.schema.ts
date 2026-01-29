@@ -1,6 +1,19 @@
-import { relations }                                                                 from 'drizzle-orm';
-import { decimal, index, integer, pgEnum, pgTable, primaryKey, text, }               from 'drizzle-orm/pg-core';
-import { EAccountStatus, EOrganizationStatus, EPaymentStatus, ESubscriptionStatus, } from '../../../types';
+import { relations } from 'drizzle-orm';
+import {
+  decimal,
+  index,
+  integer,
+  pgEnum,
+  pgTable,
+  primaryKey,
+  text,
+} from 'drizzle-orm/pg-core';
+import {
+  EAccountStatus,
+  EOrganizationStatus,
+  EPaymentStatus,
+  ESubscriptionStatus,
+} from '../../../types';
 
 export const EPGPaymentStatus = pgEnum('EPaymentStatus', EPaymentStatus);
 export const EPGSubscriptionStatus = pgEnum(
@@ -62,6 +75,7 @@ export const employees = pgTable(
     employee_username: text().notNull(),
     employee_phone: text().notNull(),
     employee_nic_number: text().notNull().unique(),
+    employee_active_territory: text().notNull(),
     employee_registration_date: integer().notNull(),
   },
   (table) => {
@@ -93,6 +107,7 @@ export const salesGroups = pgTable(
       .notNull()
       .references(() => organizations.organization_id),
     sales_group_name: text().unique().notNull(),
+    sales_group_territory: text().notNull(),
   },
   (table) => {
     return {

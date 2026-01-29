@@ -15,6 +15,13 @@
       "when": 1769420714986,
       "tag": "0001_woozy_roughhouse",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1769679909868,
+      "tag": "0002_overjoyed_meltdown",
+      "breakpoints": true
     }
   ]
 }

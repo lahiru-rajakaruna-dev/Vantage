@@ -1,12 +1,15 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { and, between, eq } from 'drizzle-orm';
-import { drizzle } from 'drizzle-orm/libsql/node';
-import type ILoggerService from '../../../logger/logger.interface';
-import { TOKEN__LOGGER_FACTORY } from '../../../logger/logger_factory/logger_factory.service';
-import { EEnvVars } from '../../../types';
+import { Inject, Injectable }  from '@nestjs/common';
+import { ConfigService }       from '@nestjs/config';
+import { and, between, eq }    from 'drizzle-orm';
+import { drizzle }             from 'drizzle-orm/libsql/node';
+import type ILoggerService     from '../../../logger/logger.interface';
+import {
+  TOKEN__LOGGER_FACTORY
+}                              from '../../../logger/logger_factory/logger_factory.service';
+import { EEnvVars }            from '../../../types';
+import { TEmployee, TSale }    from '../../orm.interface';
 import AbstractDrizzlerService from '../abstract_drizzle.service';
-import * as schema from './drizzle-sqlite.schema';
+import * as schema             from './drizzle-sqlite.schema';
 import {
   clients,
   clientsPayments,
@@ -23,8 +26,10 @@ import {
   TSQLiteOrganization,
   TSQLiteOrganizationPayment,
   TSQLiteSale,
-  TSQLiteSalesGroup,
-} from './drizzle-sqlite.schema';
+  TSQLiteSalesGroup
+}                              from './drizzle-sqlite.schema';
+
+
 
 @Injectable()
 export class DrizzleSqliteService extends AbstractDrizzlerService {
@@ -228,8 +233,14 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
   async getSalesGroupDetailsById(
     organization_id: string,
     sales_group_id: string,
-  ): Promise<TSQLiteSalesGroup> {
-    const result = await this.driver
+  ): Promise<
+    TSQLiteSalesGroup & {
+      sales_group_employees: Array<
+        TEmployee & { employee_sales: Array<TSale> }
+      >;
+    }
+  > {
+    const sales_group_details = await this.driver
       .select()
       .from(salesGroups)
       .where(
@@ -237,9 +248,49 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
           eq(salesGroups.sales_group_organization_id, organization_id),
           eq(salesGroups.sales_group_id, sales_group_id),
         ),
+      )[0];
+
+    this.logger.log(sales_group_details);
+
+    const sales_group_employees = await this.driver
+      .select({
+        employee_id: employees.employee_id,
+        employee_username: employees.employee_username,
+      })
+      .from(employees)
+      .where(
+        and(
+          eq(employees.employee_organization_id, organization_id),
+          eq(employees.employee_sales_group_id, sales_group_id),
+        ),
       );
 
-    return this.logger.logAndReturn(result[0]);
+    this.logger.log(sales_group_employees);
+
+    const employees_with_sales = await Promise.all(
+      sales_group_employees.map(async (employee) => {
+        const employee_sales = await this.driver
+          .select()
+          .from(sales)
+          .where(
+            and(
+              eq(sales.sale_organization_id, organization_id),
+              eq(sales.sale_employee_id, employee.employee_id),
+            ),
+          );
+
+        employee['employee_sales'] = employee_sales;
+
+        return employee as typeof employee & { employee_sales: TSale[] };
+      }),
+    );
+
+    this.logger.log(employees_with_sales);
+
+    return this.logger.logAndReturn({
+      ...sales_group_details,
+      sales_group_employees: employees_with_sales,
+    });
   }
 
   async updateSalesGroupById(
@@ -261,11 +312,17 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
   }
 
   async deleteSalesGroupById(
+    organization_id: string,
     sales_group_id: string,
   ): Promise<TSQLiteSalesGroup> {
     const result = await this.driver
       .delete(salesGroups)
-      .where(eq(salesGroups.sales_group_id, sales_group_id))
+      .where(
+        and(
+          eq(salesGroups.sales_group_organization_id, organization_id),
+          eq(salesGroups.sales_group_id, sales_group_id),
+        ),
+      )
       .returning();
     return this.logger.logAndReturn(result[0]);
   }
