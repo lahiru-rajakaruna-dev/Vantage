@@ -1,21 +1,24 @@
 import {
-  BadRequestException,
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Headers,
-  Param,
-  Patch,
-  Post,
-  Query,
-  UsePipes,
-} from '@nestjs/common';
-import { v4 as uuid } from 'uuid';
-import { z } from 'zod';
-import ZodSchemaValidationPipe from '../../pipes/schema_validation.pipe';
+    BadRequestException,
+    Body,
+    Controller,
+    Delete,
+    Get,
+    Headers,
+    Param,
+    Patch,
+    Post,
+    Query,
+    UsePipes,
+}                                         from '@nestjs/common';
+import { v4 as uuid }                     from 'uuid';
+import { z }                              from 'zod';
+import ZodSchemaValidationPipe
+                                          from '../../pipes/schema_validation.pipe';
 import { SchemaEmployee, type TEmployee } from '../../schemas';
-import { EmployeeService } from './employee.service';
+import { EmployeeService }                from './employee.service';
+
+
 
 @Controller('employee')
 export class EmployeeController {
@@ -69,8 +72,12 @@ export class EmployeeController {
       throw new BadRequestException('[-] Invalid request...');
     }
 
-    const { employee_username, employee_nic_number, employee_phone } =
-      employeeData;
+    const {
+      employee_username,
+      employee_nic_number,
+      employee_phone,
+      employee_active_territory,
+    } = employeeData;
 
     return await this.employeesService.addEmployee({
       employee_id: uuid().toString(),
@@ -79,6 +86,7 @@ export class EmployeeController {
       employee_username: employee_username,
       employee_phone: employee_phone,
       employee_registration_date: Date.now(),
+      employee_active_territory: employee_active_territory,
       employee_nic_number: employee_nic_number,
     });
   }
