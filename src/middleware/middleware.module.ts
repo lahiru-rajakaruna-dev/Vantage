@@ -10,8 +10,9 @@ import {
 
 
 @Module({
-  imports: [OrganizationModule, LoggerModule],
-  providers: [Middleware_OrganizationPuller],
-  exports: [Middleware_OrganizationPuller],
-})
-export class MiddlewareModule {}
+            imports  : [ OrganizationModule, LoggerModule ],
+            providers: [ Middleware_OrganizationPuller ],
+            exports  : [ Middleware_OrganizationPuller ],
+        })
+export class MiddlewareModule {
+}

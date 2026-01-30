@@ -9,72 +9,82 @@ import { type TItem }                            from '../../orm/orm.interface';
 
 @Injectable()
 export class ItemService {
-  private orm: IOrmInterface;
-
-  constructor(@Inject(TOKEN__ORM_FACTORY) orm: IOrmInterface) {
-    this.orm = orm;
-  }
-
-  async addItem(itemData: TItem): Promise<TItem[]> {
-    return await this.orm.addItem(itemData);
-  }
-
-  async viewItemById(organization_id: string, item_id: string): Promise<TItem> {
-    const item = await this.orm.viewItemById(organization_id, item_id);
-
-    if (!item) {
-      throw new NotFoundException(`Item with ID "${item_id}" not found`);
+    private orm: IOrmInterface;
+    
+    
+    constructor(@Inject(TOKEN__ORM_FACTORY) orm: IOrmInterface) {
+        this.orm = orm;
     }
-
-    return item;
-  }
-
-  async getItemsByOrganizationId(organization_id: string): Promise<TItem[]> {
-    return this.orm.getItemsByOrganizationId(organization_id);
-  }
-
-  async updateItemNameById(
-    organization_id: string,
-    item_id: string,
-    item_name: string,
-  ): Promise<TItem[]> {
-    const updatedItem = await this.orm.updateItemById(
-      organization_id,
-      item_id,
-      {
-        item_name: item_name,
-      },
-    );
-    if (!updatedItem) {
-      throw new NotFoundException(`Item with ID "${item_id}" not found`);
+    
+    
+    async addItem(itemData: TItem): Promise<TItem[]> {
+        return await this.orm.addItem(itemData);
     }
-    return updatedItem;
-  }
-
-  async updateItemStockById(
-    organization_id: string,
-    item_id: string,
-    item_stock_units: number,
-  ): Promise<TItem[]> {
-    const updatedItem = await this.orm.updateItemById(
-      organization_id,
-      item_id,
-      {
-        item_stock_unit_count: item_stock_units,
-      },
-    );
-
-    if (!updatedItem) {
-      throw new NotFoundException(`Item with ID "${item_id}" not found`);
+    
+    
+    async viewItemById(
+        organization_id: string,
+        item_id: string
+    ): Promise<TItem> {
+        const item = await this.orm.viewItemById(organization_id, item_id);
+        
+        if (!item) {
+            throw new NotFoundException(`Item with ID "${ item_id }" not found`);
+        }
+        
+        return item;
     }
-
-    return updatedItem;
-  }
-
-  async deleteItemsByIds(
-    organization_id: string,
-    items_ids: string[],
-  ): Promise<TItem[]> {
-    return await this.orm.deleteItemsByIds(organization_id, items_ids);
-  }
+    
+    
+    async getItemsByOrganizationId(organization_id: string): Promise<TItem[]> {
+        return this.orm.getItemsByOrganizationId(organization_id);
+    }
+    
+    
+    async updateItemNameById(
+        organization_id: string,
+        item_id: string,
+        item_name: string,
+    ): Promise<TItem[]> {
+        const updatedItem = await this.orm.updateItemById(
+            organization_id,
+            item_id,
+            {
+                item_name: item_name,
+            },
+        );
+        if (!updatedItem) {
+            throw new NotFoundException(`Item with ID "${ item_id }" not found`);
+        }
+        return updatedItem;
+    }
+    
+    
+    async updateItemStockById(
+        organization_id: string,
+        item_id: string,
+        item_stock_units: number,
+    ): Promise<TItem[]> {
+        const updatedItem = await this.orm.updateItemById(
+            organization_id,
+            item_id,
+            {
+                item_stock_unit_count: item_stock_units,
+            },
+        );
+        
+        if (!updatedItem) {
+            throw new NotFoundException(`Item with ID "${ item_id }" not found`);
+        }
+        
+        return updatedItem;
+    }
+    
+    
+    async deleteItemsByIds(
+        organization_id: string,
+        items_ids: string[],
+    ): Promise<TItem[]> {
+        return await this.orm.deleteItemsByIds(organization_id, items_ids);
+    }
 }

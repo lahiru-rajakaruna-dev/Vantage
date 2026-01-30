@@ -1,8 +1,6 @@
 import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';
 import {
-    type MiddlewareConsumer,
-    Module,
-    type NestModule,
+    type MiddlewareConsumer, Module, type NestModule,
 }                                        from '@nestjs/common';
 import {
     ConfigModule
@@ -65,41 +63,40 @@ import {
 
 
 @Module({
-  imports: [
-    CacheModule.register({
-      ttl: 1000,
-    }),
-    EmployeeModule,
-    OrganizationModule,
-    OrganizationPaymentModule,
-    ClientPaymentModule,
-    ItemModule,
-    SalesGroupModule,
-    ClientModule,
-    SaleModule,
-    ConfigModule.forRoot({
-      isGlobal: true,
-      envFilePath: ['.env'],
-      cache: true,
-    }),
-    LoggerModule,
-    DrizzleModule,
-    OrmModule,
-    PaddleModule,
-    AuthenticationModule,
-    MiddlewareModule,
-  ],
-  controllers: [AppController],
-  providers: [
-    AppService,
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: CacheInterceptor,
-    },
-  ],
-})
+            imports    : [
+                CacheModule.register({
+                                         ttl: 1000,
+                                     }),
+                EmployeeModule,
+                OrganizationModule,
+                OrganizationPaymentModule,
+                ClientPaymentModule,
+                ItemModule,
+                SalesGroupModule,
+                ClientModule,
+                SaleModule,
+                ConfigModule.forRoot({
+                                         isGlobal   : true,
+                                         envFilePath: [ '.env' ],
+                                         cache      : true,
+                                     }),
+                LoggerModule,
+                DrizzleModule,
+                OrmModule,
+                PaddleModule,
+                AuthenticationModule,
+                MiddlewareModule,
+            ],
+            controllers: [ AppController ],
+            providers  : [
+                AppService, {
+                    provide : APP_INTERCEPTOR,
+                    useClass: CacheInterceptor,
+                },
+            ],
+        })
 export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(Middleware_OrganizationPuller).forRoutes('*');
-  }
+    configure(consumer: MiddlewareConsumer) {
+        consumer.apply(Middleware_OrganizationPuller).forRoutes('*');
+    }
 }

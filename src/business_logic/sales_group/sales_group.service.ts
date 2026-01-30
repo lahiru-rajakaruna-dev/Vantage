@@ -7,50 +7,57 @@ import { type TSalesGroup }   from '../../orm/orm.interface';
 
 @Injectable()
 export class SalesGroupService {
-  private readonly orm: IOrmInterface;
-
-  constructor(@Inject(TOKEN__ORM_FACTORY) orm: IOrmInterface) {
-    this.orm = orm;
-  }
-
-  async addSalesGroup(salesGroupData: TSalesGroup): Promise<TSalesGroup[]> {
-    return await this.orm.addSalesGroup(salesGroupData);
-  }
-
-  async getSalesGroupsByOrganizationId(
-    organization_id: string,
-  ): Promise<TSalesGroup[] | undefined> {
-    return await this.orm.getSalesGroupsByOrganizationId(organization_id);
-  }
-
-  async getSalesGroupDetailsById(
-    organization_id: string,
-    sales_group_id: string,
-  ): Promise<TSalesGroup | undefined> {
-    return await this.orm.getSalesGroupDetailsById(
-      organization_id,
-      sales_group_id,
-    );
-  }
-
-  async updateSalesGroupNameById(
-    organization_id: string,
-    sales_group_id: string,
-    sales_group_name: string,
-  ): Promise<TSalesGroup[]> {
-    return await this.orm.updateSalesGroupById(
-      organization_id,
-      sales_group_id,
-      {
-        sales_group_name: sales_group_name,
-      },
-    );
-  }
-
-  async deleteSalesGroupById(
-    organization_id: string,
-    sales_group_id: string,
-  ): Promise<TSalesGroup[]> {
-    return await this.orm.deleteSalesGroupById(organization_id, sales_group_id);
-  }
+    private readonly orm: IOrmInterface;
+    
+    
+    constructor(@Inject(TOKEN__ORM_FACTORY) orm: IOrmInterface) {
+        this.orm = orm;
+    }
+    
+    
+    async addSalesGroup(salesGroupData: TSalesGroup): Promise<TSalesGroup[]> {
+        return await this.orm.addSalesGroup(salesGroupData);
+    }
+    
+    
+    async getSalesGroupsByOrganizationId(organization_id: string,): Promise<TSalesGroup[] | undefined> {
+        return await this.orm.getSalesGroupsByOrganizationId(organization_id);
+    }
+    
+    
+    async getSalesGroupDetailsById(
+        organization_id: string,
+        sales_group_id: string,
+    ): Promise<TSalesGroup | undefined> {
+        return await this.orm.getSalesGroupDetailsById(
+            organization_id,
+            sales_group_id,
+        );
+    }
+    
+    
+    async updateSalesGroupNameById(
+        organization_id: string,
+        sales_group_id: string,
+        sales_group_name: string,
+    ): Promise<TSalesGroup[]> {
+        return await this.orm.updateSalesGroupById(
+            organization_id,
+            sales_group_id,
+            {
+                sales_group_name: sales_group_name,
+            },
+        );
+    }
+    
+    
+    async deleteSalesGroupById(
+        organization_id: string,
+        sales_group_id: string,
+    ): Promise<TSalesGroup[]> {
+        return await this.orm.deleteSalesGroupById(
+            organization_id,
+            sales_group_id
+        );
+    }
 }
