@@ -420,55 +420,57 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
             employee_sales: Array<TSale>
         }>;
     }> {
-        console.log('org:', organization_id, 'sales_group:', sales_group_id);
-        const sales_group_details = await this.driver
-                                              .select()
-                                              .from(salesGroups)
-                                              .where(and(eq(
-                                                  salesGroups.sales_group_organization_id,
-                                                  organization_id
-                                              ), eq(
-                                                  salesGroups.sales_group_id,
-                                                  sales_group_id
-                                              ),),)[0];
-        console.log('sales_group:', sales_group_details);
-        const sales_group_employees = await this.driver
-                                                .select({
-                                                            employee_id      : employees.employee_id,
-                                                            employee_username: employees.employee_username,
-                                                        })
-                                                .from(employees)
-                                                .where(and(eq(
-                                                    employees.employee_organization_id,
-                                                    organization_id
-                                                ), eq(
-                                                    employees.employee_sales_group_id,
-                                                    sales_group_id
-                                                ),),);
-        this.logger.log(sales_group_employees);
-        const employees_with_sales = await Promise.all(sales_group_employees.map(
-            async (employee) => {
-                const employee_sales       = await this.driver
-                                                       .select()
-                                                       .from(sales)
-                                                       .where(and(eq(
-                                                           sales.sale_organization_id,
-                                                           organization_id
-                                                       ), eq(
-                                                           sales.sale_employee_id,
-                                                           employee.employee_id
-                                                       ),),);
-                employee['employee_sales'] = employee_sales;
-                return employee as typeof employee & {
-                    employee_sales: TSale[]
-                };
-            }),);
-        this.logger.log(employees_with_sales);
+        
+        const result = await this.driver.transaction(async (tx) => {
+            const sales_group = await tx.select()
+                                        .from(salesGroups)
+                                        .where(and(eq(
+                                            salesGroups.sales_group_organization_id,
+                                            organization_id
+                                        ), eq(
+                                            salesGroups.sales_group_id,
+                                            sales_group_id
+                                        ))).limit(1);
+            
+            const sales_group_employees = await tx.select()
+                                                  .from(employees)
+                                                  .where(and(eq(
+                                                      employees.employee_organization_id,
+                                                      organization_id
+                                                  ), eq(
+                                                      employees.employee_sales_group_id,
+                                                      sales_group_id
+                                                  ),))
+            
+            const employees_ids = sales_group_employees.map((employee) => employee.employee_id)
+            
+            const employee_sales = await tx.select().from(sales).where(and(
+                eq(sales.sale_organization_id, organization_id),
+                inArray(
+                    sales.sale_employee_id,
+                    employees_ids
+                )
+            ))
+            
+            return {
+                ...sales_group[0],
+                sales_group_employees: sales_group_employees.map((employee) => {
+                    employee['employee_sales'] =
+                        employee_sales.filter((sale) => (
+                            sale.sale_employee_id === employee.employee_id
+                        ))
+                    
+                    return employee
+                    
+                }) as Array<TSQLiteEmployee & {
+                    employee_sales: TSQLiteSale[]
+                }>
+            }
+            
+        })
+        
         return this.logger.logAndReturn(
-            {
-                ...sales_group_details,
-                sales_group_employees: employees_with_sales,
-            },
+            result,
             'operation: get_sales_group_details_by_id',
         );
     }
@@ -483,13 +485,10 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
             await tx
                 .update(salesGroups)
                 .set(salesGroupUpdates)
-                .where(and(
-                    eq(
-                        salesGroups.sales_group_organization_id,
-                        organization_id
-                    ),
-                    eq(salesGroups.sales_group_id, sales_group_id),
-                ),);
+                .where(and(eq(
+                    salesGroups.sales_group_organization_id,
+                    organization_id
+                ), eq(salesGroups.sales_group_id, sales_group_id),),);
             return tx
                 .select()
                 .from(salesGroups)
@@ -512,13 +511,10 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
         const result = await this.driver.transaction(async (tx) => {
             await tx
                 .delete(salesGroups)
-                .where(and(
-                    eq(
-                        salesGroups.sales_group_organization_id,
-                        organization_id
-                    ),
-                    eq(salesGroups.sales_group_id, sales_group_id),
-                ),);
+                .where(and(eq(
+                    salesGroups.sales_group_organization_id,
+                    organization_id
+                ), eq(salesGroups.sales_group_id, sales_group_id),),);
             return tx
                 .select()
                 .from(salesGroups)
@@ -749,10 +745,7 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
                 .where(and(eq(
                     clientsPayments.client_payment_organization_id,
                     organization_id
-                ), eq(
-                    clientsPayments.client_payment_id,
-                    client_payment_id
-                ),),);
+                ), eq(clientsPayments.client_payment_id, client_payment_id),),);
             return tx
                 .select()
                 .from(clientsPayments)
@@ -862,14 +855,17 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
         const result = await this.driver
                                  .select()
                                  .from(sales)
-                                 .where(and(eq(
-                                     sales.sale_organization_id,
-                                     organization_id
-                                 ), between(
-                                     sales.sale_date,
-                                     date_start,
-                                     date_end
-                                 ),),);
+                                 .where(and(
+                                     eq(
+                                         sales.sale_organization_id,
+                                         organization_id
+                                     ),
+                                     between(
+                                         sales.sale_date,
+                                         date_start,
+                                         date_end
+                                     ),
+                                 ),);
         return this.logger.logAndReturn(
             result,
             'operation: get_sales_within_dates',
