@@ -268,7 +268,8 @@ export const ClientSchema = z.object({
                                                                      .min(1),
                                          client_nic_number        : z.string()
                                                                      .min(1),
-                                         client_email             : z.email(),
+                                         client_email             : z.string()
+                                                                     .email(),
                                          client_phone             : z.string()
                                                                      .min(1),
                                          client_account_status    : ClientAccountStatusEnum.default(
@@ -313,6 +314,287 @@ export const ClientPaymentUpdateSchema = ClientPaymentSchema.partial().omit({
                                                                                 client_payment_organization_id: true,
                                                                             });
 
+// --- REQUEST VALIDATION SCHEMAS ---
+
+// Organization Requests
+export const CreateOrganizationRequestSchema = OrganizationSchema.pick({
+                                                                           organization_name       : true,
+                                                                           organization_admin_email: true,
+                                                                           organization_admin_phone: true,
+                                                                           organization_logo_url   : true,
+                                                                       })
+                                                                 .extend({
+                                                                             organization_logo_url          : z.url(),
+                                                                             organization_stripe_customer_id: z.string()
+                                                                                                               .min(
+                                                                                                                   1)
+                                                                                                               .optional(),
+                                                                         });
+
+export const UpdateOrganizationRequestSchema = OrganizationSchema.pick({
+                                                                           organization_name                 : true,
+                                                                           organization_admin_email          : true,
+                                                                           organization_admin_phone          : true,
+                                                                           organization_logo_url             : true,
+                                                                           organization_status               : true,
+                                                                           organization_subscription_status  : true,
+                                                                           organization_subscription_end_date: true,
+                                                                       })
+                                                                 .partial();
+
+export const GetOrganizationByIdRequestSchema = OrganizationSchema.pick({
+                                                                            organization_id: true,
+                                                                        });
+
+// Employee Requests
+export const CreateEmployeeRequestSchema = EmployeeSchema.pick({
+                                                                   employee_first_name      : true,
+                                                                   employee_last_name       : true,
+                                                                   employee_phone           : true,
+                                                                   employee_nic_number      : true,
+                                                                   employee_sales_group_id  : true,
+                                                                   employee_active_territory: true,
+                                                               }).extend({
+                                                                             employee_first_name      : EmployeeSchema.shape.employee_first_name.optional(),
+                                                                             employee_last_name       : EmployeeSchema.shape.employee_last_name.optional(),
+                                                                             employee_phone           : EmployeeSchema.shape.employee_phone.optional(),
+                                                                             employee_sales_group_id  : EmployeeSchema.shape.employee_sales_group_id.optional(),
+                                                                             employee_active_territory: EmployeeSchema.shape.employee_active_territory.optional(),
+                                                                         });
+
+export const UpdateEmployeeRequestSchema = EmployeeSchema.pick({
+                                                                   employee_first_name      : true,
+                                                                   employee_last_name       : true,
+                                                                   employee_phone           : true,
+                                                                   employee_sales_group_id  : true,
+                                                                   employee_active_territory: true,
+                                                               }).partial();
+
+export const GetEmployeeByIdRequestSchema = EmployeeSchema.pick({
+                                                                    employee_id: true,
+                                                                });
+
+export const DeleteEmployeeRequestSchema = z.object({
+                                                        organization_id: z.string()
+                                                                          .min(1),
+                                                        employee_id    : z.string()
+                                                                          .min(1),
+                                                    });
+
+// Employee Leaves Requests
+export const CreateEmployeesLeavesRequestSchema = EmployeesLeavesSchema.pick({
+                                                                                 employees_leaves_employee_id: true,
+                                                                                 employees_leaves_taken      : true,
+                                                                                 employees_leaves_total      : true,
+                                                                             });
+
+export const UpdateEmployeesLeavesRequestSchema = EmployeesLeavesSchema.pick({
+                                                                                 employees_leaves_taken: true,
+                                                                                 employees_leaves_total: true,
+                                                                             })
+                                                                       .partial();
+
+// Employee Credentials Requests
+export const CreateEmployeesCredentialsRequestSchema = EmployeesCredentialsSchema.pick(
+    {
+        employees_credentials_employee_id: true,
+        employees_credentials_username   : true,
+        employees_credentials_password   : true,
+    });
+
+export const UpdateEmployeesCredentialsRequestSchema = EmployeesCredentialsSchema.pick(
+    {
+        employees_credentials_username: true,
+        employees_credentials_password: true,
+    }).partial();
+
+export const LoginRequestSchema = z.object({
+                                               username: z.string().min(3),
+                                               password: z.string().min(8),
+                                           });
+
+// Sales Group Requests
+export const CreateSalesGroupRequestSchema = SalesGroupSchema.pick({
+                                                                       sales_group_name     : true,
+                                                                       sales_group_territory: true,
+                                                                   });
+
+export const UpdateSalesGroupRequestSchema = SalesGroupSchema.pick({
+                                                                       sales_group_name     : true,
+                                                                       sales_group_territory: true,
+                                                                   }).partial();
+
+export const GetSalesGroupByIdRequestSchema = z.object({
+                                                           organization_id: z.string()
+                                                                             .min(
+                                                                                 1),
+                                                           sales_group_id : z.string()
+                                                                             .min(
+                                                                                 1),
+                                                       });
+
+export const DeleteSalesGroupRequestSchema = z.object({
+                                                          organization_id: z.string()
+                                                                            .min(
+                                                                                1),
+                                                          sales_group_id : z.string()
+                                                                            .min(
+                                                                                1),
+                                                      });
+
+// Item Requests
+export const CreateItemRequestSchema = ItemSchema.pick({
+                                                           item_name            : true,
+                                                           item_stock_unit_count: true,
+                                                       });
+
+export const UpdateItemRequestSchema = ItemSchema.pick({
+                                                           item_name            : true,
+                                                           item_stock_unit_count: true,
+                                                       }).partial();
+
+export const GetItemByIdRequestSchema = ItemSchema.pick({
+                                                            item_id: true,
+                                                        });
+
+export const DeleteItemRequestSchema = z.object({
+                                                    organization_id: z.string()
+                                                                      .min(1),
+                                                    item_id        : z.string()
+                                                                      .min(1),
+                                                });
+
+// Sale Requests
+export const CreateSaleRequestSchema = SaleSchema.pick({
+                                                           sale_employee_id      : true,
+                                                           sale_client_id        : true,
+                                                           sale_client_payment_id: true,
+                                                           sale_item_id          : true,
+                                                           sale_item_unit_count  : true,
+                                                       }).extend({
+                                                                     sale_date: SaleSchema.shape.sale_date.optional(),
+                                                                 });
+
+export const UpdateSaleRequestSchema = SaleSchema.pick({
+                                                           sale_employee_id      : true,
+                                                           sale_client_id        : true,
+                                                           sale_client_payment_id: true,
+                                                           sale_item_id          : true,
+                                                           sale_item_unit_count  : true,
+                                                           sale_date             : true,
+                                                       }).partial();
+
+export const GetSaleByIdRequestSchema = SaleSchema.pick({
+                                                            sale_id: true,
+                                                        });
+
+export const GetSalesByDateRequestSchema = z.object({
+                                                        organization_id: z.string()
+                                                                          .min(1),
+                                                        date           : z.number()
+                                                                          .int()
+                                                                          .positive(),
+                                                    });
+
+export const GetSalesWithinDatesRequestSchema = z.object({
+                                                             organization_id: z.string()
+                                                                               .min(
+                                                                                   1),
+                                                             date_start     : z.number()
+                                                                               .int()
+                                                                               .positive(),
+                                                             date_end       : z.number()
+                                                                               .int()
+                                                                               .positive(),
+                                                         })
+                                                 .refine(
+                                                     (data) => data.date_start <=
+                                                               data.date_end,
+                                                     {
+                                                         message: 'date_start must be less than or equal to date_end',
+                                                         path   : [ 'date_start' ],
+                                                     }
+                                                 );
+
+// Organization Payment Requests
+export const CreateOrganizationPaymentRequestSchema = OrganizationPaymentSchema.pick(
+    {
+        payment_amount: true,
+        payment_status: true,
+    }).extend({
+                  payment_status   : OrganizationPaymentSchema.shape.payment_status.optional(),
+                  payment_timestamp: OrganizationPaymentSchema.shape.payment_timestamp.optional(),
+              });
+
+export const UpdateOrganizationPaymentRequestSchema = OrganizationPaymentSchema.pick(
+    {
+        payment_amount: true,
+        payment_status: true,
+    }).partial();
+
+export const GetOrganizationPaymentByIdRequestSchema = OrganizationPaymentSchema.pick(
+    {
+        payment_id: true,
+    });
+
+// Client Requests
+export const CreateClientRequestSchema = ClientSchema.pick({
+                                                               client_stripe_customer_id: true,
+                                                               client_name              : true,
+                                                               client_nic_number        : true,
+                                                               client_email             : true,
+                                                               client_phone             : true,
+                                                           }).extend({
+                                                                         client_account_status: ClientSchema.shape.client_account_status.optional(),
+                                                                     });
+
+export const UpdateClientRequestSchema = ClientSchema.pick({
+                                                               client_stripe_customer_id: true,
+                                                               client_name              : true,
+                                                               client_nic_number        : true,
+                                                               client_email             : true,
+                                                               client_phone             : true,
+                                                               client_account_status    : true,
+                                                           }).partial();
+
+export const GetClientByIdRequestSchema = ClientSchema.pick({
+                                                                client_id: true,
+                                                            });
+
+export const DeleteClientRequestSchema = z.object({
+                                                      organization_id: z.string()
+                                                                        .min(1),
+                                                      client_id      : z.string()
+                                                                        .min(1),
+                                                  });
+
+// Client Payment Requests
+export const CreateClientPaymentRequestSchema = ClientPaymentSchema.pick({
+                                                                             client_payment_client_id: true,
+                                                                             client_payment_amount   : true,
+                                                                         })
+                                                                   .extend({
+                                                                               client_payment_date  : ClientPaymentSchema.shape.client_payment_date.optional(),
+                                                                               client_payment_status: ClientPaymentSchema.shape.client_payment_status.optional(),
+                                                                           });
+
+export const UpdateClientPaymentRequestSchema = ClientPaymentSchema.pick({
+                                                                             client_payment_amount: true,
+                                                                             client_payment_date  : true,
+                                                                             client_payment_status: true,
+                                                                         })
+                                                                   .partial();
+
+export const GetClientPaymentByIdRequestSchema = ClientPaymentSchema.pick({
+                                                                              client_payment_id: true,
+                                                                          });
+
+export const GetClientPaymentsByClientIdRequestSchema = z.object({
+                                                                     client_id: z.string()
+                                                                                 .min(
+                                                                                     1),
+                                                                 });
+
 // --- TYPE EXPORTS ---
 export type TOrganization = z.infer<typeof OrganizationSchema>;
 export type TOrganizationInsert = z.infer<typeof OrganizationInsertSchema>;
@@ -353,3 +635,50 @@ export type TClientUpdate = z.infer<typeof ClientUpdateSchema>;
 export type TClientPayment = z.infer<typeof ClientPaymentSchema>;
 export type TClientPaymentInsert = z.infer<typeof ClientPaymentInsertSchema>;
 export type TClientPaymentUpdate = z.infer<typeof ClientPaymentUpdateSchema>;
+
+// Request Types
+export type TCreateOrganizationRequest = z.infer<typeof CreateOrganizationRequestSchema>;
+export type TUpdateOrganizationRequest = z.infer<typeof UpdateOrganizationRequestSchema>;
+export type TGetOrganizationByIdRequest = z.infer<typeof GetOrganizationByIdRequestSchema>;
+
+export type TCreateEmployeeRequest = z.infer<typeof CreateEmployeeRequestSchema>;
+export type TUpdateEmployeeRequest = z.infer<typeof UpdateEmployeeRequestSchema>;
+export type TGetEmployeeByIdRequest = z.infer<typeof GetEmployeeByIdRequestSchema>;
+export type TDeleteEmployeeRequest = z.infer<typeof DeleteEmployeeRequestSchema>;
+
+export type TCreateEmployeesLeavesRequest = z.infer<typeof CreateEmployeesLeavesRequestSchema>;
+export type TUpdateEmployeesLeavesRequest = z.infer<typeof UpdateEmployeesLeavesRequestSchema>;
+
+export type TCreateEmployeesCredentialsRequest = z.infer<typeof CreateEmployeesCredentialsRequestSchema>;
+export type TUpdateEmployeesCredentialsRequest = z.infer<typeof UpdateEmployeesCredentialsRequestSchema>;
+export type TLoginRequest = z.infer<typeof LoginRequestSchema>;
+
+export type TCreateSalesGroupRequest = z.infer<typeof CreateSalesGroupRequestSchema>;
+export type TUpdateSalesGroupRequest = z.infer<typeof UpdateSalesGroupRequestSchema>;
+export type TGetSalesGroupByIdRequest = z.infer<typeof GetSalesGroupByIdRequestSchema>;
+export type TDeleteSalesGroupRequest = z.infer<typeof DeleteSalesGroupRequestSchema>;
+
+export type TCreateItemRequest = z.infer<typeof CreateItemRequestSchema>;
+export type TUpdateItemRequest = z.infer<typeof UpdateItemRequestSchema>;
+export type TGetItemByIdRequest = z.infer<typeof GetItemByIdRequestSchema>;
+export type TDeleteItemRequest = z.infer<typeof DeleteItemRequestSchema>;
+
+export type TCreateSaleRequest = z.infer<typeof CreateSaleRequestSchema>;
+export type TUpdateSaleRequest = z.infer<typeof UpdateSaleRequestSchema>;
+export type TGetSaleByIdRequest = z.infer<typeof GetSaleByIdRequestSchema>;
+export type TGetSalesByDateRequest = z.infer<typeof GetSalesByDateRequestSchema>;
+export type TGetSalesWithinDatesRequest = z.infer<typeof GetSalesWithinDatesRequestSchema>;
+
+export type TCreateOrganizationPaymentRequest = z.infer<typeof CreateOrganizationPaymentRequestSchema>;
+export type TUpdateOrganizationPaymentRequest = z.infer<typeof UpdateOrganizationPaymentRequestSchema>;
+export type TGetOrganizationPaymentByIdRequest = z.infer<typeof GetOrganizationPaymentByIdRequestSchema>;
+
+export type TCreateClientRequest = z.infer<typeof CreateClientRequestSchema>;
+export type TUpdateClientRequest = z.infer<typeof UpdateClientRequestSchema>;
+export type TGetClientByIdRequest = z.infer<typeof GetClientByIdRequestSchema>;
+export type TDeleteClientRequest = z.infer<typeof DeleteClientRequestSchema>;
+
+export type TCreateClientPaymentRequest = z.infer<typeof CreateClientPaymentRequestSchema>;
+export type TUpdateClientPaymentRequest = z.infer<typeof UpdateClientPaymentRequestSchema>;
+export type TGetClientPaymentByIdRequest = z.infer<typeof GetClientPaymentByIdRequestSchema>;
+export type TGetClientPaymentsByClientIdRequest = z.infer<typeof GetClientPaymentsByClientIdRequestSchema>;
