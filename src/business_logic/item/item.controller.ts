@@ -1,112 +1,185 @@
 import {
-  BadRequestException,
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Headers,
-  Inject,
-  Param,
-  Patch,
-  Post,
-  Query,
-  UsePipes,
-} from '@nestjs/common';
-import { v4 as uuid } from 'uuid';
-import { z } from 'zod';
-import { type TItem } from '../../orm/orm.interface';
-import ZodSchemaValidationPipe from '../../pipes/schema_validation.pipe';
-import { ItemService } from './item.service';
+    BadRequestException,
+    Body,
+    Controller,
+    Delete,
+    Get,
+    Inject,
+    Param,
+    Patch,
+    Post,
+    Query,
+    Req,
+    UnauthorizedException,
+    UsePipes,
+}                                    from '@nestjs/common';
+import { v4 as uuid }                from 'uuid';
+import { type TItem }                from '../../orm/orm.interface';
+import ZodSchemaValidationPipe       from '../../pipes/schema_validation.pipe';
+import { ItemSchema, TOrganization } from '../../schemas';
+import { ItemService }               from './item.service';
+
+
 
 @Controller('item')
 export class ItemController {
-  private itemService: ItemService;
-
-  constructor(@Inject() itemService: ItemService) {
-    this.itemService = itemService;
-  }
-
-  @Get('/:item_id')
-  getItemById(
-    @Headers('organization_id') organization_id: string,
-    @Param('item_id') item_id: string,
-  ) {
-    return this.itemService.viewItemById(organization_id, item_id);
-  }
-
-  @Get('/organization/:organization_id')
-  getItemsByOrganizationId(@Param('organization_id') organization_id: string) {
-    return this.itemService.getItemsByOrganizationId(organization_id);
-  }
-
-  @Post('/add')
-  @UsePipes(
-    new ZodSchemaValidationPipe(
-      z.object({
-        item_name: z.string().nonempty().nonoptional(),
-        item_stock_unit_count: z.int().nonoptional().default(1),
-      }),
-    ),
-  )
-  async addItem(
-    @Headers('organization_id') organization_id: string,
-    @Body() itemData: TItem,
-  ) {
-    if (!organization_id) {
-      throw new BadRequestException('[-] Invalid request...');
+    private readonly itemService: ItemService;
+    
+    
+    constructor(@Inject() itemService: ItemService) {
+        this.itemService = itemService;
     }
-
-    const { item_name, item_stock_unit_count } = itemData;
-
-    return await this.itemService.addItem({
-      item_id: uuid().toString(),
-      item_organization_id: organization_id,
-      item_name: item_name,
-      item_stock_unit_count: item_stock_unit_count,
-    });
-  }
-
-  @Patch('/update/name/:item_id')
-  @UsePipes(
-    new ZodSchemaValidationPipe(
-      z.object({ item_name: z.string().nonempty().nonoptional() }),
-    ),
-  )
-  async updateItemNameById(
-    @Headers('organization_id') organization_id: string,
-    @Param('item_id') item_id: string,
-    @Body() itemData: Pick<TItem, 'item_name'>,
-  ) {
-    return await this.itemService.updateItemNameById(
-      organization_id,
-      item_id,
-      itemData.item_name,
-    );
-  }
-
-  @Patch('/update/stock/:item_id')
-  @UsePipes(
-    new ZodSchemaValidationPipe(
-      z.object({ item_stock_unit_count: z.int().nonoptional() }),
-    ),
-  )
-  async updateItemStockById(
-    @Headers('organization_id') organization_id: string,
-    @Param('item_id') item_id: string,
-    @Body() itemData: Pick<TItem, 'item_stock_unit_count'>,
-  ) {
-    return await this.itemService.updateItemStockById(
-      organization_id,
-      item_id,
-      itemData.item_stock_unit_count!,
-    );
-  }
-
-  @Delete('/delete/')
-  async deleteItemsByIds(
-    @Headers('organization_id') organization_id: string,
-    @Query('item_ids') item_ids: string[],
-  ) {
-    return await this.itemService.deleteItemsByIds(organization_id, item_ids);
-  }
+    
+    
+    @Post()
+    @UsePipes(
+        new ZodSchemaValidationPipe(
+            ItemSchema.pick({
+                                item_name            : true,
+                                item_stock_unit_count: true,
+                            })
+        ),
+    )
+    async addItem(
+        @Req() request: Request & {
+            organization: TOrganization
+        },
+        @Body() itemData: TItem,
+    ) {
+        if (!request.organization) {
+            throw new BadRequestException('[-] Invalid request...');
+        }
+        
+        return await this.itemService.addItem({
+                                                  item_id              : uuid()
+                                                      .toString(),
+                                                  item_organization_id : request.organization.organization_id,
+                                                  item_name            : itemData.item_name,
+                                                  item_stock_unit_count: itemData.item_stock_unit_count ||
+                                                                         0,
+                                              });
+    }
+    
+    
+    @Patch('/update/name/:item_id')
+    @UsePipes(
+        new ZodSchemaValidationPipe(
+            ItemSchema.pick({ item_name: true })
+        ),
+    )
+    async updateItemName(
+        @Req() request: Request & {
+            organization: TOrganization
+        },
+        @Param('item_id') item_id: string,
+        @Body('item_name') item_name: string,
+    ) {
+        if (!request.organization) {
+            throw new UnauthorizedException('Organization not found');
+        }
+        
+        return await this.itemService.updateItemNameById(
+            request.organization.organization_id,
+            item_id,
+            item_name,
+        );
+    }
+    
+    
+    @Patch('/update/stock/:item_id')
+    @UsePipes(
+        new ZodSchemaValidationPipe(
+            ItemSchema.pick({ item_stock_unit_count: true })
+        ),
+    )
+    async updateItemStock(
+        @Req() request: Request & {
+            organization: TOrganization
+        },
+        @Param('item_id') item_id: string,
+        @Body() itemData: {
+            item_stock_unit_count: number
+        },
+    ) {
+        if (!request.organization) {
+            throw new UnauthorizedException('Organization not found');
+        }
+        
+        return await this.itemService.updateItemStockById(
+            request.organization.organization_id,
+            item_id,
+            itemData.item_stock_unit_count,
+        );
+    }
+    
+    
+    @Delete('/delete/:item_id')
+    async deleteItem(
+        @Req() request: Request & {
+            organization: TOrganization
+        },
+        @Param('item_id') item_id: string,
+    ) {
+        if (!request.organization) {
+            throw new UnauthorizedException('Organization not found');
+        }
+        
+        return await this.itemService.deleteItemById(
+            request.organization.organization_id,
+            item_id,
+        );
+    }
+    
+    
+    @Delete('/delete-batch')
+    async deleteItemsBatch(
+        @Req() request: Request & {
+            organization: TOrganization
+        },
+        @Query('item_ids') item_ids: string,
+    ) {
+        if (!request.organization) {
+            throw new UnauthorizedException('Organization not found');
+        }
+        
+        const itemIdsArray = item_ids.split(',').map(id => id.trim());
+        return await this.itemService.deleteItemsByIds(
+            request.organization.organization_id,
+            itemIdsArray,
+        );
+    }
+    
+    
+    @Get('/profile/:item_id')
+    async getItemProfile(
+        @Req() request: Request & {
+            organization: TOrganization
+        },
+        @Param('item_id') item_id: string,
+    ) {
+        if (!request.organization) {
+            throw new UnauthorizedException('Organization not found');
+        }
+        
+        return await this.itemService.viewItemById(
+            request.organization.organization_id,
+            item_id,
+        );
+    }
+    
+    
+    @Get('/view/organization')
+    async getItemsByOrganizationId(
+        @Req() request: Request & {
+            organization: TOrganization
+        },
+    ) {
+        if (!request.organization) {
+            throw new UnauthorizedException('Organization not found');
+        }
+        
+        return await this.itemService.getItemsByOrganizationId(
+            request.organization.organization_id,
+        );
+    }
 }

@@ -15,8 +15,14 @@ export class EmployeeService {
     }
     
     
-    async addEmployee(employeeData: TEmployee): Promise<TEmployee[]> {
-        return await this.orm.addEmployee(employeeData);
+    async addEmployee(
+        organization_id: string,
+        employeeData: {
+            employee_nic_number: string,
+            employee_password: string
+        }
+    ): Promise<TEmployee[]> {
+        return await this.orm.addEmployee(organization_id, employeeData);
     }
     
     
@@ -76,10 +82,12 @@ export class EmployeeService {
     async updateEmployeeUsernameById(
         organization_id: string,
         employee_id: string,
-        employee_username: string,
+        employee_first_name: string,
+        employee_last_name: string
     ): Promise<TEmployee[]> {
         return await this.orm.updateEmployeeById(organization_id, employee_id, {
-            employee_username: employee_username,
+            employee_first_name: employee_first_name,
+            employee_last_name : employee_last_name,
         });
     }
     
