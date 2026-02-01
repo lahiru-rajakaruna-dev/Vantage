@@ -81,6 +81,12 @@ export class ItemService {
     }
     
     
+    async deleteItemById(organization_id: string, item_id: string) {
+        
+        return await this.orm.deleteItemById(organization_id, item_id)
+    }
+    
+    
     async deleteItemsByIds(
         organization_id: string,
         items_ids: string[],

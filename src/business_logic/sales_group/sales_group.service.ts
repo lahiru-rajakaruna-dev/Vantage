@@ -51,6 +51,21 @@ export class SalesGroupService {
     }
     
     
+    async updateSalesGroupTerritoryById(
+        organization_id: string,
+        sales_group_id: string,
+        sales_group_territory: string
+    ): Promise<TSalesGroup[]> {
+        return await this.orm.updateSalesGroupById(
+            organization_id,
+            sales_group_id,
+            {
+                sales_group_territory: sales_group_territory
+            }
+        )
+    }
+    
+    
     async deleteSalesGroupById(
         organization_id: string,
         sales_group_id: string,

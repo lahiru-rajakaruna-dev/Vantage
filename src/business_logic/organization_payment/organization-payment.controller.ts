@@ -173,7 +173,7 @@ export class OrganizationPaymentController {
             throw new UnauthorizedException('Organization not found');
         }
         
-        return await this.organizationPaymentService.viewOrganizationPaymentById(
+        return await this.organizationPaymentService.getOrganizationPaymentById(
             request.organization.organization_id,
             payment_id,
         );

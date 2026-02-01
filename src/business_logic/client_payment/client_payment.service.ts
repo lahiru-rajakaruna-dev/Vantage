@@ -1,8 +1,8 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { TOKEN__ORM_FACTORY } from '../../orm/orm-factory/orm-factory.service';
-import type IOrmInterface from '../../orm/orm.interface';
+import { Inject, Injectable }  from '@nestjs/common';
+import { TOKEN__ORM_FACTORY }  from '../../orm/orm-factory/orm-factory.service';
+import type IOrmInterface      from '../../orm/orm.interface';
 import { type TClientPayment } from '../../orm/orm.interface';
-import { EPaymentStatus } from '../../types';
+import { EPaymentStatus }      from '../../types';
 
 
 
@@ -60,6 +60,17 @@ export class ClientPaymentService {
         return this.orm.updateClientPaymentById(organization_id, payment_id, {
             client_payment_status: EPaymentStatus.REFUNDED,
         });
+    }
+    
+    
+    async updateClientPaymentAmountById(
+        organization_id: string,
+        payment_id: string,
+        payment_amount: number,
+    ): Promise<TClientPayment[]> {
+        return this.orm.updateClientPaymentById(organization_id, payment_id, {
+            client_payment_amount: payment_amount
+        })
     }
     
     

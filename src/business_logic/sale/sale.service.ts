@@ -20,7 +20,10 @@ export class SaleService {
     }
     
     
-    async viewSale(organization_id: string, sale_id: string): Promise<TSale> {
+    async viewSaleById(
+        organization_id: string,
+        sale_id: string
+    ): Promise<TSale> {
         return await this.orm.viewSaleById(organization_id, sale_id);
     }
     
