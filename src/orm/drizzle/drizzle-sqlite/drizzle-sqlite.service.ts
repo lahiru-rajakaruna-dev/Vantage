@@ -3,6 +3,7 @@ import { Inject, Injectable }        from '@nestjs/common';
 import { ConfigService }             from '@nestjs/config';
 import { and, between, eq, inArray } from 'drizzle-orm';
 import { drizzle }                   from 'drizzle-orm/libsql/node';
+import { v4 as uuid }                from 'uuid'
 import type ILoggerService           from '../../../logger/logger.interface';
 import {
     TOKEN__LOGGER_FACTORY
@@ -24,6 +25,7 @@ import {
     clients,
     clientsPayments,
     employees,
+    employeesCredentials,
     items,
     organizations,
     organizationsPayments,
@@ -126,17 +128,50 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
     }
     
     
-    async addEmployee(employeeDetails: TEmployee): Promise<TEmployee[]> {
+    async addEmployee(
+        organization_id: string,
+        employeeDetails: {
+            employee_nic_number: string;
+            employee_password: string
+        }
+    ): Promise<TEmployee[]> {
         const result = await this.driver.transaction(async (tx) => {
-            await tx.insert(employees).values(employeeDetails);
+            
+            const employeeRecord = (await tx.insert(employees)
+                                            .values({
+                                                        employee_id               : uuid()
+                                                            .toString(),
+                                                        employee_organization_id  : organization_id,
+                                                        employee_sales_group_id   : null,
+                                                        employee_first_name       : null,
+                                                        employee_last_name        : null,
+                                                        employee_registration_date: Date.now(),
+                                                        employee_active_territory : null,
+                                                        employee_phone            : null,
+                                                        employee_nic_number       : employeeDetails.employee_nic_number,
+                                                        
+                                                    })
+                                            .returning())[0]
+            
+            const employeeCredentials = await tx.insert(employeesCredentials)
+                                                .values({
+                                                            employees_credentials_id             : uuid()
+                                                                .toString(),
+                                                            employees_credentials_employee_id    : employeeRecord.employee_id,
+                                                            employees_credentials_organization_id: organization_id,
+                                                            employees_credentials_username       : employeeDetails.employee_nic_number,
+                                                            employees_credentials_password       : employeeDetails.employee_password,
+                                                        })
+            
             return tx
                 .select()
                 .from(employees)
                 .where(eq(
                     employees.employee_organization_id,
-                    employeeDetails.employee_organization_id,
+                    organization_id,
                 ),);
         });
+        
         return this.logger.logAndReturn(result, 'operation: add_employee');
     }
     
@@ -639,6 +674,30 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
         return this.logger.logAndReturn(
             result,
             'operation: add_organization_payment',
+        );
+    }
+    
+    
+    async getOrganizationPaymentById(
+        organization_id: string,
+        payment_id: string
+    ): Promise<TOrganizationPayment> {
+        
+        return this.logger.logAndReturn(
+            (await this.driver
+                       .select()
+                       .from(organizationsPayments)
+                       .where(and(
+                           eq(
+                               organizationsPayments.payment_organization_id,
+                               organization_id
+                           ),
+                           eq(
+                               organizationsPayments.payment_id,
+                               payment_id
+                           )
+                       )))[0],
+            'operation: get_organization_payments_by_organization_id',
         );
     }
     

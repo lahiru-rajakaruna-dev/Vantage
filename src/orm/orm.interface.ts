@@ -59,7 +59,13 @@ export default interface IOrmInterface {
     ): Promise<TOrganization>;
     
     //   EMPLOYEE
-    addEmployee(employeeDetails: TEmployee): Promise<TEmployee[]>;
+    addEmployee(
+        organization_id: string,
+        employeeDetails: {
+            employee_nic_number: string;
+            employee_password: string
+        }
+    ): Promise<TEmployee[]>;
     
     viewEmployeeById(
         organization_id: string,
@@ -108,6 +114,8 @@ export default interface IOrmInterface {
         items_ids: string[],
         itemUpdates: Partial<TItem>,
     ): Promise<TItem[]>;
+    
+    deleteItemById(organization_id: string, item_id: string): Promise<TItem[]>
     
     deleteItemsByIds(
         organization_id: string,
@@ -167,6 +175,11 @@ export default interface IOrmInterface {
     
     //   PAYMENT
     addOrganizationPayment(paymentDetails: TOrganizationPayment,): Promise<TOrganizationPayment[]>;
+    
+    getOrganizationPaymentById(
+        organization_id: string,
+        payment_id: string
+    ): Promise<TOrganizationPayment>
     
     getOrganizationPaymentsByOrganizationId(organization_id: string,): Promise<TOrganizationPayment[]>;
     

@@ -3,6 +3,7 @@ import { ConfigService }               from '@nestjs/config';
 import { and, between, eq, inArray }   from 'drizzle-orm';
 import { drizzle, PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import postgres                        from 'postgres';
+import { v4 as uuid }                  from 'uuid';
 import type ILoggerService             from '../../../logger/logger.interface';
 import {
     TOKEN__LOGGER_FACTORY
@@ -19,15 +20,12 @@ import {
     TSalesGroup,
 }                                      from '../../orm.interface';
 import AbstractDrizzlerService         from '../abstract_drizzle.service';
-import {
-    TSQLiteEmployee,
-    TSQLiteSale
-}                                      from '../drizzle-sqlite/drizzle-sqlite.schema';
 import * as schema                     from './drizzle-postgres.schema';
 import {
     clients,
     clientsPayments,
     employees,
+    employeesCredentials,
     items,
     organizations,
     organizationsPayments,
@@ -125,19 +123,51 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     }
     
     
-    async addEmployee(employeeDetails: TEmployee): Promise<TEmployee[]> {
+    async addEmployee(
+        organization_id: string,
+        employeeDetails: {
+            employee_nic_number: string;
+            employee_password: string
+        }
+    ): Promise<TEmployee[]> {
+        
         const result = await this.driver.transaction(async (tx) => {
-            await tx.insert(employees).values(employeeDetails);
+            
+            const employeeRecord = (await tx.insert(employees)
+                                            .values({
+                                                        employee_id               : uuid()
+                                                            .toString(),
+                                                        employee_first_name       : null,
+                                                        employee_last_name        : null,
+                                                        employee_registration_date: Date.now(),
+                                                        employee_active_territory : null,
+                                                        employee_phone            : null,
+                                                        employee_nic_number       : employeeDetails.employee_nic_number,
+                                                        employee_organization_id  : organization_id,
+                                                        employee_sales_group_id   : null
+                                                        
+                                                    })
+                                            .returning())[0]
+            
+            const employeeCredentials = await tx.insert(employeesCredentials)
+                                                .values({
+                                                            employees_credentials_id             : uuid()
+                                                                .toString(),
+                                                            employees_credentials_employee_id    : employeeRecord.employee_id,
+                                                            employees_credentials_organization_id: organization_id,
+                                                            employees_credentials_username       : employeeDetails.employee_nic_number,
+                                                            employees_credentials_password       : employeeDetails.employee_password,
+                                                        })
+            
             return tx
                 .select()
                 .from(employees)
-                .where(
-                    eq(
-                        employees.employee_organization_id,
-                        employeeDetails.employee_organization_id,
-                    ),
-                );
+                .where(eq(
+                    employees.employee_organization_id,
+                    organization_id,
+                ),);
         });
+        
         return this.logger.logAndReturn(result, 'operation: add_employee');
     }
     
@@ -485,8 +515,8 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
                     
                     return employee
                     
-                }) as Array<TSQLiteEmployee & {
-                    employee_sales: TSQLiteSale[]
+                }) as Array<TEmployee & {
+                    employee_sales: TSale[]
                 }>
             }
             
@@ -680,6 +710,31 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
         return this.logger.logAndReturn(
             result,
             'operation: add_organization_payment',
+        );
+    }
+    
+    
+    async getOrganizationPaymentById(
+        organization_id: string,
+        payment_id: string
+    ): Promise<TOrganizationPayment> {
+        return this.logger.logAndReturn(
+            (await this.driver
+                       .select()
+                       .from(organizationsPayments)
+                       .where(
+                           and(
+                               eq(
+                                   organizationsPayments.payment_organization_id,
+                                   organization_id
+                               ),
+                               eq(
+                                   organizationsPayments.payment_id,
+                                   payment_id
+                               )
+                           )
+                       ))[0],
+            'operation: get_organization_payments_by_organization_id',
         );
     }
     

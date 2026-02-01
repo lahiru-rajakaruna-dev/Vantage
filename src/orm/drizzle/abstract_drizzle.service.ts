@@ -46,7 +46,13 @@ export default abstract class AbstractDrizzlerService implements IOrmInterface {
     abstract getOrganizationDetailsByAdminId(admin_id: string,): Promise<TOrganization>;
     
     
-    abstract addEmployee(employeeDetails: TEmployee): Promise<TEmployee[]>;
+    abstract addEmployee(
+        organization_id: string,
+        employeeDetails: {
+            employee_nic_number: string;
+            employee_password: string
+        }
+    ): Promise<TEmployee[]>;
     
     
     abstract viewEmployeeById(employee_id: string): Promise<TEmployee>;
@@ -100,6 +106,11 @@ export default abstract class AbstractDrizzlerService implements IOrmInterface {
         itemUpdates: Partial<TItem>,
     ): Promise<TItem[]>;
     
+    
+    abstract deleteItemById(
+        organization_id: string,
+        item_id: string
+    ): Promise<TItem[]>
     
     abstract deleteItemById(
         organization_id: string,
@@ -162,6 +173,12 @@ export default abstract class AbstractDrizzlerService implements IOrmInterface {
     
     
     abstract addOrganizationPayment(paymentDetails: TOrganizationPayment,): Promise<TOrganizationPayment[]>;
+    
+    
+    abstract getOrganizationPaymentById(
+        organization_id: string,
+        payment_id: string
+    ): Promise<TOrganizationPayment>
     
     
     abstract getOrganizationPaymentsByOrganizationId(organization_id: string,): Promise<TOrganizationPayment[]>;
