@@ -1,0 +1,1 @@
+DROP INDEX `employee_credentials_employees_credentials_password_unique`;

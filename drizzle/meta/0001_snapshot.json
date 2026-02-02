@@ -1,0 +1,1228 @@
+{
+  "version": "6",
+  "dialect": "sqlite",
+  "id": "895b0d26-0486-428c-85c1-0a40ea9bf1b2",
+  "prevId": "07cddd51-ac85-4fb3-a1e6-9dd775addc59",
+  "tables": {
+    "clients": {
+      "name": "clients",
+      "columns": {
+        "client_id": {
+          "name": "client_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "client_organization_id": {
+          "name": "client_organization_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "client_stripe_customer_id": {
+          "name": "client_stripe_customer_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "client_name": {
+          "name": "client_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "client_nic_number": {
+          "name": "client_nic_number",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "client_email": {
+          "name": "client_email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "client_phone": {
+          "name": "client_phone",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "client_account_status": {
+          "name": "client_account_status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'UNVERIFIED'"
+        },
+        "client_registration_date": {
+          "name": "client_registration_date",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "clients_client_id_unique": {
+          "name": "clients_client_id_unique",
+          "columns": [
+            "client_id"
+          ],
+          "isUnique": true
+        },
+        "client_organization_id_fk_idx": {
+          "name": "client_organization_id_fk_idx",
+          "columns": [
+            "client_organization_id"
+          ],
+          "isUnique": false
+        },
+        "client_stripe_customer_id_idx": {
+          "name": "client_stripe_customer_id_idx",
+          "columns": [
+            "client_stripe_customer_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "clients_client_organization_id_organizations_organization_id_fk": {
+          "name": "clients_client_organization_id_organizations_organization_id_fk",
+          "tableFrom": "clients",
+          "tableTo": "organizations",
+          "columnsFrom": [
+            "client_organization_id"
+          ],
+          "columnsTo": [
+            "organization_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "clients_primary_key": {
+          "columns": [
+            "client_id",
+            "client_organization_id",
+            "client_stripe_customer_id"
+          ],
+          "name": "clients_primary_key"
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "client_payments": {
+      "name": "client_payments",
+      "columns": {
+        "client_payment_id": {
+          "name": "client_payment_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "client_payment_client_id": {
+          "name": "client_payment_client_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "client_payment_organization_id": {
+          "name": "client_payment_organization_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "client_payment_amount": {
+          "name": "client_payment_amount",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "client_payment_date": {
+          "name": "client_payment_date",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "client_payment_status": {
+          "name": "client_payment_status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'VERIFIED'"
+        }
+      },
+      "indexes": {
+        "client_payments_client_payment_id_unique": {
+          "name": "client_payments_client_payment_id_unique",
+          "columns": [
+            "client_payment_id"
+          ],
+          "isUnique": true
+        },
+        "client_payment_id_idx": {
+          "name": "client_payment_id_idx",
+          "columns": [
+            "client_payment_id"
+          ],
+          "isUnique": false
+        },
+        "client_payment_client_id_fk_idx": {
+          "name": "client_payment_client_id_fk_idx",
+          "columns": [
+            "client_payment_client_id"
+          ],
+          "isUnique": false
+        },
+        "client_payment_organization_id_fk_idx": {
+          "name": "client_payment_organization_id_fk_idx",
+          "columns": [
+            "client_payment_organization_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "client_payments_client_payment_client_id_clients_client_id_fk": {
+          "name": "client_payments_client_payment_client_id_clients_client_id_fk",
+          "tableFrom": "client_payments",
+          "tableTo": "clients",
+          "columnsFrom": [
+            "client_payment_client_id"
+          ],
+          "columnsTo": [
+            "client_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "client_payments_client_payment_organization_id_organizations_organization_id_fk": {
+          "name": "client_payments_client_payment_organization_id_organizations_organization_id_fk",
+          "tableFrom": "client_payments",
+          "tableTo": "organizations",
+          "columnsFrom": [
+            "client_payment_organization_id"
+          ],
+          "columnsTo": [
+            "organization_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "clients_payments_primary_key": {
+          "columns": [
+            "client_payment_id",
+            "client_payment_client_id",
+            "client_payment_organization_id"
+          ],
+          "name": "clients_payments_primary_key"
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "employees": {
+      "name": "employees",
+      "columns": {
+        "employee_id": {
+          "name": "employee_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "employee_organization_id": {
+          "name": "employee_organization_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "employee_sales_group_id": {
+          "name": "employee_sales_group_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "employee_first_name": {
+          "name": "employee_first_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "employee_last_name": {
+          "name": "employee_last_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "employee_phone": {
+          "name": "employee_phone",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "employee_nic_number": {
+          "name": "employee_nic_number",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "employee_active_territory": {
+          "name": "employee_active_territory",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "employee_registration_date": {
+          "name": "employee_registration_date",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "employee_status": {
+          "name": "employee_status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'NOT_REPORTED'"
+        }
+      },
+      "indexes": {
+        "employees_employee_id_unique": {
+          "name": "employees_employee_id_unique",
+          "columns": [
+            "employee_id"
+          ],
+          "isUnique": true
+        },
+        "employees_employee_nic_number_unique": {
+          "name": "employees_employee_nic_number_unique",
+          "columns": [
+            "employee_nic_number"
+          ],
+          "isUnique": true
+        },
+        "employee_id_idx": {
+          "name": "employee_id_idx",
+          "columns": [
+            "employee_id"
+          ],
+          "isUnique": false
+        },
+        "employee_organization_id_fk_idx": {
+          "name": "employee_organization_id_fk_idx",
+          "columns": [
+            "employee_organization_id"
+          ],
+          "isUnique": false
+        },
+        "employee_sales_group_id_fk_idx": {
+          "name": "employee_sales_group_id_fk_idx",
+          "columns": [
+            "employee_sales_group_id"
+          ],
+          "isUnique": false
+        },
+        "employee_nic_number_unique_idx": {
+          "name": "employee_nic_number_unique_idx",
+          "columns": [
+            "employee_nic_number"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "employees_employee_organization_id_organizations_organization_id_fk": {
+          "name": "employees_employee_organization_id_organizations_organization_id_fk",
+          "tableFrom": "employees",
+          "tableTo": "organizations",
+          "columnsFrom": [
+            "employee_organization_id"
+          ],
+          "columnsTo": [
+            "organization_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "employees_employee_sales_group_id_sales_groups_sales_group_id_fk": {
+          "name": "employees_employee_sales_group_id_sales_groups_sales_group_id_fk",
+          "tableFrom": "employees",
+          "tableTo": "sales_groups",
+          "columnsFrom": [
+            "employee_sales_group_id"
+          ],
+          "columnsTo": [
+            "sales_group_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "employee_primary_key": {
+          "columns": [
+            "employee_id",
+            "employee_organization_id"
+          ],
+          "name": "employee_primary_key"
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "employee_credentials": {
+      "name": "employee_credentials",
+      "columns": {
+        "employees_credentials_id": {
+          "name": "employees_credentials_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "employees_credentials_employee_id": {
+          "name": "employees_credentials_employee_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "employees_credentials_organization_id": {
+          "name": "employees_credentials_organization_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "employees_credentials_username": {
+          "name": "employees_credentials_username",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "employees_credentials_password": {
+          "name": "employees_credentials_password",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "employee_credentials_employees_credentials_id_unique": {
+          "name": "employee_credentials_employees_credentials_id_unique",
+          "columns": [
+            "employees_credentials_id"
+          ],
+          "isUnique": true
+        },
+        "employee_credentials_employees_credentials_employee_id_unique": {
+          "name": "employee_credentials_employees_credentials_employee_id_unique",
+          "columns": [
+            "employees_credentials_employee_id"
+          ],
+          "isUnique": true
+        },
+        "employee_credentials_employees_credentials_username_unique": {
+          "name": "employee_credentials_employees_credentials_username_unique",
+          "columns": [
+            "employees_credentials_username"
+          ],
+          "isUnique": true
+        },
+        "employee_credentials_employees_credentials_password_unique": {
+          "name": "employee_credentials_employees_credentials_password_unique",
+          "columns": [
+            "employees_credentials_password"
+          ],
+          "isUnique": true
+        },
+        "employees_credentials_organization_id_idx": {
+          "name": "employees_credentials_organization_id_idx",
+          "columns": [
+            "employees_credentials_organization_id"
+          ],
+          "isUnique": false
+        },
+        "employees_credentials_employee_id_idx": {
+          "name": "employees_credentials_employee_id_idx",
+          "columns": [
+            "employees_credentials_employee_id"
+          ],
+          "isUnique": false
+        },
+        "employees_credentials_employee_username_idx": {
+          "name": "employees_credentials_employee_username_idx",
+          "columns": [
+            "employees_credentials_username"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "employees_credentials_pk": {
+          "columns": [
+            "employees_credentials_id",
+            "employees_credentials_employee_id",
+            "employees_credentials_organization_id"
+          ],
+          "name": "employees_credentials_pk"
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "employees_leaves": {
+      "name": "employees_leaves",
+      "columns": {
+        "employees_leaves_id": {
+          "name": "employees_leaves_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "employees_leaves_employee_id": {
+          "name": "employees_leaves_employee_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "employees_leaves_organization_id": {
+          "name": "employees_leaves_organization_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "employees_leaves_taken": {
+          "name": "employees_leaves_taken",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "employees_leaves_total": {
+          "name": "employees_leaves_total",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 3
+        }
+      },
+      "indexes": {
+        "employees_leaves_employees_leaves_id_unique": {
+          "name": "employees_leaves_employees_leaves_id_unique",
+          "columns": [
+            "employees_leaves_id"
+          ],
+          "isUnique": true
+        },
+        "employees_leaves_employees_leaves_employee_id_unique": {
+          "name": "employees_leaves_employees_leaves_employee_id_unique",
+          "columns": [
+            "employees_leaves_employee_id"
+          ],
+          "isUnique": true
+        },
+        "employees_leaves_employees_leaves_organization_id_unique": {
+          "name": "employees_leaves_employees_leaves_organization_id_unique",
+          "columns": [
+            "employees_leaves_organization_id"
+          ],
+          "isUnique": true
+        },
+        "employees_leaves_employee_id_idx": {
+          "name": "employees_leaves_employee_id_idx",
+          "columns": [
+            "employees_leaves_employee_id"
+          ],
+          "isUnique": false
+        },
+        "employees_leaves_organization_id_idx": {
+          "name": "employees_leaves_organization_id_idx",
+          "columns": [
+            "employees_leaves_organization_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "employees_leaves_pk": {
+          "columns": [
+            "employees_leaves_id",
+            "employees_leaves_organization_id",
+            "employees_leaves_employee_id"
+          ],
+          "name": "employees_leaves_pk"
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "items": {
+      "name": "items",
+      "columns": {
+        "item_id": {
+          "name": "item_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "item_organization_id": {
+          "name": "item_organization_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "item_name": {
+          "name": "item_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "item_stock_unit_count": {
+          "name": "item_stock_unit_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": 0
+        }
+      },
+      "indexes": {
+        "items_item_id_unique": {
+          "name": "items_item_id_unique",
+          "columns": [
+            "item_id"
+          ],
+          "isUnique": true
+        },
+        "item_id_idx": {
+          "name": "item_id_idx",
+          "columns": [
+            "item_id"
+          ],
+          "isUnique": false
+        },
+        "item_organization_id_fk_idx": {
+          "name": "item_organization_id_fk_idx",
+          "columns": [
+            "item_organization_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "items_item_organization_id_organizations_organization_id_fk": {
+          "name": "items_item_organization_id_organizations_organization_id_fk",
+          "tableFrom": "items",
+          "tableTo": "organizations",
+          "columnsFrom": [
+            "item_organization_id"
+          ],
+          "columnsTo": [
+            "organization_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "items_primary_key": {
+          "columns": [
+            "item_id",
+            "item_organization_id"
+          ],
+          "name": "items_primary_key"
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "organizations": {
+      "name": "organizations",
+      "columns": {
+        "organization_id": {
+          "name": "organization_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "organization_admin_id": {
+          "name": "organization_admin_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "organization_stripe_customer_id": {
+          "name": "organization_stripe_customer_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "organization_name": {
+          "name": "organization_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "organization_admin_email": {
+          "name": "organization_admin_email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "organization_admin_phone": {
+          "name": "organization_admin_phone",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "organization_logo_url": {
+          "name": "organization_logo_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "organization_registration_date": {
+          "name": "organization_registration_date",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "organization_subscription_end_date": {
+          "name": "organization_subscription_end_date",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "organization_status": {
+          "name": "organization_status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'ACTIVE'"
+        },
+        "organization_subscription_status": {
+          "name": "organization_subscription_status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'VALID'"
+        }
+      },
+      "indexes": {
+        "organizations_organization_id_unique": {
+          "name": "organizations_organization_id_unique",
+          "columns": [
+            "organization_id"
+          ],
+          "isUnique": true
+        },
+        "organizations_organization_admin_id_unique": {
+          "name": "organizations_organization_admin_id_unique",
+          "columns": [
+            "organization_admin_id"
+          ],
+          "isUnique": true
+        },
+        "organizations_organization_stripe_customer_id_unique": {
+          "name": "organizations_organization_stripe_customer_id_unique",
+          "columns": [
+            "organization_stripe_customer_id"
+          ],
+          "isUnique": true
+        },
+        "organizations_organization_name_unique": {
+          "name": "organizations_organization_name_unique",
+          "columns": [
+            "organization_name"
+          ],
+          "isUnique": true
+        },
+        "organizations_organization_admin_email_unique": {
+          "name": "organizations_organization_admin_email_unique",
+          "columns": [
+            "organization_admin_email"
+          ],
+          "isUnique": true
+        },
+        "organizations_organization_admin_phone_unique": {
+          "name": "organizations_organization_admin_phone_unique",
+          "columns": [
+            "organization_admin_phone"
+          ],
+          "isUnique": true
+        },
+        "organizations_organization_logo_url_unique": {
+          "name": "organizations_organization_logo_url_unique",
+          "columns": [
+            "organization_logo_url"
+          ],
+          "isUnique": true
+        },
+        "organization_id_idx": {
+          "name": "organization_id_idx",
+          "columns": [
+            "organization_id"
+          ],
+          "isUnique": false
+        },
+        "organization_stripe_customer_id_idx": {
+          "name": "organization_stripe_customer_id_idx",
+          "columns": [
+            "organization_stripe_customer_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "organization_primary_key": {
+          "columns": [
+            "organization_id",
+            "organization_stripe_customer_id"
+          ],
+          "name": "organization_primary_key"
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "organizations_payments": {
+      "name": "organizations_payments",
+      "columns": {
+        "payment_id": {
+          "name": "payment_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "payment_organization_id": {
+          "name": "payment_organization_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "payment_amount": {
+          "name": "payment_amount",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "payment_status": {
+          "name": "payment_status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "'VERIFIED'"
+        },
+        "payment_timestamp": {
+          "name": "payment_timestamp",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "organizations_payments_payment_id_unique": {
+          "name": "organizations_payments_payment_id_unique",
+          "columns": [
+            "payment_id"
+          ],
+          "isUnique": true
+        },
+        "organization_payment_id_idx": {
+          "name": "organization_payment_id_idx",
+          "columns": [
+            "payment_id"
+          ],
+          "isUnique": false
+        },
+        "organization_payment_organization_id_fk_idx": {
+          "name": "organization_payment_organization_id_fk_idx",
+          "columns": [
+            "payment_organization_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "organizations_payments_payment_organization_id_organizations_organization_id_fk": {
+          "name": "organizations_payments_payment_organization_id_organizations_organization_id_fk",
+          "tableFrom": "organizations_payments",
+          "tableTo": "organizations",
+          "columnsFrom": [
+            "payment_organization_id"
+          ],
+          "columnsTo": [
+            "organization_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "organization_payments_primary_key": {
+          "columns": [
+            "payment_id",
+            "payment_organization_id"
+          ],
+          "name": "organization_payments_primary_key"
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "sales": {
+      "name": "sales",
+      "columns": {
+        "sale_id": {
+          "name": "sale_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "sale_organization_id": {
+          "name": "sale_organization_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "sale_employee_id": {
+          "name": "sale_employee_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "sale_client_id": {
+          "name": "sale_client_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "sale_client_payment_id": {
+          "name": "sale_client_payment_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "sale_item_id": {
+          "name": "sale_item_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "sale_item_unit_count": {
+          "name": "sale_item_unit_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 1
+        },
+        "sale_date": {
+          "name": "sale_date",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "sales_sale_id_unique": {
+          "name": "sales_sale_id_unique",
+          "columns": [
+            "sale_id"
+          ],
+          "isUnique": true
+        },
+        "sale_id_idx": {
+          "name": "sale_id_idx",
+          "columns": [
+            "sale_id"
+          ],
+          "isUnique": false
+        },
+        "sale_organization_id_fk_idx": {
+          "name": "sale_organization_id_fk_idx",
+          "columns": [
+            "sale_organization_id"
+          ],
+          "isUnique": false
+        },
+        "sale_employee_id_fk_idx": {
+          "name": "sale_employee_id_fk_idx",
+          "columns": [
+            "sale_employee_id"
+          ],
+          "isUnique": false
+        },
+        "sale_client_id_fk_idx": {
+          "name": "sale_client_id_fk_idx",
+          "columns": [
+            "sale_client_id"
+          ],
+          "isUnique": false
+        },
+        "sale_client_payment_id_fk_idx": {
+          "name": "sale_client_payment_id_fk_idx",
+          "columns": [
+            "sale_client_payment_id"
+          ],
+          "isUnique": false
+        },
+        "sale_item_id_fk_idx": {
+          "name": "sale_item_id_fk_idx",
+          "columns": [
+            "sale_item_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "sales_sale_organization_id_organizations_organization_id_fk": {
+          "name": "sales_sale_organization_id_organizations_organization_id_fk",
+          "tableFrom": "sales",
+          "tableTo": "organizations",
+          "columnsFrom": [
+            "sale_organization_id"
+          ],
+          "columnsTo": [
+            "organization_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "sales_sale_employee_id_employees_employee_id_fk": {
+          "name": "sales_sale_employee_id_employees_employee_id_fk",
+          "tableFrom": "sales",
+          "tableTo": "employees",
+          "columnsFrom": [
+            "sale_employee_id"
+          ],
+          "columnsTo": [
+            "employee_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "sales_sale_client_id_clients_client_id_fk": {
+          "name": "sales_sale_client_id_clients_client_id_fk",
+          "tableFrom": "sales",
+          "tableTo": "clients",
+          "columnsFrom": [
+            "sale_client_id"
+          ],
+          "columnsTo": [
+            "client_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "sales_sale_client_payment_id_client_payments_client_payment_id_fk": {
+          "name": "sales_sale_client_payment_id_client_payments_client_payment_id_fk",
+          "tableFrom": "sales",
+          "tableTo": "client_payments",
+          "columnsFrom": [
+            "sale_client_payment_id"
+          ],
+          "columnsTo": [
+            "client_payment_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "sales_sale_item_id_items_item_id_fk": {
+          "name": "sales_sale_item_id_items_item_id_fk",
+          "tableFrom": "sales",
+          "tableTo": "items",
+          "columnsFrom": [
+            "sale_item_id"
+          ],
+          "columnsTo": [
+            "item_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "sales_primary_key": {
+          "columns": [
+            "sale_id",
+            "sale_organization_id",
+            "sale_employee_id",
+            "sale_client_id",
+            "sale_client_payment_id",
+            "sale_item_id"
+          ],
+          "name": "sales_primary_key"
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "sales_groups": {
+      "name": "sales_groups",
+      "columns": {
+        "sales_group_id": {
+          "name": "sales_group_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "sales_group_organization_id": {
+          "name": "sales_group_organization_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "sales_group_name": {
+          "name": "sales_group_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "sales_group_territory": {
+          "name": "sales_group_territory",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "sales_groups_sales_group_id_unique": {
+          "name": "sales_groups_sales_group_id_unique",
+          "columns": [
+            "sales_group_id"
+          ],
+          "isUnique": true
+        },
+        "sales_groups_sales_group_name_unique": {
+          "name": "sales_groups_sales_group_name_unique",
+          "columns": [
+            "sales_group_name"
+          ],
+          "isUnique": true
+        },
+        "sales_group_organization_id_fk_idx": {
+          "name": "sales_group_organization_id_fk_idx",
+          "columns": [
+            "sales_group_organization_id"
+          ],
+          "isUnique": false
+        },
+        "sales_group_name_unique_idx": {
+          "name": "sales_group_name_unique_idx",
+          "columns": [
+            "sales_group_name"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "sales_groups_sales_group_organization_id_organizations_organization_id_fk": {
+          "name": "sales_groups_sales_group_organization_id_organizations_organization_id_fk",
+          "tableFrom": "sales_groups",
+          "tableTo": "organizations",
+          "columnsFrom": [
+            "sales_group_organization_id"
+          ],
+          "columnsTo": [
+            "organization_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "sales_group_primary_key": {
+          "columns": [
+            "sales_group_id",
+            "sales_group_organization_id"
+          ],
+          "name": "sales_group_primary_key"
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    }
+  },
+  "views": {},
+  "enums": {},
+  "_meta": {
+    "schemas": {},
+    "tables": {},
+    "columns": {}
+  },
+  "internal": {
+    "indexes": {}
+  }
+}
