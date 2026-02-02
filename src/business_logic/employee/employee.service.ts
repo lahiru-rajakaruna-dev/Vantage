@@ -18,8 +18,8 @@ export class EmployeeService {
     async addEmployee(
         organization_id: string,
         employeeData: {
-            employee_nic_number: string,
-            employee_password: string
+            employees_credentials_username: string,
+            employees_credentials_password: string
         }
     ): Promise<TEmployee[]> {
         return await this.orm.addEmployee(organization_id, employeeData);

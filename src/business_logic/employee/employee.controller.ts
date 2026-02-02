@@ -93,8 +93,8 @@ export class EmployeeController {
             organization: TOrganization
         },
         @Body() employeeData: {
-            employee_nic_number: string,
-            employee_password: string
+            employees_credentials_username: string,
+            employees_credentials_password: string
         },
     ) {
         if (!request.organization) {
@@ -102,15 +102,15 @@ export class EmployeeController {
         }
         
         const {
-                  employee_nic_number,
-                  employee_password
+                  employees_credentials_username,
+                  employees_credentials_password
               } = employeeData;
         
         return await this.employeesService.addEmployee(
             request.organization.organization_id,
             {
-                employee_nic_number: employee_nic_number,
-                employee_password  : employee_password
+                employees_credentials_username,
+                employees_credentials_password
             }
         );
     }
