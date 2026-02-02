@@ -154,7 +154,7 @@ export const employeesCredentials = pgTable(
         employees_credentials_employee_id    : text().unique().notNull(),
         employees_credentials_organization_id: text().notNull(),
         employees_credentials_username       : text().unique().notNull(),
-        employees_credentials_password       : text().unique().notNull()
+        employees_credentials_password       : text().notNull()
     },
     (table) => {
         return {
