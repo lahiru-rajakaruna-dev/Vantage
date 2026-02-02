@@ -126,8 +126,8 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     async addEmployee(
         organization_id: string,
         employeeDetails: {
-            employee_nic_number: string;
-            employee_password: string
+            employees_credentials_username: string;
+            employees_credentials_password: string
         }
     ): Promise<TEmployee[]> {
         
@@ -142,7 +142,7 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
                                                         employee_registration_date: Date.now(),
                                                         employee_active_territory : null,
                                                         employee_phone            : null,
-                                                        employee_nic_number       : employeeDetails.employee_nic_number,
+                                                        employee_nic_number       : employeeDetails.employees_credentials_username,
                                                         employee_organization_id  : organization_id,
                                                         employee_sales_group_id   : null
                                                         
@@ -155,8 +155,8 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
                                                                 .toString(),
                                                             employees_credentials_employee_id    : employeeRecord.employee_id,
                                                             employees_credentials_organization_id: organization_id,
-                                                            employees_credentials_username       : employeeDetails.employee_nic_number,
-                                                            employees_credentials_password       : employeeDetails.employee_password,
+                                                            employees_credentials_username       : employeeDetails.employees_credentials_username,
+                                                            employees_credentials_password       : employeeDetails.employees_credentials_password,
                                                         })
             
             return tx
