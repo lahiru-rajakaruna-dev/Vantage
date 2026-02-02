@@ -38,9 +38,11 @@ CREATE TABLE `employees`
     `employee_id`                text    NOT NULL,
     `employee_organization_id`   text    NOT NULL,
     `employee_sales_group_id`    text,
-    `employee_username`          text    NOT NULL,
-    `employee_phone`             text    NOT NULL,
+    `employee_first_name`        text,
+    `employee_last_name`         text,
+    `employee_phone`             text,
     `employee_nic_number`        text    NOT NULL,
+    `employee_active_territory`  text,
     `employee_registration_date` integer NOT NULL,
     PRIMARY KEY (`employee_id`, `employee_organization_id`),
     FOREIGN KEY (`employee_organization_id`) REFERENCES `organizations` (`organization_id`) ON UPDATE no action ON DELETE no action,
@@ -53,6 +55,39 @@ CREATE INDEX `employee_id_idx` ON `employees` (`employee_id`);--> statement-brea
 CREATE INDEX `employee_organization_id_fk_idx` ON `employees` (`employee_organization_id`);--> statement-breakpoint
 CREATE INDEX `employee_sales_group_id_fk_idx` ON `employees` (`employee_sales_group_id`);--> statement-breakpoint
 CREATE INDEX `employee_nic_number_unique_idx` ON `employees` (`employee_nic_number`);--> statement-breakpoint
+CREATE TABLE `employee_credentials`
+(
+    `employees_credentials_id`              text NOT NULL,
+    `employees_credentials_employee_id`     text NOT NULL,
+    `employees_credentials_organization_id` text NOT NULL,
+    `employees_credentials_username`        text NOT NULL,
+    `employees_credentials_password`        text NOT NULL,
+    PRIMARY KEY (`employees_credentials_id`, `employees_credentials_employee_id`,
+                 `employees_credentials_organization_id`)
+);
+--> statement-breakpoint
+CREATE UNIQUE INDEX `employee_credentials_employees_credentials_id_unique` ON `employee_credentials` (`employees_credentials_id`);--> statement-breakpoint
+CREATE UNIQUE INDEX `employee_credentials_employees_credentials_employee_id_unique` ON `employee_credentials` (`employees_credentials_employee_id`);--> statement-breakpoint
+CREATE UNIQUE INDEX `employee_credentials_employees_credentials_username_unique` ON `employee_credentials` (`employees_credentials_username`);--> statement-breakpoint
+CREATE UNIQUE INDEX `employee_credentials_employees_credentials_password_unique` ON `employee_credentials` (`employees_credentials_password`);--> statement-breakpoint
+CREATE INDEX `employees_credentials_organization_id_idx` ON `employee_credentials` (`employees_credentials_organization_id`);--> statement-breakpoint
+CREATE INDEX `employees_credentials_employee_id_idx` ON `employee_credentials` (`employees_credentials_employee_id`);--> statement-breakpoint
+CREATE INDEX `employees_credentials_employee_username_idx` ON `employee_credentials` (`employees_credentials_username`);--> statement-breakpoint
+CREATE TABLE `employees_leaves`
+(
+    `employees_leaves_id`              text              NOT NULL,
+    `employees_leaves_employee_id`     text              NOT NULL,
+    `employees_leaves_organization_id` text              NOT NULL,
+    `employees_leaves_taken`           integer DEFAULT 0 NOT NULL,
+    `employees_leaves_total`           integer DEFAULT 3 NOT NULL,
+    PRIMARY KEY (`employees_leaves_id`, `employees_leaves_organization_id`, `employees_leaves_employee_id`)
+);
+--> statement-breakpoint
+CREATE UNIQUE INDEX `employees_leaves_employees_leaves_id_unique` ON `employees_leaves` (`employees_leaves_id`);--> statement-breakpoint
+CREATE UNIQUE INDEX `employees_leaves_employees_leaves_employee_id_unique` ON `employees_leaves` (`employees_leaves_employee_id`);--> statement-breakpoint
+CREATE UNIQUE INDEX `employees_leaves_employees_leaves_organization_id_unique` ON `employees_leaves` (`employees_leaves_organization_id`);--> statement-breakpoint
+CREATE INDEX `employees_leaves_employee_id_idx` ON `employees_leaves` (`employees_leaves_employee_id`);--> statement-breakpoint
+CREATE INDEX `employees_leaves_organization_id_idx` ON `employees_leaves` (`employees_leaves_organization_id`);--> statement-breakpoint
 CREATE TABLE `items`
 (
     `item_id`               text NOT NULL,
@@ -97,7 +132,7 @@ CREATE TABLE `organizations_payments`
     `payment_organization_id` text    NOT NULL,
     `payment_amount`          real    NOT NULL,
     `payment_status`          text DEFAULT 'VERIFIED',
-    `payment_date`            integer NOT NULL,
+    `payment_timestamp`       integer NOT NULL,
     PRIMARY KEY (`payment_id`, `payment_organization_id`),
     FOREIGN KEY (`payment_organization_id`) REFERENCES `organizations` (`organization_id`) ON UPDATE no action ON DELETE no action
 );
@@ -136,6 +171,7 @@ CREATE TABLE `sales_groups`
     `sales_group_id`              text NOT NULL,
     `sales_group_organization_id` text NOT NULL,
     `sales_group_name`            text NOT NULL,
+    `sales_group_territory`       text NOT NULL,
     PRIMARY KEY (`sales_group_id`, `sales_group_organization_id`),
     FOREIGN KEY (`sales_group_organization_id`) REFERENCES `organizations` (`organization_id`) ON UPDATE no action ON DELETE no action
 );
