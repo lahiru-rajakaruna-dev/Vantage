@@ -368,6 +368,7 @@ export const UpdateEmployeeRequestSchema = EmployeeSchema.pick({
                                                                    employee_phone           : true,
                                                                    employee_sales_group_id  : true,
                                                                    employee_active_territory: true,
+                                                                   employee_nic_number      : true
                                                                }).partial();
 
 export const GetEmployeeByIdRequestSchema = EmployeeSchema.pick({
@@ -397,9 +398,8 @@ export const UpdateEmployeesLeavesRequestSchema = EmployeesLeavesSchema.pick({
 // Employee Credentials Requests
 export const CreateEmployeesCredentialsRequestSchema = EmployeesCredentialsSchema.pick(
     {
-        employees_credentials_employee_id: true,
-        employees_credentials_username   : true,
-        employees_credentials_password   : true,
+        employees_credentials_username: true,
+        employees_credentials_password: true,
     });
 
 export const UpdateEmployeesCredentialsRequestSchema = EmployeesCredentialsSchema.pick(
