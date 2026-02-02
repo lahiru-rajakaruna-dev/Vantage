@@ -26,6 +26,14 @@ export const ClientAccountStatusEnum = z.enum([
                                                   'UNVERIFIED',
                                               ]);
 
+export const EmployeeStatus = z.enum([
+                                         'ON_FIELD',
+                                         'ON_LEAVE',
+                                         'SUSPENDED',
+                                         'FIRED',
+                                         'NOT_REPORTED'
+                                     ])
+
 // --- ORGANIZATIONS ---
 export const OrganizationSchema = z.object({
                                                organization_id                   : z.string()
@@ -90,6 +98,8 @@ export const EmployeeSchema = z.object({
                                            employee_registration_date: z.number()
                                                                         .int()
                                                                         .positive(),
+                                           employee_status           : EmployeeStatus.default(
+                                               'NOT_REPORTED'),
                                        });
 
 export const EmployeeInsertSchema = EmployeeSchema;

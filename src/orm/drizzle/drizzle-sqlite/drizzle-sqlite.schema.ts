@@ -78,6 +78,15 @@ export const employees = sqliteTable(
         employee_nic_number       : text().notNull().unique(),
         employee_active_territory : text(),
         employee_registration_date: integer().notNull(),
+        employee_status           : text({
+                                             enum: [
+                                                 'ON_FIELD',
+                                                 'ON_LEAVE',
+                                                 'SUSPENDED',
+                                                 'FIRED',
+                                                 'NOT_REPORTED'
+                                             ]
+                                         }).default('NOT_REPORTED').notNull()
     },
     (table) => {
         return {
