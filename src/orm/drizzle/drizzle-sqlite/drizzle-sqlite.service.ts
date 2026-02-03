@@ -187,7 +187,7 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
     ): Promise<TEmployeeProfile> {
         const result = await this.driver.transaction(
             async (tx) => {
-                const employee = await (tx
+                const employee = (await tx
                     .select()
                     .from(employees)
                     .where(and(
@@ -200,6 +200,10 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
                             employee_id
                         )
                     )))[0];
+                
+                if (!employee) {
+                    throw new Error(`No such employee: ${ employee_id }`)
+                }
                 
                 const employee_sales = await tx.select().from(sales).where(
                     and(
