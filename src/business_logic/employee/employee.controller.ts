@@ -67,7 +67,7 @@ export class EmployeeController {
     }
     
     
-    @Get('/view/:employee_id')
+    @Get('/profile/:employee_id')
     async getEmployeeById(
         @Req() request: Request & {
             organization: TOrganization
@@ -78,7 +78,7 @@ export class EmployeeController {
             return new UnauthorizedException('Organization not found')
         }
         
-        return await this.employeesService.viewEmployeeById(
+        return await this.employeesService.getEmployeeProfile(
             request.organization.organization_id,
             employee_id,
         );
