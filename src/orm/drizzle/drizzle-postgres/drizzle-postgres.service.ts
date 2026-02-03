@@ -8,6 +8,7 @@ import type ILoggerService             from '../../../logger/logger.interface';
 import {
     TOKEN__LOGGER_FACTORY
 }                                      from '../../../logger/logger_factory/logger_factory.service';
+import { TEmployeeProfile }            from '../../../schemas';
 import { EEnvVars }                    from '../../../types';
 import {
     TClient,
@@ -26,6 +27,7 @@ import {
     clientsPayments,
     employees,
     employeesCredentials,
+    employeesLeaves,
     items,
     organizations,
     organizationsPayments,
@@ -172,13 +174,56 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     }
     
     
-    async viewEmployeeById(employee_id: string): Promise<TEmployee> {
-        const result = await this.driver
-                                 .select()
-                                 .from(employees)
-                                 .where(eq(employees.employee_id, employee_id));
+    async getEmployeeProfileById(
+        organization_id: string,
+        employee_id: string
+    ): Promise<TEmployeeProfile> {
+        const result = await this.driver.transaction(
+            async (tx) => {
+                const employee = await (tx
+                    .select()
+                    .from(employees)
+                    .where(and(
+                        eq(
+                            employees.employee_organization_id,
+                            organization_id
+                        ),
+                        eq(
+                            employees.employee_id,
+                            employee_id
+                        )
+                    )))[0];
+                
+                const employee_sales = await tx.select().from(sales).where(
+                    and(
+                        eq(sales.sale_organization_id, organization_id),
+                        eq(sales.sale_employee_id, employee.employee_id)
+                    )
+                ).orderBy(sales.sale_date)
+                
+                const employee_attendance = await tx.select().from(
+                    employeesLeaves).where(
+                    and(
+                        eq(
+                            employeesLeaves.employees_leaves_organization_id,
+                            organization_id
+                        ),
+                        eq(
+                            employeesLeaves.employees_leaves_employee_id,
+                            employee.employee_id
+                        )
+                    )
+                )
+                
+                employee['employee_sales']      = employee_sales;
+                employee['employee_attendance'] = employee_attendance;
+                
+                return employee as TEmployeeProfile
+            }
+        )
+        
         return this.logger.logAndReturn(
-            result[0],
+            result,
             'operation: view_employee_by_id',
         );
     }

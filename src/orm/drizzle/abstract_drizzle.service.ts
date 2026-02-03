@@ -1,9 +1,10 @@
-import { Inject }          from '@nestjs/common';
-import { ConfigService }   from '@nestjs/config';
-import type ILoggerService from '../../logger/logger.interface';
+import { Inject }           from '@nestjs/common';
+import { ConfigService }    from '@nestjs/config';
+import type ILoggerService  from '../../logger/logger.interface';
 import {
     TOKEN__LOGGER_FACTORY
-}                          from '../../logger/logger_factory/logger_factory.service';
+}                           from '../../logger/logger_factory/logger_factory.service';
+import { TEmployeeProfile } from '../../schemas';
 import IOrmInterface, {
     TClient,
     TClientPayment,
@@ -13,7 +14,7 @@ import IOrmInterface, {
     TOrganizationPayment,
     TSale,
     TSalesGroup,
-}                          from '../orm.interface';
+}                           from '../orm.interface';
 
 
 
@@ -55,7 +56,10 @@ export default abstract class AbstractDrizzlerService implements IOrmInterface {
     ): Promise<TEmployee[]>;
     
     
-    abstract viewEmployeeById(employee_id: string): Promise<TEmployee>;
+    abstract getEmployeeProfileById(
+        organization_id: string,
+        employee_id: string
+    ): Promise<TEmployeeProfile>;
     
     
     abstract getEmployeesByOrganizationId(organization_id: string,): Promise<TEmployee[]>;

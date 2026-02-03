@@ -1,3 +1,4 @@
+import { TEmployeeProfile } from '../schemas';
 import {
     TPGClient,
     TPGClientPayment,
@@ -7,7 +8,7 @@ import {
     TPGOrganizationPayment,
     TPGSale,
     TPGSalesGroup,
-} from './drizzle/drizzle-postgres/drizzle-postgres.schema';
+}                           from './drizzle/drizzle-postgres/drizzle-postgres.schema';
 import {
     TSQLiteClient,
     TSQLiteClientPayment,
@@ -17,7 +18,7 @@ import {
     TSQLiteOrganizationPayment,
     TSQLiteSale,
     TSQLiteSalesGroup,
-} from './drizzle/drizzle-sqlite/drizzle-sqlite.schema';
+}                           from './drizzle/drizzle-sqlite/drizzle-sqlite.schema';
 
 
 
@@ -67,10 +68,10 @@ export default interface IOrmInterface {
         }
     ): Promise<TEmployee[]>;
     
-    viewEmployeeById(
+    getEmployeeProfileById(
         organization_id: string,
         employee_id: string,
-    ): Promise<TEmployee>;
+    ): Promise<TEmployeeProfile>;
     
     getEmployeesByOrganizationId(organization_id: string): Promise<TEmployee[]>;
     
