@@ -607,19 +607,19 @@ export const GetClientPaymentsByClientIdRequestSchema = z.object({
 
 // Composite Types
 
-export const EmployeeProfileSchema = EmployeeSchema.extend(z.object({
-                                                                        employee_sales     : z.array(
-                                                                            SaleSchema),
-                                                                        employee_attendance: z.array(
-                                                                            EmployeesLeavesSchema)
-                                                                    }))
+export const EmployeeProfileSchema = EmployeeSchema.extend({
+                                                               employee_sales     : z.array(
+                                                                   SaleSchema),
+                                                               employee_attendance: z.array(
+                                                                   EmployeesLeavesSchema)
+                                                           })
 
-export const SalesGroupProfileSchema = SalesGroupSchema.extend(z.object({
-                                                                            sales_group_employees: z.array(
-                                                                                EmployeeSchema),
-                                                                            sales_group_sales    : z.array(
-                                                                                SaleSchema)
-                                                                        }))
+export const SalesGroupProfileSchema = SalesGroupSchema.extend({
+                                                                   sales_group_employees: z.array(
+                                                                       EmployeeSchema),
+                                                                   sales_group_sales    : z.array(
+                                                                       SaleSchema)
+                                                               })
 
 // --- TYPE EXPORTS ---
 export type TOrganization = z.infer<typeof OrganizationSchema>;
