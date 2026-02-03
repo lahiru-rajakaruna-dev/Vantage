@@ -17,7 +17,10 @@ import {
 
 
 
-export const EPGPaymentStatus      = pgEnum('EPaymentStatus', EPaymentStatus);
+export const EPGPaymentStatus      = pgEnum(
+    'EPaymentStatus',
+    EPaymentStatus
+);
 export const EPGSubscriptionStatus = pgEnum(
     'ESubscriptionStatus',
     ESubscriptionStatus,
@@ -26,31 +29,61 @@ export const EPGOrganizationStatus = pgEnum(
     'EOrganizationStatus',
     EOrganizationStatus,
 );
-export const EPGAccountStatus      = pgEnum('EAccountStatus', EAccountStatus);
+export const EPGAccountStatus      = pgEnum(
+    'EAccountStatus',
+    EAccountStatus
+);
 
 export const organizations = pgTable(
     'organizations',
     {
-        organization_id                   : text().unique().notNull(),
-        organization_admin_id             : text().unique().notNull(),
-        organization_stripe_customer_id   : text().unique().notNull(),
-        organization_name                 : text().unique().notNull(),
-        organization_admin_email          : text().unique().notNull(),
-        organization_admin_phone          : text().unique().notNull(),
-        organization_logo_url             : text().unique().notNull(),
-        organization_registration_date    : integer().notNull(),
-        organization_subscription_end_date: integer().notNull(),
-        organization_status               : text('organization_status', {
-            enum: [ 'ACTIVE', 'DEACTIVATED', 'SUSPENDED', 'TRIAL' ],
-        }) //EPGOrganizationStatus()
+        organization_id                   : text()
+            .unique()
+            .notNull(),
+        organization_admin_id             : text()
+            .unique()
+            .notNull(),
+        organization_stripe_customer_id   : text()
+            .unique()
+            .notNull(),
+        organization_name                 : text()
+            .unique()
+            .notNull(),
+        organization_admin_email          : text()
+            .unique()
+            .notNull(),
+        organization_admin_phone          : text()
+            .unique()
+            .notNull(),
+        organization_logo_url             : text()
+            .unique()
+            .notNull(),
+        organization_registration_date    : integer()
+            .notNull(),
+        organization_subscription_end_date: integer()
+            .notNull(),
+        organization_status               : text(
+            'organization_status',
+            {
+                enum: [
+                    'ACTIVE',
+                    'DEACTIVATED',
+                    'SUSPENDED',
+                    'TRIAL'
+                ],
+            }
+        )
             .default(EOrganizationStatus.ACTIVE)
             .notNull(),
         organization_subscription_status  : text(
             'organization_subscription_status',
             {
-                enum: [ 'VALID', 'EXPIRED' ],
+                enum: [
+                    'VALID',
+                    'EXPIRED'
+                ],
             }
-        ) //EPGSubscriptionStatus()
+        )
             .default(ESubscriptionStatus.VALID)
             .notNull(),
     },
@@ -63,9 +96,10 @@ export const organizations = pgTable(
                                                     table.organization_stripe_customer_id
                                                 ],
                                             }),
-            organizationIdIndex: index('organization_id_idx').on(
-                table.organization_id,
-            ),
+            organizationIdIndex: index('organization_id_idx')
+                .on(
+                    table.organization_id,
+                ),
             stripeIdIndex      : index('organization_stripe_customer_id_idx')
                 .on(
                     table.organization_stripe_customer_id,
@@ -77,20 +111,25 @@ export const organizations = pgTable(
 export const employees = pgTable(
     'employees',
     {
-        // FIX: Added .unique()
-        employee_id               : text().unique().notNull(),
+        employee_id               : text()
+            .unique()
+            .notNull(),
         employee_organization_id  : text()
             .notNull()
             .references(() => organizations.organization_id),
-        employee_sales_group_id   : text().references(
-            () => salesGroups.sales_group_id,
-        ),
+        employee_sales_group_id   : text()
+            .references(
+                () => salesGroups.sales_group_id,
+            ),
         employee_first_name       : text(),
         employee_last_name        : text(),
         employee_phone            : text(),
-        employee_nic_number       : text().notNull().unique(),
+        employee_nic_number       : text()
+            .notNull()
+            .unique(),
         employee_active_territory : text(),
-        employee_registration_date: integer().notNull(),
+        employee_registration_date: integer()
+            .notNull(),
         employee_status           : text({
                                              enum: [
                                                  'ON_FIELD',
@@ -99,7 +138,9 @@ export const employees = pgTable(
                                                  'FIRED',
                                                  'NOT_REPORTED'
                                              ]
-                                         }).default('NOT_REPORTED').notNull()
+                                         })
+            .default('NOT_REPORTED')
+            .notNull()
     },
     (table) => {
         return {
@@ -110,71 +151,140 @@ export const employees = pgTable(
                                                     table.employee_organization_id
                                                 ],
                                             }),
-            employeeIdIndex    : index('employee_id_idx').on(table.employee_id),
-            organizationIdIndex: index('employee_organization_id_fk_idx').on(
-                table.employee_organization_id,
-            ),
-            salesGroupIdIndex  : index('employee_sales_group_id_fk_idx').on(
-                table.employee_sales_group_id,
-            ),
-            nicIndex           : index('employee_nic_number_unique_idx').on(
-                table.employee_nic_number,
-            ),
+            employeeIdIndex    : index('employee_id_idx')
+                .on(table.employee_id),
+            organizationIdIndex: index('employee_organization_id_fk_idx')
+                .on(
+                    table.employee_organization_id,
+                ),
+            salesGroupIdIndex  : index('employee_sales_group_id_fk_idx')
+                .on(
+                    table.employee_sales_group_id,
+                ),
+            nicIndex           : index('employee_nic_number_unique_idx')
+                .on(
+                    table.employee_nic_number,
+                ),
         };
     },
 );
 
-export const employeesLeaves = pgTable('employees_leaves', {
-    employees_leaves_id             : text().unique().notNull(),
-    employees_leaves_employee_id    : text().unique().notNull(),
-    employees_leaves_organization_id: text().unique().notNull(),
-    employees_leaves_taken          : integer().notNull().default(0),
-    employees_leaves_total          : integer().notNull().default(3)
-}, (table) => {
-    return {
-        pk                 : primaryKey({
-                                            name   : 'employees_leaves_pk',
-                                            columns: [
-                                                table.employees_leaves_id,
-                                                table.employees_leaves_organization_id,
-                                                table.employees_leaves_employee_id
-                                            ]
-                                        }),
-        employeeIdIndex    : index('employees_leaves_employee_id_idx')
-            .on(table.employees_leaves_employee_id),
-        organizationIdIndex: index('employees_leaves_organization_id_idx').on(
-            table.employees_leaves_organization_id),
+export const employeesLeaves = pgTable(
+    'employees_leaves',
+    {
+        employee_leave_id             : text()
+            .unique()
+            .notNull(),
+        employee_leave_employee_id    : text()
+            .unique()
+            .notNull()
+            .references(() => employees.employee_id),
+        employee_leave_organization_id: text()
+            .notNull()
+            .references(() => organizations.organization_id),
+        employee_leave_taken          : integer()
+            .notNull()
+            .default(0),
+        employee_leave_total          : integer()
+            .notNull()
+            .default(3)
+    },
+    (table) => {
+        return {
+            pk                 : primaryKey({
+                                                name   : 'employees_leaves_pk',
+                                                columns: [
+                                                    table.employee_leave_id,
+                                                    table.employee_leave_organization_id,
+                                                    table.employee_leave_employee_id
+                                                ]
+                                            }),
+            employeeIdIndex    : index('employee_leave_employee_id_idx')
+                .on(table.employee_leave_employee_id),
+            organizationIdIndex: index('employee_leave_organization_id_idx')
+                .on(table.employee_leave_organization_id),
+        }
     }
-})
+)
 
 export const employeesCredentials = pgTable(
-    'employee_credentials',
+    'employees_credentials',
     {
-        employees_credentials_id             : text().unique().notNull(),
-        employees_credentials_employee_id    : text().unique().notNull(),
-        employees_credentials_organization_id: text().notNull(),
-        employees_credentials_username       : text().unique().notNull(),
-        employees_credentials_password       : text().notNull()
+        employee_credential_id             : text()
+            .unique()
+            .notNull(),
+        employee_credential_employee_id    : text()
+            .unique()
+            .notNull()
+            .references(() => employees.employee_id),
+        employee_credential_organization_id: text()
+            .notNull()
+            .references(() => organizations.organization_id),
+        employee_credential_username       : text()
+            .unique()
+            .notNull(),
+        employee_credential_password       : text()
+            .notNull()
     },
     (table) => {
         return {
             pk                   : primaryKey({
                                                   name   : 'employees_credentials_pk',
                                                   columns: [
-                                                      table.employees_credentials_id,
-                                                      table.employees_credentials_employee_id,
-                                                      table.employees_credentials_organization_id
+                                                      table.employee_credential_id,
+                                                      table.employee_credential_employee_id,
+                                                      table.employee_credential_organization_id
                                                   ]
                                               }),
-            organizationIdIndex  : index(
-                'employees_credentials_organization_id_idx')
-                .on(table.employees_credentials_organization_id),
-            employeeIdIndex      : index(
-                'employees_credentials_employee_id_idx')
-                .on(table.employees_credentials_employee_id),
-            employeeUsernameIndex: index(
-                'employees_credentials_employee_username_idx')
-                .on(table.employees_credentials_username)
+            organizationIdIndex  : index('employee_credential_organization_id_idx')
+                .on(table.employee_credential_organization_id),
+            employeeIdIndex      : index('employee_credential_employee_id_idx')
+                .on(table.employee_credential_employee_id),
+            employeeUsernameIndex: index('employee_credential_username_idx')
+                .on(table.employee_credential_username)
+        }
+    }
+)
+
+export const employeesSalaries = pgTable(
+    'employees_salaries',
+    {
+        employee_salary_id                   : text()
+            .unique()
+            .notNull(),
+        employee_salary_organization_id      : text()
+            .notNull()
+            .references(() => organizations.organization_id),
+        employee_salary_employee_id          : text()
+            .notNull()
+            .references(() => employees.employee_id),
+        employee_salary_base                 : decimal(
+            'employee_salary_base',
+            { mode: 'number' }
+        )
+            .notNull(),
+        employee_salary_commission_percentage: integer()
+            .notNull()
+            .default(0)
+    },
+    // FIX: added entire constraints block — primaryKey and indexes were
+    // missing entirely
+    (table) => {
+        return {
+            pk                 : primaryKey({
+                                                name   : 'employees_salaries_pk',
+                                                columns: [
+                                                    table.employee_salary_id,
+                                                    table.employee_salary_organization_id,
+                                                    table.employee_salary_employee_id
+                                                ]
+                                            }),
+            salaryIdIndex      : index('employee_salary_id_idx')
+                .on(table.employee_salary_id),
+            organizationIdIndex: index('employee_salary_organization_id_fk_idx')
+                .on(table.employee_salary_organization_id),
+            employeeIdIndex    : index('employee_salary_employee_id_fk_idx')
+                .on(table.employee_salary_employee_id),
         }
     }
 )
@@ -182,12 +292,17 @@ export const employeesCredentials = pgTable(
 export const salesGroups = pgTable(
     'sales_groups',
     {
-        sales_group_id             : text().unique().notNull(),
+        sales_group_id             : text()
+            .unique()
+            .notNull(),
         sales_group_organization_id: text()
             .notNull()
             .references(() => organizations.organization_id),
-        sales_group_name           : text().unique().notNull(),
-        sales_group_territory      : text().notNull(),
+        sales_group_name           : text()
+            .unique()
+            .notNull(),
+        sales_group_territory      : text()
+            .notNull(),
     },
     (table) => {
         return {
@@ -198,12 +313,14 @@ export const salesGroups = pgTable(
                                                     table.sales_group_organization_id
                                                 ],
                                             }),
-            organizationIdIndex: index('sales_group_organization_id_fk_idx').on(
-                table.sales_group_organization_id,
-            ),
-            nameIndex          : index('sales_group_name_unique_idx').on(
-                table.sales_group_name,
-            ),
+            organizationIdIndex: index('sales_group_organization_id_fk_idx')
+                .on(
+                    table.sales_group_organization_id,
+                ),
+            nameIndex          : index('sales_group_name_unique_idx')
+                .on(
+                    table.sales_group_name,
+                ),
         };
     },
 );
@@ -211,13 +328,16 @@ export const salesGroups = pgTable(
 export const items = pgTable(
     'items',
     {
-        // FIX: Added .unique()
-        item_id              : text().unique().notNull(),
+        item_id              : text()
+            .unique()
+            .notNull(),
         item_organization_id : text()
             .notNull()
             .references(() => organizations.organization_id),
-        item_name            : text().notNull(),
-        item_stock_unit_count: integer().default(0),
+        item_name            : text()
+            .notNull(),
+        item_stock_unit_count: integer()
+            .default(0),
     },
     (table) => {
         return {
@@ -228,10 +348,129 @@ export const items = pgTable(
                                                     table.item_organization_id
                                                 ],
                                             }),
-            itemIdIndex        : index('item_id_idx').on(table.item_id),
-            organizationIdIndex: index('item_organization_id_fk_idx').on(
-                table.item_organization_id,
-            ),
+            itemIdIndex        : index('item_id_idx')
+                .on(table.item_id),
+            organizationIdIndex: index('item_organization_id_fk_idx')
+                .on(
+                    table.item_organization_id,
+                ),
+        };
+    },
+);
+
+export const clients = pgTable(
+    'clients',
+    {
+        client_id                : text()
+            .unique()
+            .notNull(),
+        client_organization_id   : text()
+            .notNull()
+            .references(() => organizations.organization_id),
+        client_stripe_customer_id: text()
+            .notNull(),
+        client_name              : text()
+            .notNull(),
+        client_nic_number        : text()
+            .notNull(),
+        client_email             : text()
+            .notNull(),
+        client_phone             : text()
+            .notNull(),
+        client_account_status    : text(
+            'client_account_status',
+            {
+                enum: [
+                    'ACTIVE',
+                    'DEACTIVATED',
+                    'UNVERIFIED'
+                ],
+            }
+        )
+            .notNull()
+            .default(EAccountStatus.UNVERIFIED),
+        client_registration_date : integer()
+            .notNull(),
+    },
+    (table) => {
+        return {
+            pk                 : primaryKey({
+                                                name   : 'clients_primary_key',
+                                                columns: [
+                                                    table.client_id,
+                                                    table.client_organization_id,
+                                                    table.client_stripe_customer_id,
+                                                ],
+                                            }),
+            organizationIdIndex: index('client_organization_id_fk_idx')
+                .on(
+                    table.client_organization_id,
+                ),
+            stripeIdIndex      : index('client_stripe_customer_id_idx')
+                .on(
+                    table.client_stripe_customer_id,
+                ),
+        };
+    },
+);
+
+export const clientsPayments = pgTable(
+    'clients_payments',
+    {
+        client_payment_id             : text()
+            .unique()
+            .notNull(),
+        client_payment_client_id      : text()
+            .notNull()
+            .references(() => clients.client_id),
+        client_payment_organization_id: text()
+            .notNull()
+            .references(() => organizations.organization_id),
+        client_payment_amount         : decimal(
+            'client_payment_amount',
+            {
+                mode: 'number',
+            }
+        )
+            .notNull(),
+        client_payment_date           : integer()
+            .notNull(),
+        client_payment_status         : text(
+            'client_payment_status',
+            {
+                enum: [
+                    'PENDING',
+                    'PAID',
+                    'VERIFIED',
+                    'REFUNDED'
+                ],
+            }
+        )
+            .notNull()
+            .default(EPaymentStatus.PENDING),
+    },
+    (table) => {
+        return {
+            pk                  : primaryKey({
+                                                 name   : 'clients_payments_primary_key',
+                                                 columns: [
+                                                     table.client_payment_id,
+                                                     table.client_payment_client_id,
+                                                     table.client_payment_organization_id,
+                                                 ],
+                                             }),
+            clientPaymentIdIndex: index('client_payment_id_idx')
+                .on(
+                    table.client_payment_id,
+                ),
+            clientIdIndex       : index('client_payment_client_id_fk_idx')
+                .on(
+                    table.client_payment_client_id,
+                ),
+            organizationIdIndex : index('client_payment_organization_id_fk_idx')
+                .on(
+                    table.client_payment_organization_id,
+                ),
         };
     },
 );
@@ -239,8 +478,9 @@ export const items = pgTable(
 export const sales = pgTable(
     'sales',
     {
-        // FIX: Added .unique()
-        sale_id               : text().unique().notNull(),
+        sale_id               : text()
+            .unique()
+            .notNull(),
         sale_organization_id  : text()
             .notNull()
             .references(() => organizations.organization_id),
@@ -256,8 +496,11 @@ export const sales = pgTable(
         sale_item_id          : text()
             .notNull()
             .references(() => items.item_id),
-        sale_item_unit_count  : integer().notNull().default(1),
-        sale_date             : integer().notNull(),
+        sale_item_unit_count  : integer()
+            .notNull()
+            .default(1),
+        sale_date             : integer()
+            .notNull(),
     },
     (table) => {
         return {
@@ -272,18 +515,22 @@ export const sales = pgTable(
                                                      table.sale_item_id,
                                                  ],
                                              }),
-            saleIdIndex         : index('sale_id_idx').on(table.sale_id),
-            organizationIdIndex : index('sale_organization_id_fk_idx').on(
-                table.sale_organization_id,
-            ),
-            employeeIdIndex     : index('sale_employee_id_fk_idx').on(
-                table.sale_employee_id,
-            ),
+            saleIdIndex         : index('sale_id_idx')
+                .on(table.sale_id),
+            organizationIdIndex : index('sale_organization_id_fk_idx')
+                .on(
+                    table.sale_organization_id,
+                ),
+            employeeIdIndex     : index('sale_employee_id_fk_idx')
+                .on(
+                    table.sale_employee_id,
+                ),
             clientIdIndex       : index('sale_client_id_fk_idx')
                 .on(table.sale_client_id),
-            clientPaymentIdIndex: index('sale_client_payment_id_fk_idx').on(
-                table.sale_client_payment_id,
-            ),
+            clientPaymentIdIndex: index('sale_client_payment_id_fk_idx')
+                .on(
+                    table.sale_client_payment_id,
+                ),
             itemIdIndex         : index('sale_item_id_fk_idx')
                 .on(table.sale_item_id),
         };
@@ -293,18 +540,31 @@ export const sales = pgTable(
 export const organizationsPayments = pgTable(
     'organizations_payments',
     {
-        payment_id             : text().unique().notNull(),
+        payment_id             : text()
+            .unique()
+            .notNull(),
         payment_organization_id: text()
             .notNull()
             .references(() => organizations.organization_id),
-        payment_amount         : decimal('payment_amount', { mode: 'number' })
+        payment_amount         : decimal(
+            'payment_amount',
+            { mode: 'number' }
+        )
             .notNull(),
-        payment_status         : text('payment_status', {
-            enum: [ 'PENDING', 'PAID', 'VERIFIED', 'REFUNDED' ],
-        })
-            // EPGPaymentStatus()
+        payment_status         : text(
+            'payment_status',
+            {
+                enum: [
+                    'PENDING',
+                    'PAID',
+                    'VERIFIED',
+                    'REFUNDED'
+                ],
+            }
+        )
             .default(EPaymentStatus.VERIFIED),
-        payment_timestamp      : integer().notNull(),
+        payment_timestamp      : integer()
+            .notNull(),
     },
     (table) => {
         return {
@@ -319,108 +579,30 @@ export const organizationsPayments = pgTable(
                 .on(table.payment_id),
             organizationIdIndex: index(
                 'organization_payment_organization_id_fk_idx',
-            ).on(table.payment_organization_id),
-        };
-    },
-);
-
-export const clients = pgTable(
-    'clients',
-    {
-        client_id                : text().unique().notNull(),
-        client_organization_id   : text()
-            .notNull()
-            .references(() => organizations.organization_id),
-        client_stripe_customer_id: text().notNull(),
-        client_name              : text().notNull(),
-        client_nic_number        : text().notNull(),
-        client_email             : text().notNull(),
-        client_phone             : text().notNull(),
-        client_account_status    : text('client_account_status', {
-            enum: [ 'ACTIVE', 'DEACTIVATED', 'UNVERIFIED' ],
-        }) // EPGAccountStatus()
-            .notNull()
-            .default(EAccountStatus.UNVERIFIED),
-        client_registration_date : integer().notNull(),
-    },
-    (table) => {
-        return {
-            pk                 : primaryKey({
-                                                name   : 'clients_primary_key',
-                                                columns: [
-                                                    table.client_id,
-                                                    table.client_organization_id,
-                                                    table.client_stripe_customer_id,
-                                                ],
-                                            }),
-            organizationIdIndex: index('client_organization_id_fk_idx').on(
-                table.client_organization_id,
-            ),
-            stripeIdIndex      : index('client_stripe_customer_id_idx').on(
-                table.client_stripe_customer_id,
-            ),
-        };
-    },
-);
-
-export const clientsPayments = pgTable(
-    'client_payments',
-    {
-        // FIX: Added .unique()
-        client_payment_id             : text().unique().notNull(),
-        client_payment_client_id      : text()
-            .notNull()
-            .references(() => clients.client_id),
-        client_payment_organization_id: text()
-            .notNull()
-            .references(() => organizations.organization_id),
-        client_payment_amount         : decimal('client_payment_amount', {
-            mode: 'number',
-        }).notNull(),
-        client_payment_date           : integer().notNull(),
-        client_payment_status         : text('client_payment_status', {
-            enum: [ 'PENDING', 'PAID', 'VERIFIED', 'REFUNDED' ],
-        }) // EPGPaymentStatus()
-            .notNull()
-            .default(EPaymentStatus.PENDING),
-    },
-    (table) => {
-        return {
-            pk                  : primaryKey({
-                                                 name   : 'clients_payments_primary_key',
-                                                 columns: [
-                                                     table.client_payment_id,
-                                                     table.client_payment_client_id,
-                                                     table.client_payment_organization_id,
-                                                 ],
-                                             }),
-            clientPaymentIdIndex: index('client_payment_id_idx').on(
-                table.client_payment_id,
-            ),
-            clientIdIndex       : index('client_payment_client_id_fk_idx').on(
-                table.client_payment_client_id,
-            ),
-            organizationIdIndex : index('client_payment_organization_id_fk_idx')
-                .on(
-                    table.client_payment_organization_id,
-                ),
+            )
+                .on(table.payment_organization_id),
         };
     },
 );
 
 // --- RELATIONS ---
-
-export const organizationsRelations = relations(organizations, ({ many }) => {
-    return {
-        employees      : many(employees),
-        items          : many(items),
-        salesGroups    : many(salesGroups),
-        payments       : many(organizationsPayments),
-        sales          : many(sales),
-        clients        : many(clients),
-        clientsPayments: many(clientsPayments),
-    };
-});
+export const organizationsRelations = relations(
+    organizations,
+    ({ many }) => {
+        return {
+            employees            : many(employees),
+            employeesCredentials : many(employeesCredentials),
+            employeesLeaves      : many(employeesLeaves),
+            employeesSalaries    : many(employeesSalaries),
+            items                : many(items),
+            salesGroups          : many(salesGroups),
+            organizationsPayments: many(organizationsPayments),
+            sales                : many(sales),
+            clients              : many(clients),
+            clientsPayments      : many(clientsPayments),
+        };
+    }
+);
 
 export const employeesRelations = relations(
     employees,
@@ -429,39 +611,67 @@ export const employeesRelations = relations(
          many
      }) => {
         return {
-            organization: one(
+            organization      : one(
                 organizations,
                 {
                     fields    : [ employees.employee_organization_id ],
                     references: [ organizations.organization_id ],
                 }
             ),
-            salesGroup  : one(
+            employeeCredential: one(
+                employeesCredentials,
+                {
+                    fields    : [ employees.employee_id ],
+                    references: [ employeesCredentials.employee_credential_employee_id ]
+                }
+            ),
+            employeeLeave     : one(
+                employeesLeaves,
+                {
+                    fields    : [ employees.employee_id ],
+                    references: [ employeesLeaves.employee_leave_employee_id ]
+                }
+            ),
+            employeeSalary    : one(
+                employeesSalaries,
+                {
+                    fields    : [ employees.employee_id ],
+                    references: [ employeesSalaries.employee_salary_employee_id ]
+                }
+            ),
+            salesGroup        : one(
                 salesGroups,
                 {
                     fields    : [ employees.employee_sales_group_id ],
                     references: [ salesGroups.sales_group_id ],
                 }
             ),
-            sales       : many(sales),
+            sales             : many(sales),
         };
     }
 );
 
-export const employeesCredentialsRelations = relations(employeesCredentials, (
-    { one }
-) => {
-    return {
-        employee    : one(employees, {
-            fields    : [ employeesCredentials.employees_credentials_employee_id ],
-            references: [ employees.employee_id ]
-        }),
-        organization: one(organizations, {
-            fields    : [ employeesCredentials.employees_credentials_organization_id ],
-            references: [ organizations.organization_id ]
-        })
+export const employeesCredentialsRelations = relations(
+    employeesCredentials,
+    ({ one }) => {
+        return {
+            employee    : one(
+                employees,
+                {
+                    fields    : [ employeesCredentials.employee_credential_employee_id ],
+                    references: [ employees.employee_id ]
+                }
+            ),
+            organization: one(
+                organizations,
+                {
+                    fields    : [ employeesCredentials.employee_credential_organization_id ],
+                    references: [ organizations.organization_id ]
+                }
+            )
+        }
     }
-})
+)
 
 export const employeesLeavesRelations = relations(
     employeesLeaves,
@@ -470,15 +680,37 @@ export const employeesLeavesRelations = relations(
             employee    : one(
                 employees,
                 {
-                    fields    : [ employeesLeaves.employees_leaves_employee_id ],
+                    fields    : [ employeesLeaves.employee_leave_employee_id ],
                     references: [ employees.employee_id ]
                 }
             ),
             organization: one(
                 organizations,
                 {
-                    fields    : [ employeesLeaves.employees_leaves_organization_id ],
+                    fields    : [ employeesLeaves.employee_leave_organization_id ],
                     references: [ organizations.organization_id ]
+                }
+            )
+        }
+    }
+)
+
+export const employeesSalariesRelations = relations(
+    employeesSalaries,
+    ({ one }) => {
+        return {
+            organization: one(
+                organizations,
+                {
+                    fields    : [ employeesSalaries.employee_salary_organization_id ],
+                    references: [ organizations.organization_id ]
+                }
+            ),
+            employee    : one(
+                employees,
+                {
+                    fields    : [ employeesSalaries.employee_salary_employee_id ],
+                    references: [ employees.employee_id ]
                 }
             )
         }
@@ -525,19 +757,22 @@ export const salesGroupsRelations = relations(
 
 export const salesRelations = relations(
     sales,
-    ({
-         one,
-         many
-     }) => {
+    ({ one }) => {
         return {
-            item         : one(items, {
-                fields    : [ sales.sale_item_id ],
-                references: [ items.item_id ],
-            }),
-            employee     : one(employees, {
-                fields    : [ sales.sale_employee_id ],
-                references: [ employees.employee_id ],
-            }),
+            item         : one(
+                items,
+                {
+                    fields    : [ sales.sale_item_id ],
+                    references: [ items.item_id ],
+                }
+            ),
+            employee     : one(
+                employees,
+                {
+                    fields    : [ sales.sale_employee_id ],
+                    references: [ employees.employee_id ],
+                }
+            ),
             organization : one(
                 organizations,
                 {
@@ -545,10 +780,13 @@ export const salesRelations = relations(
                     references: [ organizations.organization_id ],
                 }
             ),
-            client       : one(clients, {
-                fields    : [ sales.sale_client_id ],
-                references: [ clients.client_id ],
-            }),
+            client       : one(
+                clients,
+                {
+                    fields    : [ sales.sale_client_id ],
+                    references: [ clients.client_id ],
+                }
+            ),
             clientPayment: one(
                 clientsPayments,
                 {
@@ -582,23 +820,27 @@ export const clientsRelations = relations(
 
 export const clientsPaymentsRelations = relations(
     clientsPayments,
-    ({
-         one,
-         many
-     }) => {
+    ({ one }) => {
         return {
-            client      : one(clients, {
-                fields    : [ clientsPayments.client_payment_client_id ],
-                references: [ clients.client_id ],
-            }),
-            organization: one(organizations, {
-                fields    : [ clientsPayments.client_payment_organization_id ],
-                references: [ organizations.organization_id ],
-            }),
+            client      : one(
+                clients,
+                {
+                    fields    : [ clientsPayments.client_payment_client_id ],
+                    references: [ clients.client_id ],
+                }
+            ),
+            organization: one(
+                organizations,
+                {
+                    fields    : [ clientsPayments.client_payment_organization_id ],
+                    references: [ organizations.organization_id ],
+                }
+            ),
         };
     },
 );
 
+// --- TYPE EXPORTS ---
 export type TPGOrganization = typeof organizations.$inferInsert;
 export type TPGEmployee = typeof employees.$inferInsert;
 export type TPGItem = typeof items.$inferInsert;
@@ -607,5 +849,6 @@ export type TPGSale = typeof sales.$inferInsert;
 export type TPGClient = typeof clients.$inferInsert;
 export type TPGClientPayment = typeof clientsPayments.$inferInsert;
 export type TPGOrganizationPayment = typeof organizationsPayments.$inferInsert;
-export type TPGEmployeeCredentials = typeof employeesCredentials.$inferInsert
-export type TPGEmployeeLeaves = typeof employeesLeaves.$inferInsert
+export type TPGEmployeeCredentials = typeof employeesCredentials.$inferInsert;
+export type TPGEmployeeLeaves = typeof employeesLeaves.$inferInsert;
+export type TPGEmployeeSalary = typeof employeesSalaries.$inferInsert;
