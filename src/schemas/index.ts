@@ -605,6 +605,22 @@ export const GetClientPaymentsByClientIdRequestSchema = z.object({
                                                                                      1),
                                                                  });
 
+// Composite Types
+
+export const EmployeeProfileSchema = EmployeeSchema.extend(z.object({
+                                                                        employee_sales     : z.array(
+                                                                            SaleSchema),
+                                                                        employee_attendance: z.array(
+                                                                            EmployeesLeavesSchema)
+                                                                    }))
+
+export const SalesGroupProfileSchema = SalesGroupSchema.extend(z.object({
+                                                                            sales_group_employees: z.array(
+                                                                                EmployeeProfileSchema),
+                                                                            sales_group_sales    : z.array(
+                                                                                SaleSchema)
+                                                                        }))
+
 // --- TYPE EXPORTS ---
 export type TOrganization = z.infer<typeof OrganizationSchema>;
 export type TOrganizationInsert = z.infer<typeof OrganizationInsertSchema>;
@@ -646,49 +662,5 @@ export type TClientPayment = z.infer<typeof ClientPaymentSchema>;
 export type TClientPaymentInsert = z.infer<typeof ClientPaymentInsertSchema>;
 export type TClientPaymentUpdate = z.infer<typeof ClientPaymentUpdateSchema>;
 
-// Request Types
-export type TCreateOrganizationRequest = z.infer<typeof CreateOrganizationRequestSchema>;
-export type TUpdateOrganizationRequest = z.infer<typeof UpdateOrganizationRequestSchema>;
-export type TGetOrganizationByIdRequest = z.infer<typeof GetOrganizationByIdRequestSchema>;
-
-export type TCreateEmployeeRequest = z.infer<typeof CreateEmployeeRequestSchema>;
-export type TUpdateEmployeeRequest = z.infer<typeof UpdateEmployeeRequestSchema>;
-export type TGetEmployeeByIdRequest = z.infer<typeof GetEmployeeByIdRequestSchema>;
-export type TDeleteEmployeeRequest = z.infer<typeof DeleteEmployeeRequestSchema>;
-
-export type TCreateEmployeesLeavesRequest = z.infer<typeof CreateEmployeesLeavesRequestSchema>;
-export type TUpdateEmployeesLeavesRequest = z.infer<typeof UpdateEmployeesLeavesRequestSchema>;
-
-export type TCreateEmployeesCredentialsRequest = z.infer<typeof CreateEmployeesCredentialsRequestSchema>;
-export type TUpdateEmployeesCredentialsRequest = z.infer<typeof UpdateEmployeesCredentialsRequestSchema>;
-export type TLoginRequest = z.infer<typeof LoginRequestSchema>;
-
-export type TCreateSalesGroupRequest = z.infer<typeof CreateSalesGroupRequestSchema>;
-export type TUpdateSalesGroupRequest = z.infer<typeof UpdateSalesGroupRequestSchema>;
-export type TGetSalesGroupByIdRequest = z.infer<typeof GetSalesGroupByIdRequestSchema>;
-export type TDeleteSalesGroupRequest = z.infer<typeof DeleteSalesGroupRequestSchema>;
-
-export type TCreateItemRequest = z.infer<typeof CreateItemRequestSchema>;
-export type TUpdateItemRequest = z.infer<typeof UpdateItemRequestSchema>;
-export type TGetItemByIdRequest = z.infer<typeof GetItemByIdRequestSchema>;
-export type TDeleteItemRequest = z.infer<typeof DeleteItemRequestSchema>;
-
-export type TCreateSaleRequest = z.infer<typeof CreateSaleRequestSchema>;
-export type TUpdateSaleRequest = z.infer<typeof UpdateSaleRequestSchema>;
-export type TGetSaleByIdRequest = z.infer<typeof GetSaleByIdRequestSchema>;
-export type TGetSalesByDateRequest = z.infer<typeof GetSalesByDateRequestSchema>;
-export type TGetSalesWithinDatesRequest = z.infer<typeof GetSalesWithinDatesRequestSchema>;
-
-export type TCreateOrganizationPaymentRequest = z.infer<typeof CreateOrganizationPaymentRequestSchema>;
-export type TUpdateOrganizationPaymentRequest = z.infer<typeof UpdateOrganizationPaymentRequestSchema>;
-export type TGetOrganizationPaymentByIdRequest = z.infer<typeof GetOrganizationPaymentByIdRequestSchema>;
-
-export type TCreateClientRequest = z.infer<typeof CreateClientRequestSchema>;
-export type TUpdateClientRequest = z.infer<typeof UpdateClientRequestSchema>;
-export type TGetClientByIdRequest = z.infer<typeof GetClientByIdRequestSchema>;
-export type TDeleteClientRequest = z.infer<typeof DeleteClientRequestSchema>;
-
-export type TCreateClientPaymentRequest = z.infer<typeof CreateClientPaymentRequestSchema>;
-export type TUpdateClientPaymentRequest = z.infer<typeof UpdateClientPaymentRequestSchema>;
-export type TGetClientPaymentByIdRequest = z.infer<typeof GetClientPaymentByIdRequestSchema>;
-export type TGetClientPaymentsByClientIdRequest = z.infer<typeof GetClientPaymentsByClientIdRequestSchema>;
+export type TEmployeeProfile = z.infer<typeof EmployeeProfileSchema>
+export type TSalesGroupProfile = z.infer<typeof SalesGroupProfileSchema>
