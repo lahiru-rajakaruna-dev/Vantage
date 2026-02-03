@@ -499,6 +499,8 @@ export const sales = pgTable(
         sale_item_unit_count  : integer()
             .notNull()
             .default(1),
+        sale_value            : decimal({ mode: 'number' })
+            .notNull(),
         sale_date             : integer()
             .notNull(),
     },

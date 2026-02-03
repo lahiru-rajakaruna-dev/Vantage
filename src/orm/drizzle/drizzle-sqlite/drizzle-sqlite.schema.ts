@@ -282,6 +282,8 @@ export const sales = sqliteTable(
         sale_item_unit_count  : integer()
             .notNull()
             .default(1),
+        sale_value            : real()
+            .notNull(),
         sale_date             : integer()
             .notNull(),
     },
