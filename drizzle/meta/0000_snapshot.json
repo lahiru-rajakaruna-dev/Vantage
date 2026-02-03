@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "07cddd51-ac85-4fb3-a1e6-9dd775addc59",
+  "id": "83c1f643-2f9c-4c36-b420-35e5d87a2c4a",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "clients": {
@@ -72,29 +72,7 @@
           "autoincrement": false
         }
       },
-      "indexes": {
-        "clients_client_id_unique": {
-          "name": "clients_client_id_unique",
-          "columns": [
-            "client_id"
-          ],
-          "isUnique": true
-        },
-        "client_organization_id_fk_idx": {
-          "name": "client_organization_id_fk_idx",
-          "columns": [
-            "client_organization_id"
-          ],
-          "isUnique": false
-        },
-        "client_stripe_customer_id_idx": {
-          "name": "client_stripe_customer_id_idx",
-          "columns": [
-            "client_stripe_customer_id"
-          ],
-          "isUnique": false
-        }
-      },
+      "indexes": {},
       "foreignKeys": {
         "clients_client_organization_id_organizations_organization_id_fk": {
           "name": "clients_client_organization_id_organizations_organization_id_fk",
@@ -111,20 +89,19 @@
         }
       },
       "compositePrimaryKeys": {
-        "clients_primary_key": {
+        "clients_pk": {
           "columns": [
             "client_id",
-            "client_organization_id",
-            "client_stripe_customer_id"
+            "client_organization_id"
           ],
-          "name": "clients_primary_key"
+          "name": "clients_pk"
         }
       },
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
-    "client_payments": {
-      "name": "client_payments",
+    "clients_payments": {
+      "name": "clients_payments",
       "columns": {
         "client_payment_id": {
           "name": "client_payment_id",
@@ -167,43 +144,14 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": "'VERIFIED'"
+          "default": "'PENDING'"
         }
       },
-      "indexes": {
-        "client_payments_client_payment_id_unique": {
-          "name": "client_payments_client_payment_id_unique",
-          "columns": [
-            "client_payment_id"
-          ],
-          "isUnique": true
-        },
-        "client_payment_id_idx": {
-          "name": "client_payment_id_idx",
-          "columns": [
-            "client_payment_id"
-          ],
-          "isUnique": false
-        },
-        "client_payment_client_id_fk_idx": {
-          "name": "client_payment_client_id_fk_idx",
-          "columns": [
-            "client_payment_client_id"
-          ],
-          "isUnique": false
-        },
-        "client_payment_organization_id_fk_idx": {
-          "name": "client_payment_organization_id_fk_idx",
-          "columns": [
-            "client_payment_organization_id"
-          ],
-          "isUnique": false
-        }
-      },
+      "indexes": {},
       "foreignKeys": {
-        "client_payments_client_payment_client_id_clients_client_id_fk": {
-          "name": "client_payments_client_payment_client_id_clients_client_id_fk",
-          "tableFrom": "client_payments",
+        "clients_payments_client_payment_client_id_clients_client_id_fk": {
+          "name": "clients_payments_client_payment_client_id_clients_client_id_fk",
+          "tableFrom": "clients_payments",
           "tableTo": "clients",
           "columnsFrom": [
             "client_payment_client_id"
@@ -214,9 +162,9 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "client_payments_client_payment_organization_id_organizations_organization_id_fk": {
-          "name": "client_payments_client_payment_organization_id_organizations_organization_id_fk",
-          "tableFrom": "client_payments",
+        "clients_payments_client_payment_organization_id_organizations_organization_id_fk": {
+          "name": "clients_payments_client_payment_organization_id_organizations_organization_id_fk",
+          "tableFrom": "clients_payments",
           "tableTo": "organizations",
           "columnsFrom": [
             "client_payment_organization_id"
@@ -229,13 +177,12 @@
         }
       },
       "compositePrimaryKeys": {
-        "clients_payments_primary_key": {
+        "clients_payments_pk": {
           "columns": [
             "client_payment_id",
-            "client_payment_client_id",
-            "client_payment_organization_id"
+            "client_payment_client_id"
           ],
-          "name": "clients_payments_primary_key"
+          "name": "clients_payments_pk"
         }
       },
       "uniqueConstraints": {},
@@ -306,16 +253,17 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        },
+        "employee_status": {
+          "name": "employee_status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'NOT_REPORTED'"
         }
       },
       "indexes": {
-        "employees_employee_id_unique": {
-          "name": "employees_employee_id_unique",
-          "columns": [
-            "employee_id"
-          ],
-          "isUnique": true
-        },
         "employees_employee_nic_number_unique": {
           "name": "employees_employee_nic_number_unique",
           "columns": [
@@ -330,22 +278,8 @@
           ],
           "isUnique": false
         },
-        "employee_organization_id_fk_idx": {
-          "name": "employee_organization_id_fk_idx",
-          "columns": [
-            "employee_organization_id"
-          ],
-          "isUnique": false
-        },
-        "employee_sales_group_id_fk_idx": {
-          "name": "employee_sales_group_id_fk_idx",
-          "columns": [
-            "employee_sales_group_id"
-          ],
-          "isUnique": false
-        },
-        "employee_nic_number_unique_idx": {
-          "name": "employee_nic_number_unique_idx",
+        "employee_nic_idx": {
+          "name": "employee_nic_idx",
           "columns": [
             "employee_nic_number"
           ],
@@ -392,39 +326,39 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
-    "employee_credentials": {
-      "name": "employee_credentials",
+    "employees_credentials": {
+      "name": "employees_credentials",
       "columns": {
-        "employees_credentials_id": {
-          "name": "employees_credentials_id",
+        "employee_credential_id": {
+          "name": "employee_credential_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "employees_credentials_employee_id": {
-          "name": "employees_credentials_employee_id",
+        "employee_credential_employee_id": {
+          "name": "employee_credential_employee_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "employees_credentials_organization_id": {
-          "name": "employees_credentials_organization_id",
+        "employee_credential_organization_id": {
+          "name": "employee_credential_organization_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "employees_credentials_username": {
-          "name": "employees_credentials_username",
+        "employee_credential_username": {
+          "name": "employee_credential_username",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "employees_credentials_password": {
-          "name": "employees_credentials_password",
+        "employee_credential_password": {
+          "name": "employee_credential_password",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
@@ -432,63 +366,47 @@
         }
       },
       "indexes": {
-        "employee_credentials_employees_credentials_id_unique": {
-          "name": "employee_credentials_employees_credentials_id_unique",
+        "employees_credentials_employee_credential_username_unique": {
+          "name": "employees_credentials_employee_credential_username_unique",
           "columns": [
-            "employees_credentials_id"
+            "employee_credential_username"
           ],
           "isUnique": true
-        },
-        "employee_credentials_employees_credentials_employee_id_unique": {
-          "name": "employee_credentials_employees_credentials_employee_id_unique",
-          "columns": [
-            "employees_credentials_employee_id"
-          ],
-          "isUnique": true
-        },
-        "employee_credentials_employees_credentials_username_unique": {
-          "name": "employee_credentials_employees_credentials_username_unique",
-          "columns": [
-            "employees_credentials_username"
-          ],
-          "isUnique": true
-        },
-        "employee_credentials_employees_credentials_password_unique": {
-          "name": "employee_credentials_employees_credentials_password_unique",
-          "columns": [
-            "employees_credentials_password"
-          ],
-          "isUnique": true
-        },
-        "employees_credentials_organization_id_idx": {
-          "name": "employees_credentials_organization_id_idx",
-          "columns": [
-            "employees_credentials_organization_id"
-          ],
-          "isUnique": false
-        },
-        "employees_credentials_employee_id_idx": {
-          "name": "employees_credentials_employee_id_idx",
-          "columns": [
-            "employees_credentials_employee_id"
-          ],
-          "isUnique": false
-        },
-        "employees_credentials_employee_username_idx": {
-          "name": "employees_credentials_employee_username_idx",
-          "columns": [
-            "employees_credentials_username"
-          ],
-          "isUnique": false
         }
       },
-      "foreignKeys": {},
+      "foreignKeys": {
+        "employees_credentials_employee_credential_employee_id_employees_employee_id_fk": {
+          "name": "employees_credentials_employee_credential_employee_id_employees_employee_id_fk",
+          "tableFrom": "employees_credentials",
+          "tableTo": "employees",
+          "columnsFrom": [
+            "employee_credential_employee_id"
+          ],
+          "columnsTo": [
+            "employee_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "employees_credentials_employee_credential_organization_id_organizations_organization_id_fk": {
+          "name": "employees_credentials_employee_credential_organization_id_organizations_organization_id_fk",
+          "tableFrom": "employees_credentials",
+          "tableTo": "organizations",
+          "columnsFrom": [
+            "employee_credential_organization_id"
+          ],
+          "columnsTo": [
+            "organization_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {
         "employees_credentials_pk": {
           "columns": [
-            "employees_credentials_id",
-            "employees_credentials_employee_id",
-            "employees_credentials_organization_id"
+            "employee_credential_id",
+            "employee_credential_employee_id"
           ],
           "name": "employees_credentials_pk"
         }
@@ -499,37 +417,37 @@
     "employees_leaves": {
       "name": "employees_leaves",
       "columns": {
-        "employees_leaves_id": {
-          "name": "employees_leaves_id",
+        "employee_leave_id": {
+          "name": "employee_leave_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "employees_leaves_employee_id": {
-          "name": "employees_leaves_employee_id",
+        "employee_leave_employee_id": {
+          "name": "employee_leave_employee_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "employees_leaves_organization_id": {
-          "name": "employees_leaves_organization_id",
+        "employee_leave_organization_id": {
+          "name": "employee_leave_organization_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "employees_leaves_taken": {
-          "name": "employees_leaves_taken",
+        "employee_leave_taken": {
+          "name": "employee_leave_taken",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
           "default": 0
         },
-        "employees_leaves_total": {
-          "name": "employees_leaves_total",
+        "employee_leave_total": {
+          "name": "employee_leave_total",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
@@ -537,52 +455,123 @@
           "default": 3
         }
       },
-      "indexes": {
-        "employees_leaves_employees_leaves_id_unique": {
-          "name": "employees_leaves_employees_leaves_id_unique",
-          "columns": [
-            "employees_leaves_id"
+      "indexes": {},
+      "foreignKeys": {
+        "employees_leaves_employee_leave_employee_id_employees_employee_id_fk": {
+          "name": "employees_leaves_employee_leave_employee_id_employees_employee_id_fk",
+          "tableFrom": "employees_leaves",
+          "tableTo": "employees",
+          "columnsFrom": [
+            "employee_leave_employee_id"
           ],
-          "isUnique": true
+          "columnsTo": [
+            "employee_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
         },
-        "employees_leaves_employees_leaves_employee_id_unique": {
-          "name": "employees_leaves_employees_leaves_employee_id_unique",
-          "columns": [
-            "employees_leaves_employee_id"
+        "employees_leaves_employee_leave_organization_id_organizations_organization_id_fk": {
+          "name": "employees_leaves_employee_leave_organization_id_organizations_organization_id_fk",
+          "tableFrom": "employees_leaves",
+          "tableTo": "organizations",
+          "columnsFrom": [
+            "employee_leave_organization_id"
           ],
-          "isUnique": true
-        },
-        "employees_leaves_employees_leaves_organization_id_unique": {
-          "name": "employees_leaves_employees_leaves_organization_id_unique",
-          "columns": [
-            "employees_leaves_organization_id"
+          "columnsTo": [
+            "organization_id"
           ],
-          "isUnique": true
-        },
-        "employees_leaves_employee_id_idx": {
-          "name": "employees_leaves_employee_id_idx",
-          "columns": [
-            "employees_leaves_employee_id"
-          ],
-          "isUnique": false
-        },
-        "employees_leaves_organization_id_idx": {
-          "name": "employees_leaves_organization_id_idx",
-          "columns": [
-            "employees_leaves_organization_id"
-          ],
-          "isUnique": false
+          "onDelete": "no action",
+          "onUpdate": "no action"
         }
       },
-      "foreignKeys": {},
       "compositePrimaryKeys": {
         "employees_leaves_pk": {
           "columns": [
-            "employees_leaves_id",
-            "employees_leaves_organization_id",
-            "employees_leaves_employee_id"
+            "employee_leave_id",
+            "employee_leave_employee_id"
           ],
           "name": "employees_leaves_pk"
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "employees_salaries": {
+      "name": "employees_salaries",
+      "columns": {
+        "employee_salary_id": {
+          "name": "employee_salary_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "employee_salary_organization_id": {
+          "name": "employee_salary_organization_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "employee_salary_employee_id": {
+          "name": "employee_salary_employee_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "employee_salary_base": {
+          "name": "employee_salary_base",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "employee_salary_commission_percentage": {
+          "name": "employee_salary_commission_percentage",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "employees_salaries_employee_salary_organization_id_organizations_organization_id_fk": {
+          "name": "employees_salaries_employee_salary_organization_id_organizations_organization_id_fk",
+          "tableFrom": "employees_salaries",
+          "tableTo": "organizations",
+          "columnsFrom": [
+            "employee_salary_organization_id"
+          ],
+          "columnsTo": [
+            "organization_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "employees_salaries_employee_salary_employee_id_employees_employee_id_fk": {
+          "name": "employees_salaries_employee_salary_employee_id_employees_employee_id_fk",
+          "tableFrom": "employees_salaries",
+          "tableTo": "employees",
+          "columnsFrom": [
+            "employee_salary_employee_id"
+          ],
+          "columnsTo": [
+            "employee_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "employees_salaries_pk": {
+          "columns": [
+            "employee_salary_id",
+            "employee_salary_employee_id"
+          ],
+          "name": "employees_salaries_pk"
         }
       },
       "uniqueConstraints": {},
@@ -621,29 +610,7 @@
           "default": 0
         }
       },
-      "indexes": {
-        "items_item_id_unique": {
-          "name": "items_item_id_unique",
-          "columns": [
-            "item_id"
-          ],
-          "isUnique": true
-        },
-        "item_id_idx": {
-          "name": "item_id_idx",
-          "columns": [
-            "item_id"
-          ],
-          "isUnique": false
-        },
-        "item_organization_id_fk_idx": {
-          "name": "item_organization_id_fk_idx",
-          "columns": [
-            "item_organization_id"
-          ],
-          "isUnique": false
-        }
-      },
+      "indexes": {},
       "foreignKeys": {
         "items_item_organization_id_organizations_organization_id_fk": {
           "name": "items_item_organization_id_organizations_organization_id_fk",
@@ -660,12 +627,12 @@
         }
       },
       "compositePrimaryKeys": {
-        "items_primary_key": {
+        "items_pk": {
           "columns": [
             "item_id",
             "item_organization_id"
           ],
-          "name": "items_primary_key"
+          "name": "items_pk"
         }
       },
       "uniqueConstraints": {},
@@ -755,13 +722,6 @@
         }
       },
       "indexes": {
-        "organizations_organization_id_unique": {
-          "name": "organizations_organization_id_unique",
-          "columns": [
-            "organization_id"
-          ],
-          "isUnique": true
-        },
         "organizations_organization_admin_id_unique": {
           "name": "organizations_organization_admin_id_unique",
           "columns": [
@@ -810,13 +770,6 @@
             "organization_id"
           ],
           "isUnique": false
-        },
-        "organization_stripe_customer_id_idx": {
-          "name": "organization_stripe_customer_id_idx",
-          "columns": [
-            "organization_stripe_customer_id"
-          ],
-          "isUnique": false
         }
       },
       "foreignKeys": {},
@@ -835,73 +788,51 @@
     "organizations_payments": {
       "name": "organizations_payments",
       "columns": {
-        "payment_id": {
-          "name": "payment_id",
+        "organization_payment_id": {
+          "name": "organization_payment_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "payment_organization_id": {
-          "name": "payment_organization_id",
+        "organization_payment_organization_id": {
+          "name": "organization_payment_organization_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "payment_amount": {
-          "name": "payment_amount",
+        "organization_payment_amount": {
+          "name": "organization_payment_amount",
           "type": "real",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "payment_status": {
-          "name": "payment_status",
+        "organization_payment_status": {
+          "name": "organization_payment_status",
           "type": "text",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false,
           "default": "'VERIFIED'"
         },
-        "payment_timestamp": {
-          "name": "payment_timestamp",
+        "organization_payment_timestamp": {
+          "name": "organization_payment_timestamp",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         }
       },
-      "indexes": {
-        "organizations_payments_payment_id_unique": {
-          "name": "organizations_payments_payment_id_unique",
-          "columns": [
-            "payment_id"
-          ],
-          "isUnique": true
-        },
-        "organization_payment_id_idx": {
-          "name": "organization_payment_id_idx",
-          "columns": [
-            "payment_id"
-          ],
-          "isUnique": false
-        },
-        "organization_payment_organization_id_fk_idx": {
-          "name": "organization_payment_organization_id_fk_idx",
-          "columns": [
-            "payment_organization_id"
-          ],
-          "isUnique": false
-        }
-      },
+      "indexes": {},
       "foreignKeys": {
-        "organizations_payments_payment_organization_id_organizations_organization_id_fk": {
-          "name": "organizations_payments_payment_organization_id_organizations_organization_id_fk",
+        "organizations_payments_organization_payment_organization_id_organizations_organization_id_fk": {
+          "name": "organizations_payments_organization_payment_organization_id_organizations_organization_id_fk",
           "tableFrom": "organizations_payments",
           "tableTo": "organizations",
           "columnsFrom": [
-            "payment_organization_id"
+            "organization_payment_organization_id"
           ],
           "columnsTo": [
             "organization_id"
@@ -911,12 +842,12 @@
         }
       },
       "compositePrimaryKeys": {
-        "organization_payments_primary_key": {
+        "organizations_payments_pk": {
           "columns": [
-            "payment_id",
-            "payment_organization_id"
+            "organization_payment_id",
+            "organization_payment_organization_id"
           ],
-          "name": "organization_payments_primary_key"
+          "name": "organizations_payments_pk"
         }
       },
       "uniqueConstraints": {},
@@ -983,57 +914,7 @@
           "autoincrement": false
         }
       },
-      "indexes": {
-        "sales_sale_id_unique": {
-          "name": "sales_sale_id_unique",
-          "columns": [
-            "sale_id"
-          ],
-          "isUnique": true
-        },
-        "sale_id_idx": {
-          "name": "sale_id_idx",
-          "columns": [
-            "sale_id"
-          ],
-          "isUnique": false
-        },
-        "sale_organization_id_fk_idx": {
-          "name": "sale_organization_id_fk_idx",
-          "columns": [
-            "sale_organization_id"
-          ],
-          "isUnique": false
-        },
-        "sale_employee_id_fk_idx": {
-          "name": "sale_employee_id_fk_idx",
-          "columns": [
-            "sale_employee_id"
-          ],
-          "isUnique": false
-        },
-        "sale_client_id_fk_idx": {
-          "name": "sale_client_id_fk_idx",
-          "columns": [
-            "sale_client_id"
-          ],
-          "isUnique": false
-        },
-        "sale_client_payment_id_fk_idx": {
-          "name": "sale_client_payment_id_fk_idx",
-          "columns": [
-            "sale_client_payment_id"
-          ],
-          "isUnique": false
-        },
-        "sale_item_id_fk_idx": {
-          "name": "sale_item_id_fk_idx",
-          "columns": [
-            "sale_item_id"
-          ],
-          "isUnique": false
-        }
-      },
+      "indexes": {},
       "foreignKeys": {
         "sales_sale_organization_id_organizations_organization_id_fk": {
           "name": "sales_sale_organization_id_organizations_organization_id_fk",
@@ -1074,10 +955,10 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "sales_sale_client_payment_id_client_payments_client_payment_id_fk": {
-          "name": "sales_sale_client_payment_id_client_payments_client_payment_id_fk",
+        "sales_sale_client_payment_id_clients_payments_client_payment_id_fk": {
+          "name": "sales_sale_client_payment_id_clients_payments_client_payment_id_fk",
           "tableFrom": "sales",
-          "tableTo": "client_payments",
+          "tableTo": "clients_payments",
           "columnsFrom": [
             "sale_client_payment_id"
           ],
@@ -1102,16 +983,12 @@
         }
       },
       "compositePrimaryKeys": {
-        "sales_primary_key": {
+        "sales_pk": {
           "columns": [
             "sale_id",
-            "sale_organization_id",
-            "sale_employee_id",
-            "sale_client_id",
-            "sale_client_payment_id",
-            "sale_item_id"
+            "sale_organization_id"
           ],
-          "name": "sales_primary_key"
+          "name": "sales_pk"
         }
       },
       "uniqueConstraints": {},
@@ -1150,33 +1027,12 @@
         }
       },
       "indexes": {
-        "sales_groups_sales_group_id_unique": {
-          "name": "sales_groups_sales_group_id_unique",
-          "columns": [
-            "sales_group_id"
-          ],
-          "isUnique": true
-        },
         "sales_groups_sales_group_name_unique": {
           "name": "sales_groups_sales_group_name_unique",
           "columns": [
             "sales_group_name"
           ],
           "isUnique": true
-        },
-        "sales_group_organization_id_fk_idx": {
-          "name": "sales_group_organization_id_fk_idx",
-          "columns": [
-            "sales_group_organization_id"
-          ],
-          "isUnique": false
-        },
-        "sales_group_name_unique_idx": {
-          "name": "sales_group_name_unique_idx",
-          "columns": [
-            "sales_group_name"
-          ],
-          "isUnique": false
         }
       },
       "foreignKeys": {
@@ -1195,12 +1051,12 @@
         }
       },
       "compositePrimaryKeys": {
-        "sales_group_primary_key": {
+        "sales_groups_pk": {
           "columns": [
             "sales_group_id",
             "sales_group_organization_id"
           ],
-          "name": "sales_group_primary_key"
+          "name": "sales_groups_pk"
         }
       },
       "uniqueConstraints": {},

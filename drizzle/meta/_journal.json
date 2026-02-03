@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "6",
-      "when": 1770026462005,
-      "tag": "0000_heavy_mephisto",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "6",
-      "when": 1770051309180,
-      "tag": "0001_slim_nebula",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "6",
-      "when": 1770051440670,
-      "tag": "0002_smooth_maestro",
+      "when": 1770137073721,
+      "tag": "0000_large_thena",
       "breakpoints": true
     }
   ]
