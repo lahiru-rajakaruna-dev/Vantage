@@ -616,7 +616,7 @@ export const EmployeeProfileSchema = EmployeeSchema.extend(z.object({
 
 export const SalesGroupProfileSchema = SalesGroupSchema.extend(z.object({
                                                                             sales_group_employees: z.array(
-                                                                                EmployeeProfileSchema),
+                                                                                EmployeeSchema),
                                                                             sales_group_sales    : z.array(
                                                                                 SaleSchema)
                                                                         }))
