@@ -111,34 +111,36 @@ export const organizations = pgTable(
 export const employees = pgTable(
     'employees',
     {
-        employee_id               : text()
+        employee_id                 : text()
             .unique()
             .notNull(),
-        employee_organization_id  : text()
+        employee_organization_id    : text()
             .notNull()
             .references(() => organizations.organization_id),
-        employee_sales_group_id   : text()
+        employee_sales_group_id     : text()
             .references(
                 () => salesGroups.sales_group_id,
             ),
-        employee_first_name       : text(),
-        employee_last_name        : text(),
-        employee_phone            : text(),
-        employee_nic_number       : text()
+        employee_profile_picture_url: text()
+            .notNull(),
+        employee_first_name         : text(),
+        employee_last_name          : text(),
+        employee_phone              : text(),
+        employee_nic_number         : text()
             .notNull()
             .unique(),
-        employee_active_territory : text(),
-        employee_registration_date: integer()
+        employee_active_territory   : text(),
+        employee_registration_date  : integer()
             .notNull(),
-        employee_status           : text({
-                                             enum: [
-                                                 'ON_FIELD',
-                                                 'ON_LEAVE',
-                                                 'SUSPENDED',
-                                                 'FIRED',
-                                                 'NOT_REPORTED'
-                                             ]
-                                         })
+        employee_status             : text({
+                                               enum: [
+                                                   'ON_FIELD',
+                                                   'ON_LEAVE',
+                                                   'SUSPENDED',
+                                                   'FIRED',
+                                                   'NOT_REPORTED'
+                                               ]
+                                           })
             .default('NOT_REPORTED')
             .notNull()
     },
