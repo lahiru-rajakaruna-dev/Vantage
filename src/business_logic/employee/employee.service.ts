@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { TOKEN__ORM_FACTORY } from 'src/orm/orm-factory/orm-factory.service';
 import type IOrmInterface     from '../../orm/orm.interface';
 import { type TEmployee }     from '../../orm/orm.interface';
+import { TEmployeeProfile }   from '../../schemas';
 
 
 
@@ -26,11 +27,14 @@ export class EmployeeService {
     }
     
     
-    async viewEmployeeById(
+    async getEmployeeProfile(
         organization_id: string,
         employee_id: string,
-    ): Promise<TEmployee | undefined> {
-        return await this.orm.viewEmployeeById(organization_id, employee_id);
+    ): Promise<TEmployeeProfile | undefined> {
+        return await this.orm.getEmployeeProfileById(
+            organization_id,
+            employee_id
+        );
     }
     
     
