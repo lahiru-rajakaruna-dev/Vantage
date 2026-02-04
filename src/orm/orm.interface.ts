@@ -61,8 +61,8 @@ export default interface IOrmInterface {
         organization_id: string,
         employee_id: string,
     ): Promise<TEmployeeSelect & {
-        employee_sales: TSaleSelect[]
-        employee_leaves: TEmployeeLeavesSelect[]
+        employee_sales: TSaleSelect[];
+        employee_leaves: TEmployeeLeavesSelect
     }>;
     
     getEmployeesByOrganizationId(organization_id: string): Promise<TEmployeeSelect[]>;

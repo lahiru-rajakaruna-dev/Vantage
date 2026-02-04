@@ -109,7 +109,7 @@ export default abstract class AbstractDrizzlerService implements IOrmInterface {
         employee_id: string
     ): Promise<TEmployeeSelect & {
         employee_sales: TSaleSelect[];
-        employee_leaves: TEmployeeLeavesSelect[]
+        employee_leaves: TEmployeeLeavesSelect
     }>
     
     
