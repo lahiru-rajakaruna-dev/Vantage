@@ -620,18 +620,18 @@ export type TSaleSelect = z.infer<typeof SchemaSelectSale>;
 export const organizationsPayments = pgTable(
     'organizations_payments',
     {
-        payment_id             : text()
+        organization_payment_id             : text()
             .unique()
             .notNull(),
-        payment_organization_id: text()
+        organization_payment_organization_id: text()
             .notNull()
             .references(() => organizations.organization_id),
-        payment_amount         : decimal(
+        organization_payment_amount         : decimal(
             'payment_amount',
             { mode: 'number' }
         )
             .notNull(),
-        payment_status         : text(
+        organization_payment_status         : text(
             'payment_status',
             {
                 enum: [
@@ -643,7 +643,7 @@ export const organizationsPayments = pgTable(
             }
         )
             .default(EPaymentStatus.VERIFIED),
-        payment_timestamp      : integer()
+        organization_payment_timestamp      : integer()
             .notNull(),
     },
     (table) => {
@@ -651,16 +651,16 @@ export const organizationsPayments = pgTable(
             pk                 : primaryKey({
                                                 name   : 'organization_payments_primary_key',
                                                 columns: [
-                                                    table.payment_id,
-                                                    table.payment_organization_id
+                                                    table.organization_payment_id,
+                                                    table.organization_payment_organization_id
                                                 ],
                                             }),
             paymentIdIndex     : index('organization_payment_id_idx')
-                .on(table.payment_id),
+                .on(table.organization_payment_id),
             organizationIdIndex: index(
                 'organization_payment_organization_id_fk_idx',
             )
-                .on(table.payment_organization_id),
+                .on(table.organization_payment_organization_id),
         };
     },
 );
