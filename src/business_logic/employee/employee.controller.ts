@@ -2,23 +2,22 @@ import {
     BadRequestException,
     Body,
     Controller,
-    Delete,
     Get,
     Param,
     Patch,
     Post,
-    Query,
     Req,
     UnauthorizedException,
     UsePipes,
 }                              from '@nestjs/common';
-import { TOrganization }       from '../../orm/orm.interface';
-import ZodSchemaValidationPipe from '../../pipes/schema_validation.pipe';
 import {
-    CreateEmployeesCredentialsRequestSchema,
-    type TEmployee,
-    UpdateEmployeeRequestSchema,
-}                              from '../../schemas';
+    SchemaInsertEmployeeCredentials,
+    SchemaUpdateEmployee,
+    TEmployeeCredentialsInsert,
+    TEmployeeUpdateSchema,
+    TOrganizationSelect
+}                              from '../../orm/drizzle/drizzle-postgres/drizzle-postgres.schema';
+import ZodSchemaValidationPipe from '../../pipes/schema_validation.pipe';
 import { EmployeeService }     from './employee.service';
 
 
@@ -36,7 +35,7 @@ export class EmployeeController {
     @Get('/view')
     async getAllEmployeesByOrganizationId(
         @Req() request: Request & {
-            organization: TOrganization
+            organization: TOrganizationSelect
         },
     ) {
         if (!request.organization) {
@@ -52,7 +51,7 @@ export class EmployeeController {
     @Get('/sales-group/:sales_group_id')
     async getEmployeesByGroupId(
         @Req() request: Request & {
-            organization: TOrganization
+            organization: TOrganizationSelect
         },
         @Param('sales_group_id') sales_group_id: string,
     ) {
@@ -70,7 +69,7 @@ export class EmployeeController {
     @Get('/profile/:employee_id')
     async getEmployeeById(
         @Req() request: Request & {
-            organization: TOrganization
+            organization: TOrganizationSelect
         },
         @Param('employee_id') employee_id: string,
     ) {
@@ -86,31 +85,34 @@ export class EmployeeController {
     
     
     @Post()
-    @UsePipes(new ZodSchemaValidationPipe(
-        CreateEmployeesCredentialsRequestSchema))
+    @UsePipes(
+        new ZodSchemaValidationPipe(
+            SchemaInsertEmployeeCredentials.pick({
+                                                     employee_credential_username : true,
+                                                     employee_credentials_password: true
+                                                 })
+        )
+    )
     async addEmployee(
         @Req() request: Request & {
-            organization: TOrganization
+            organization: TOrganizationSelect
         },
-        @Body() employeeData: {
-            employees_credentials_username: string,
-            employees_credentials_password: string
-        },
+        @Body() employeeData: Pick<TEmployeeCredentialsInsert, 'employee_credential_username' | 'employee_credential_password'>,
     ) {
         if (!request.organization) {
             throw new BadRequestException('[-] Invalid request...');
         }
         
         const {
-                  employees_credentials_username,
-                  employees_credentials_password
+                  employee_credential_username,
+                  employee_credential_password
               } = employeeData;
         
         return await this.employeesService.addEmployee(
             request.organization.organization_id,
             {
-                employees_credentials_username,
-                employees_credentials_password
+                employee_credential_username,
+                employee_credential_password
             }
         );
     }
@@ -119,24 +121,26 @@ export class EmployeeController {
     @Patch('/update/name/:employee_id')
     @UsePipes(
         new ZodSchemaValidationPipe(
-            UpdateEmployeeRequestSchema.pick({
-                                                 employee_first_name: true,
-                                                 employee_last_name : true
-                                             })
+            SchemaUpdateEmployee.pick({
+                                          employee_first_name: true,
+                                          employee_last_name : true
+                                      })
+                                .nonoptional()
         ),
     )
     async updateEmployeeName(
         @Req() request: Request & {
-            organization: TOrganization
+            organization: TOrganizationSelect
         },
         @Param('employee_id') employee_id: string,
-        @Body() employeeData: {
-            employee_first_name: string,
-            employee_last_name: string
-        },
+        @Body() employeeData: Pick<TEmployeeUpdateSchema, 'employee_first_name' | 'employee_last_name'>,
     ) {
         if (!request.organization) {
             throw new BadRequestException('[-] Invalid request...');
+        }
+        
+        if (!employeeData.employee_first_name || !employeeData.employee_last_name) {
+            throw new BadRequestException('Missing required data...')
         }
         
         return await this.employeesService.updateEmployeeUsernameById(
@@ -151,18 +155,25 @@ export class EmployeeController {
     @Patch('/update/nic/:employee_id')
     @UsePipes(
         new ZodSchemaValidationPipe(
-            UpdateEmployeeRequestSchema.pick({ employee_nic_number: true })
+            SchemaUpdateEmployee.pick({
+                                          employee_nic_number: true
+                                      })
+                                .nonoptional()
         ),
     )
     async updateEmployeeNic(
         @Req() request: Request & {
-            organization: TOrganization
+            organization: TOrganizationSelect
         },
         @Param('employee_id') employee_id: string,
-        @Body() employeeData: Pick<TEmployee, 'employee_nic_number'>,
+        @Body() employeeData: Pick<TEmployeeUpdateSchema, 'employee_nic_number'>,
     ) {
         if (!request.organization) {
             throw new BadRequestException('[-] Invalid request...');
+        }
+        
+        if (!employeeData.employee_nic_number) {
+            throw new BadRequestException('Missing required data...')
         }
         
         return await this.employeesService.updateEmployeeNICById(
@@ -176,20 +187,23 @@ export class EmployeeController {
     @Patch('/update/phone/:employee_id')
     @UsePipes(
         new ZodSchemaValidationPipe(
-            UpdateEmployeeRequestSchema.pick({ employee_phone: true })
+            SchemaUpdateEmployee.pick({ employee_phone: true })
+                                .nonoptional()
         ),
     )
     async updateEmployeePhone(
         @Req() request: Request & {
-            organization: TOrganization
+            organization: TOrganizationSelect
         },
         @Param('employee_id') employee_id: string,
-        @Body() employeeData: {
-            employee_phone: string
-        },
+        @Body() employeeData: Pick<TEmployeeUpdateSchema, 'employee_phone'>,
     ) {
         if (!request.organization) {
             throw new BadRequestException('[-] Invalid request...');
+        }
+        
+        if (!employeeData.employee_phone) {
+            throw new BadRequestException('Missing required data...')
         }
         
         return await this.employeesService.updateEmployeePhoneById(
@@ -203,15 +217,18 @@ export class EmployeeController {
     @Patch('/update/add-to-sales-group/')
     @UsePipes(
         new ZodSchemaValidationPipe(
-            UpdateEmployeeRequestSchema.pick({ employee_sales_group_id: true })
+            SchemaUpdateEmployee.pick({
+                                          employee_sales_group_id: true
+                                      })
+                                .nonoptional()
         ),
     )
     async addEmployeesToSalesGroup(
         @Req() request: Request & {
-            organization: TOrganization
+            organization: TOrganizationSelect
         },
         @Param('employees_ids') employees_ids: string[],
-        @Body() employeeData: Pick<TEmployee, 'employee_sales_group_id'>,
+        @Body() employeeData: Pick<TEmployeeUpdateSchema, 'employee_sales_group_id'>,
     ) {
         if (!request.organization) {
             throw new BadRequestException('[-] Invalid request...');
@@ -232,7 +249,7 @@ export class EmployeeController {
     @Patch('/update/remove-from-sales-group/')
     async removeEmployeesFromSalesGroup(
         @Req() request: Request & {
-            organization: TOrganization
+            organization: TOrganizationSelect
         },
         @Param('employees_ids') employees_ids: string[],
     ) {
@@ -247,10 +264,10 @@ export class EmployeeController {
     }
     
     
-    @Delete('/delete/:employee_id')
-    async deleteEmployee(
+    @Patch('/fire/:employee_id')
+    async fireEmployee(
         @Req() request: Request & {
-            organization: TOrganization
+            organization: TOrganizationSelect
         },
         @Param('employee_id') employee_id: string,
     ) {
@@ -258,29 +275,27 @@ export class EmployeeController {
             throw new BadRequestException('[-] Invalid request...');
         }
         
-        return await this.employeesService.deleteEmployeeById(
+        return await this.employeesService.fireEmployee(
             request.organization.organization_id,
             employee_id,
         );
     }
     
     
-    @Delete('/suspend')
-    async suspendEmployees(
+    @Patch('/suspend/:employee_id')
+    async suspendEmployee(
         @Req() request: Request & {
-            organization: TOrganization
+            organization: TOrganizationSelect
         },
-        @Query('employees_ids') employees_ids: string[],
+        @Param('employee_id') employee_id: string,
     ) {
         if (!request.organization) {
             throw new BadRequestException('[-] Invalid request...');
         }
         
-        return employees_ids.map(async (employee_id) => {
-            return await this.employeesService.deleteEmployeeById(
-                request.organization.organization_id,
-                employee_id,
-            );
-        });
+        return await this.employeesService.suspendEmployee(
+            request.organization.organization_id,
+            employee_id,
+        );
     }
 }
