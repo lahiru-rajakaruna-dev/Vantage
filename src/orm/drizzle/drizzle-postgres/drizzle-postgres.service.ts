@@ -1,39 +1,67 @@
-import { Inject, Injectable }          from '@nestjs/common';
-import { ConfigService }               from '@nestjs/config';
-import { and, between, eq, inArray }   from 'drizzle-orm';
-import { drizzle, PostgresJsDatabase } from 'drizzle-orm/postgres-js';
-import postgres                        from 'postgres';
-import { v4 as uuid }                  from 'uuid';
-import type ILoggerService             from '../../../logger/logger.interface';
 import {
-    TOKEN__LOGGER_FACTORY
-}                                      from '../../../logger/logger_factory/logger_factory.service';
-import { TEmployeeProfile }            from '../../../schemas';
-import { EEnvVars }                    from '../../../types';
+    Inject,
+    Injectable
+}                                from '@nestjs/common';
+import { ConfigService }         from '@nestjs/config';
 import {
-    TClient,
-    TClientPayment,
-    TEmployee,
-    TItem,
-    TOrganization,
-    TOrganizationPayment,
-    TSale,
-    TSalesGroup,
-}                                      from '../../orm.interface';
-import AbstractDrizzlerService         from '../abstract_drizzle.service';
-import * as schema                     from './drizzle-postgres.schema';
+    and,
+    between,
+    eq,
+    inArray
+}                                from 'drizzle-orm';
+import {
+    drizzle,
+    PostgresJsDatabase
+}                                from 'drizzle-orm/postgres-js';
+import postgres                  from 'postgres';
+import { v4 as uuid }            from 'uuid';
+import type ILoggerService       from '../../../logger/logger.interface';
+import { TOKEN__LOGGER_FACTORY } from '../../../logger/logger_factory/logger_factory.service';
+import { TEmployeeUpdate }       from '../../../schemas';
+import { EEnvVars }              from '../../../types';
+import AbstractDrizzlerService   from '../abstract_drizzle.service';
+import * as schema               from './drizzle-postgres.schema';
 import {
     clients,
     clientsPayments,
     employees,
     employeesCredentials,
     employeesLeaves,
+    employeesSalaries,
     items,
     organizations,
     organizationsPayments,
     sales,
-    salesGroups
-}                                      from './drizzle-postgres.schema';
+    salesGroups,
+    TClientInsert,
+    TClientPaymentInsert,
+    TClientPaymentSelect,
+    TClientPaymentUpdate,
+    TClientSelect,
+    TClientUpdate,
+    TEmployeeCredentialsInsert,
+    TEmployeeCredentialsSelect,
+    TEmployeeCredentialsUpdate,
+    TEmployeeLeavesSelect,
+    TEmployeeLeavesUpdateSchema,
+    TEmployeeSalarySelect,
+    TEmployeeSalaryUpdate,
+    TEmployeeSelect,
+    TItemInsert,
+    TItemSelect,
+    TItemUpdate,
+    TOrganizationInsert,
+    TOrganizationPaymentInsert,
+    TOrganizationPaymentSelect,
+    TOrganizationPaymentUpdate,
+    TOrganizationSelect,
+    TOrganizationUpdate,
+    TSaleInsert,
+    TSaleSelect,
+    TSalesGroupInsert,
+    TSalesGroupSelect,
+    TSalesGroupUpdate
+}                                from './drizzle-postgres.schema';
 
 
 
@@ -46,20 +74,26 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
         @Inject() configService: ConfigService,
         @Inject(TOKEN__LOGGER_FACTORY) logger: ILoggerService,
     ) {
-        super(configService, logger);
+        super(
+            configService,
+            logger
+        );
         
         const pgDriver = postgres(
             this.configService.get(EEnvVars.POSTGRES_URL) as string,
         );
-        this.driver    = drizzle(pgDriver, {
-            schema: schema,
-        });
+        this.driver    = drizzle(
+            pgDriver,
+            {
+                schema: schema,
+            }
+        );
     }
     
     
     async addOrganization(
-        organizationDetails: TOrganization,
-    ): Promise<TOrganization> {
+        organizationDetails: TOrganizationInsert,
+    ): Promise<TOrganizationSelect> {
         const result = await this.driver.transaction(async (tx) => {
             return tx.insert(organizations)
                      .values(organizationDetails)
@@ -74,13 +108,16 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     
     async updateOrganizationById(
         organization_id: string,
-        organizationUpdates: Partial<TOrganization>,
-    ): Promise<TOrganization> {
+        organizationUpdates: TOrganizationUpdate,
+    ): Promise<TOrganizationSelect> {
         const result = await this.driver.transaction(async (tx) => {
             await tx
                 .update(organizations)
                 .set(organizationUpdates)
-                .where(eq(organizations.organization_id, organization_id))
+                .where(eq(
+                    organizations.organization_id,
+                    organization_id
+                ))
                 .returning();
         });
         
@@ -93,7 +130,7 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     
     async getOrganizationDetailsById(
         organization_id: string,
-    ): Promise<TOrganization> {
+    ): Promise<TOrganizationSelect> {
         const result = await this.driver
                                  .select()
                                  .from(organizations)
@@ -110,7 +147,7 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     
     async getOrganizationDetailsByAdminId(
         admin_id: string,
-    ): Promise<TOrganization> {
+    ): Promise<TOrganizationSelect> {
         const result = await this.driver
                                  .select()
                                  .from(organizations)
@@ -127,11 +164,8 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     
     async addEmployee(
         organization_id: string,
-        employeeDetails: {
-            employees_credentials_username: string;
-            employees_credentials_password: string
-        }
-    ): Promise<TEmployee[]> {
+        employeeDetails: TEmployeeCredentialsInsert
+    ): Promise<TEmployeeSelect[]> {
         
         const result = await this.driver.transaction(async (tx) => {
             
@@ -144,40 +178,67 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
                                                         employee_registration_date: Date.now(),
                                                         employee_active_territory : null,
                                                         employee_phone            : null,
-                                                        employee_nic_number       : employeeDetails.employees_credentials_username,
+                                                        employee_nic_number       : employeeDetails.employee_credential_username,
                                                         employee_organization_id  : organization_id,
                                                         employee_sales_group_id   : null
                                                         
                                                     })
                                             .returning())[0]
             
-            const employeeCredentials = await tx.insert(employeesCredentials)
-                                                .values({
-                                                            employees_credentials_id             : uuid()
-                                                                .toString(),
-                                                            employees_credentials_employee_id    : employeeRecord.employee_id,
-                                                            employees_credentials_organization_id: organization_id,
-                                                            employees_credentials_username       : employeeDetails.employees_credentials_username,
-                                                            employees_credentials_password       : employeeDetails.employees_credentials_password,
-                                                        })
+            await tx.insert(employeesCredentials)
+                    .values({
+                                employee_credential_id             : uuid()
+                                    .toString(),
+                                employee_credential_employee_id    : employeeRecord.employee_id,
+                                employee_credential_organization_id: organization_id,
+                                employee_credential_username       : employeeDetails.employee_credential_username,
+                                employee_credential_password       : employeeDetails.employee_credential_password,
+                            })
+            
+            await tx.insert(employeesLeaves)
+                    .values({
+                                employee_leave_id             : uuid()
+                                    .toString(),
+                                employee_leave_organization_id: organization_id,
+                                employee_leave_employee_id    : employeeRecord.employee_id,
+                                employee_leave_total          : 3,
+                                employee_leave_taken          : 0,
+                            })
+            
+            await tx.insert(employeesSalaries)
+                    .values({
+                                employee_salary_id                   : uuid()
+                                    .toString(),
+                                employee_salary_organization_id      : organization_id,
+                                employee_salary_employee_id          : employeeRecord.employee_id,
+                                employee_salary_base                 : 30_000,
+                                employee_salary_commission_percentage: 0
+                            })
             
             return tx
                 .select()
                 .from(employees)
                 .where(eq(
-                    employees.employee_organization_id,
-                    organization_id,
-                ),);
+                           employees.employee_organization_id,
+                           organization_id,
+                       )
+                );
         });
         
-        return this.logger.logAndReturn(result, 'operation: add_employee');
+        return this.logger.logAndReturn(
+            result,
+            'operation: add_employee'
+        );
     }
     
     
     async getEmployeeProfileById(
         organization_id: string,
         employee_id: string
-    ): Promise<TEmployeeProfile> {
+    ): Promise<TEmployeeSelect & {
+        employee_sales: TSaleSelect[],
+        employee_leaves: TEmployeeLeavesSelect
+    }> {
         const result = await this.driver.transaction(
             async (tx) => {
                 const employee = (await tx
@@ -198,31 +259,45 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
                     throw new Error(`No such employee: ${ employee_id }`)
                 }
                 
-                const employee_sales = await tx.select().from(sales).where(
-                    and(
-                        eq(sales.sale_organization_id, organization_id),
-                        eq(sales.sale_employee_id, employee.employee_id)
-                    )
-                ).orderBy(sales.sale_date)
+                const employee_sales = await tx.select()
+                                               .from(sales)
+                                               .where(
+                                                   and(
+                                                       eq(
+                                                           sales.sale_organization_id,
+                                                           organization_id
+                                                       ),
+                                                       eq(
+                                                           sales.sale_employee_id,
+                                                           employee.employee_id
+                                                       )
+                                                   )
+                                               )
+                                               .orderBy(sales.sale_date)
                 
-                const employee_attendance = await tx.select().from(
-                    employeesLeaves).where(
-                    and(
-                        eq(
-                            employeesLeaves.employees_leaves_organization_id,
-                            organization_id
-                        ),
-                        eq(
-                            employeesLeaves.employees_leaves_employee_id,
-                            employee.employee_id
-                        )
-                    )
-                )
+                const employee_leaves = await tx.select()
+                                                .from(
+                                                    employeesLeaves)
+                                                .where(
+                                                    and(
+                                                        eq(
+                                                            employeesLeaves.employee_leave_organization_id,
+                                                            organization_id
+                                                        ),
+                                                        eq(
+                                                            employeesLeaves.employee_leave_employee_id,
+                                                            employee.employee_id
+                                                        )
+                                                    )
+                                                )
                 
-                employee['employee_sales']      = employee_sales;
-                employee['employee_attendance'] = employee_attendance;
+                employee['employee_sales']  = employee_sales;
+                employee['employee_leaves'] = employee_leaves;
                 
-                return employee as TEmployeeProfile
+                return employee as TEmployeeSelect & {
+                    employee_sales: TSaleSelect[],
+                    employee_leaves: TEmployeeLeavesSelect
+                }
             }
         )
         
@@ -235,7 +310,7 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     
     async getEmployeesByOrganizationId(
         organization_id: string,
-    ): Promise<TEmployee[]> {
+    ): Promise<TEmployeeSelect[]> {
         return this.logger.logAndReturn(
             await this.driver
                       .select()
@@ -251,7 +326,7 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     
     async getEmployeesBySalesGroupId(
         sales_group_id: string,
-    ): Promise<TEmployee[]> {
+    ): Promise<TEmployeeSelect[]> {
         return this.logger.logAndReturn(
             await this.driver
                       .select()
@@ -268,22 +343,31 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     async updateEmployeeById(
         organization_id: string,
         employee_id: string,
-        employeeUpdates: Partial<TEmployee>,
-    ): Promise<TEmployee[]> {
+        employeeUpdates: TEmployeeUpdate,
+    ): Promise<TEmployeeSelect[]> {
         const result = await this.driver.transaction(async (tx) => {
             await tx
                 .update(employees)
                 .set(employeeUpdates)
                 .where(
                     and(
-                        eq(employees.employee_organization_id, organization_id),
-                        eq(employees.employee_id, employee_id),
+                        eq(
+                            employees.employee_organization_id,
+                            organization_id
+                        ),
+                        eq(
+                            employees.employee_id,
+                            employee_id
+                        ),
                     ),
                 );
             return tx
                 .select()
                 .from(employees)
-                .where(eq(employees.employee_organization_id, organization_id));
+                .where(eq(
+                    employees.employee_organization_id,
+                    organization_id
+                ));
         });
         return this.logger.logAndReturn(
             result,
@@ -295,22 +379,31 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     async updateEmployeesByIds(
         organization_id: string,
         employees_ids: string[],
-        employeeUpdates: Partial<TEmployee>,
-    ): Promise<TEmployee[]> {
+        employeeUpdates: TEmployeeUpdate,
+    ): Promise<TEmployeeSelect[]> {
         const result = await this.driver.transaction(async (tx) => {
             await tx
                 .update(employees)
                 .set(employeeUpdates)
                 .where(
                     and(
-                        eq(employees.employee_organization_id, organization_id),
-                        inArray(employees.employee_id, employees_ids),
+                        eq(
+                            employees.employee_organization_id,
+                            organization_id
+                        ),
+                        inArray(
+                            employees.employee_id,
+                            employees_ids
+                        ),
                     ),
                 );
             return tx
                 .select()
                 .from(employees)
-                .where(eq(employees.employee_organization_id, organization_id));
+                .where(eq(
+                    employees.employee_organization_id,
+                    organization_id
+                ));
         });
         return this.logger.logAndReturn(
             result,
@@ -319,34 +412,98 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     }
     
     
-    async deleteEmployeeById(
-        organization_id: string,
-        employee_id: string,
-    ): Promise<TEmployee[]> {
-        const result = await this.driver.transaction(async (tx) => {
-            await tx
-                .delete(employees)
-                .where(
-                    and(
-                        eq(employees.employee_organization_id, organization_id),
-                        eq(employees.employee_id, employee_id),
-                    ),
-                );
-            return tx
-                .select()
-                .from(employees)
-                .where(eq(employees.employee_organization_id, organization_id));
-        });
+    async updateEmployeeCredentials(
+        organization_id: string, employee_id: string,
+        employeeCredentialsUpdates: TEmployeeCredentialsUpdate
+    ): Promise<TEmployeeCredentialsSelect> {
+        const result = await this.driver.update(employeesCredentials)
+                                 .set(employeeCredentialsUpdates)
+                                 .where(and(
+                                     eq(
+                                         employeesCredentials.employee_credential_organization_id,
+                                         organization_id
+                                     ),
+                                     eq(
+                                         employeesCredentials.employee_credential_employee_id,
+                                         employee_id
+                                     )
+                                 ))
+                                 .returning()
+        
         return this.logger.logAndReturn(
-            result,
-            'operation: delete_employee_by_id'
-        );
+            result[0],
+            'operation:' +
+            ' update_employee_credentials'
+        )
+        
     }
     
     
-    async addItem(itemDetails: TItem): Promise<TItem[]> {
+    async updateEmployeeLeave(
+        organization_id: string,
+        employee_id: string,
+        employeeLeavesUpdates: TEmployeeLeavesUpdateSchema
+    ): Promise<TEmployeeLeavesSelect> {
+        const result = this.driver.update(employeesLeaves)
+                           .set(employeeLeavesUpdates)
+                           .where(and(
+                               eq(
+                                   employeesLeaves.employee_leave_organization_id,
+                                   organization_id
+                               ),
+                               eq(
+                                   employeesLeaves.employee_leave_employee_id,
+                                   employee_id
+                               )
+                           ))
+                           .returning()
+        
+        return this.logger.logAndReturn(
+            result[0],
+            'operation:' +
+            ' update_employee_leave'
+        )
+    }
+    
+    
+    async updateEmployeeSalary(
+        organization_id: string, employee_id: string,
+        employeeSalaryUpdates: TEmployeeSalaryUpdate
+    ): Promise<TEmployeeSalarySelect> {
+        const result = await this.driver.update(employeesSalaries)
+                                 .set(employeeSalaryUpdates)
+                                 .where(
+                                     and(
+                                         eq(
+                                             employeesSalaries.employee_salary_organization_id,
+                                             organization_id
+                                         ),
+                                         eq(
+                                             employeesSalaries.employee_salary_employee_id,
+                                             employee_id
+                                         )
+                                     )
+                                 )
+                                 .returning()
+        
+        return this.logger.logAndReturn(
+            result[0],
+            'operation:' +
+            ' update_employee_salary'
+        )
+    }
+    
+    
+    async addItem(
+        organization_id: string,
+        itemDetails: TItemInsert
+    ): Promise<TItemSelect[]> {
         const result = await this.driver.transaction(async (tx) => {
-            await tx.insert(items).values(itemDetails);
+            await tx.insert(items)
+                    .values({
+                                ...itemDetails,
+                                item_organization_id: organization_id
+                            });
             return tx
                 .select()
                 .from(items)
@@ -357,15 +514,21 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
                     ),
                 );
         });
-        return this.logger.logAndReturn(result, 'operation: add_item');
+        return this.logger.logAndReturn(
+            result,
+            'operation: add_item'
+        );
     }
     
     
-    async viewItemById(item_id: string): Promise<TItem> {
+    async getItemById(item_id: string): Promise<TItemSelect> {
         const result = await this.driver
                                  .select()
                                  .from(items)
-                                 .where(eq(items.item_id, item_id));
+                                 .where(eq(
+                                     items.item_id,
+                                     item_id
+                                 ));
         return this.logger.logAndReturn(
             result[0],
             'operation: view_item_by_id'
@@ -373,12 +536,15 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     }
     
     
-    async getItemsByOrganizationId(organization_id: string): Promise<TItem[]> {
+    async getItemsByOrganizationId(organization_id: string): Promise<TItemSelect[]> {
         return this.logger.logAndReturn(
             await this.driver
                       .select()
                       .from(items)
-                      .where(eq(items.item_organization_id, organization_id)),
+                      .where(eq(
+                          items.item_organization_id,
+                          organization_id
+                      )),
             'operation: get_items_by_organization_id',
         );
     }
@@ -387,98 +553,82 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     async updateItemById(
         organization_id: string,
         item_id: string,
-        itemUpdates: Partial<TItem>,
-    ): Promise<TItem[]> {
+        itemUpdates: TItemUpdate,
+    ): Promise<TItemSelect[]> {
         const result = await this.driver.transaction(async (tx) => {
             await tx
                 .update(items)
                 .set(itemUpdates)
                 .where(
                     and(
-                        eq(items.item_organization_id, organization_id),
-                        eq(items.item_id, item_id),
+                        eq(
+                            items.item_organization_id,
+                            organization_id
+                        ),
+                        eq(
+                            items.item_id,
+                            item_id
+                        ),
                     ),
                 );
             return tx
                 .select()
                 .from(items)
-                .where(eq(items.item_organization_id, organization_id));
+                .where(eq(
+                    items.item_organization_id,
+                    organization_id
+                ));
         });
-        return this.logger.logAndReturn(result, 'operation: update_item_by_id');
+        return this.logger.logAndReturn(
+            result,
+            'operation: update_item_by_id'
+        );
     }
     
     
     async updateItemsByIds(
         organization_id: string,
         items_ids: string[],
-        itemUpdates: Partial<TItem>,
-    ): Promise<TItem[]> {
+        itemUpdates: TItemUpdate,
+    ): Promise<TItemSelect[]> {
         const result = await this.driver.transaction(async (tx) => {
             await tx
                 .update(items)
                 .set(itemUpdates)
                 .where(
                     and(
-                        eq(items.item_organization_id, organization_id),
-                        inArray(items.item_id, items_ids),
+                        eq(
+                            items.item_organization_id,
+                            organization_id
+                        ),
+                        inArray(
+                            items.item_id,
+                            items_ids
+                        ),
                     ),
                 );
             return tx
                 .select()
                 .from(items)
-                .where(eq(items.item_organization_id, organization_id));
+                .where(eq(
+                    items.item_organization_id,
+                    organization_id
+                ));
         });
-        return this.logger.logAndReturn(result, 'operation: update_item_by_id');
+        return this.logger.logAndReturn(
+            result,
+            'operation: update_item_by_id'
+        );
     }
     
     
-    async deleteItemById(
+    async addSalesGroup(
         organization_id: string,
-        item_id: string,
-    ): Promise<TItem[]> {
+        salesGroupDetails: TSalesGroupInsert
+    ): Promise<TSalesGroupSelect[]> {
         const result = await this.driver.transaction(async (tx) => {
-            await tx
-                .delete(items)
-                .where(
-                    and(
-                        eq(items.item_organization_id, organization_id),
-                        eq(items.item_id, item_id),
-                    ),
-                );
-            return tx
-                .select()
-                .from(items)
-                .where(eq(items.item_organization_id, organization_id));
-        });
-        return this.logger.logAndReturn(result, 'operation: delete_item_by_id');
-    }
-    
-    
-    async deleteItemsByIds(
-        organization_id: string,
-        items_ids: string[],
-    ): Promise<TItem[]> {
-        const result = await this.driver.transaction(async (tx) => {
-            await tx
-                .delete(items)
-                .where(
-                    and(
-                        eq(items.item_organization_id, organization_id),
-                        inArray(items.item_id, items_ids),
-                    ),
-                );
-            return tx
-                .select()
-                .from(items)
-                .where(eq(items.item_organization_id, organization_id));
-        });
-        return this.logger.logAndReturn(result, 'operation: delete_item_by_id');
-    }
-    
-    
-    async addSalesGroup(salesGroupDetails: TSalesGroup): Promise<TSalesGroup[]> {
-        const result = await this.driver.transaction(async (tx) => {
-            await tx.insert(salesGroups).values(salesGroupDetails);
+            await tx.insert(salesGroups)
+                    .values(salesGroupDetails);
             return tx
                 .select()
                 .from(salesGroups)
@@ -489,13 +639,16 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
                     ),
                 );
         });
-        return this.logger.logAndReturn(result, 'operation: add_sales_group');
+        return this.logger.logAndReturn(
+            result,
+            'operation: add_sales_group'
+        );
     }
     
     
     async getSalesGroupsByOrganizationId(
         organization_id: string,
-    ): Promise<TSalesGroup[]> {
+    ): Promise<TSalesGroupSelect[]> {
         const result = await this.driver
                                  .select()
                                  .from(salesGroups)
@@ -514,45 +667,55 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
         organization_id: string,
         sales_group_id: string,
     ): Promise<
-        TSalesGroup & {
-        sales_group_employees: Array<
-            TEmployee & {
-            employee_sales: Array<TSale>
-        }
-        >;
-    }
-    > {
+        TSalesGroupSelect & {
+        sales_group_employees:
+            (TEmployeeSelect & {
+                employee_sales: TSaleSelect[]
+            })[]
+    }> {
         
         const result = await this.driver.transaction(async (tx) => {
             const sales_group = await tx.select()
                                         .from(salesGroups)
-                                        .where(and(eq(
-                                            salesGroups.sales_group_organization_id,
-                                            organization_id
-                                        ), eq(
-                                            salesGroups.sales_group_id,
-                                            sales_group_id
-                                        ))).limit(1);
+                                        .where(and(
+                                            eq(
+                                                salesGroups.sales_group_organization_id,
+                                                organization_id
+                                            ),
+                                            eq(
+                                                salesGroups.sales_group_id,
+                                                sales_group_id
+                                            )
+                                        ))
+                                        .limit(1);
             
             const sales_group_employees = await tx.select()
                                                   .from(employees)
-                                                  .where(and(eq(
-                                                      employees.employee_organization_id,
-                                                      organization_id
-                                                  ), eq(
-                                                      employees.employee_sales_group_id,
-                                                      sales_group_id
-                                                  ),))
+                                                  .where(and(
+                                                      eq(
+                                                          employees.employee_organization_id,
+                                                          organization_id
+                                                      ),
+                                                      eq(
+                                                          employees.employee_sales_group_id,
+                                                          sales_group_id
+                                                      ),
+                                                  ))
             
             const employees_ids = sales_group_employees.map((employee) => employee.employee_id)
             
-            const employee_sales = await tx.select().from(sales).where(and(
-                eq(sales.sale_organization_id, organization_id),
-                inArray(
-                    sales.sale_employee_id,
-                    employees_ids
-                )
-            ))
+            const employee_sales = await tx.select()
+                                           .from(sales)
+                                           .where(and(
+                                               eq(
+                                                   sales.sale_organization_id,
+                                                   organization_id
+                                               ),
+                                               inArray(
+                                                   sales.sale_employee_id,
+                                                   employees_ids
+                                               )
+                                           ))
             
             return {
                 ...sales_group[0],
@@ -564,9 +727,9 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
                     
                     return employee
                     
-                }) as Array<TEmployee & {
-                    employee_sales: TSale[]
-                }>
+                }) as (TEmployeeSelect & {
+                    employee_sales: TSaleSelect[]
+                })[]
             }
             
         })
@@ -581,8 +744,8 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     async updateSalesGroupById(
         organization_id: string,
         sales_group_id: string,
-        salesGroupUpdates: Partial<TSalesGroup>,
-    ): Promise<TSalesGroup[]> {
+        salesGroupUpdates: TSalesGroupUpdate,
+    ): Promise<TSalesGroupSelect[]> {
         const result = await this.driver.transaction(async (tx) => {
             await tx
                 .update(salesGroups)
@@ -593,7 +756,10 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
                             salesGroups.sales_group_organization_id,
                             organization_id
                         ),
-                        eq(salesGroups.sales_group_id, sales_group_id),
+                        eq(
+                            salesGroups.sales_group_id,
+                            sales_group_id
+                        ),
                     ),
                 );
             return tx
@@ -614,7 +780,7 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     async deleteSalesGroupById(
         organization_id: string,
         sales_group_id: string,
-    ): Promise<TSalesGroup[]> {
+    ): Promise<TSalesGroupSelect[]> {
         const result = await this.driver.transaction(async (tx) => {
             await tx
                 .delete(salesGroups)
@@ -624,7 +790,10 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
                             salesGroups.sales_group_organization_id,
                             organization_id
                         ),
-                        eq(salesGroups.sales_group_id, sales_group_id),
+                        eq(
+                            salesGroups.sales_group_id,
+                            sales_group_id
+                        ),
                     ),
                 );
             return tx
@@ -642,9 +811,16 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     }
     
     
-    async addClient(clientDetails: TClient): Promise<TClient[]> {
+    async addClient(
+        organization_id: string,
+        clientDetails: TClientInsert
+    ): Promise<TClientSelect[]> {
         const result = await this.driver.transaction(async (tx) => {
-            await tx.insert(clients).values(clientDetails);
+            await tx.insert(clients)
+                    .values({
+                                ...clientDetails,
+                                client_organization_id: organization_id
+                            });
             return tx
                 .select()
                 .from(clients)
@@ -655,15 +831,21 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
                     ),
                 );
         });
-        return this.logger.logAndReturn(result, 'operation: add_client');
+        return this.logger.logAndReturn(
+            result,
+            'operation: add_client'
+        );
     }
     
     
-    async getClientProfileById(client_id: string): Promise<TClient> {
+    async getClientProfileById(client_id: string): Promise<TClientSelect> {
         const result = await this.driver
                                  .select()
                                  .from(clients)
-                                 .where(eq(clients.client_id, client_id));
+                                 .where(eq(
+                                     clients.client_id,
+                                     client_id
+                                 ));
         return this.logger.logAndReturn(
             result[0],
             'operation: get_client_profile_by_id',
@@ -673,7 +855,7 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     
     async getClientsByOrganizationId(
         organization_id: string,
-    ): Promise<TClient[]> {
+    ): Promise<TClientSelect[]> {
         return this.logger.logAndReturn(
             await this.driver
                       .select()
@@ -690,22 +872,31 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     async updateClientById(
         organization_id: string,
         client_id: string,
-        clientUpdates: Partial<TClient>,
-    ): Promise<TClient[]> {
+        clientUpdates: TClientUpdate,
+    ): Promise<TClientSelect[]> {
         const result = await this.driver.transaction(async (tx) => {
             await tx
                 .update(clients)
                 .set(clientUpdates)
                 .where(
                     and(
-                        eq(clients.client_organization_id, organization_id),
-                        eq(clients.client_id, client_id),
+                        eq(
+                            clients.client_organization_id,
+                            organization_id
+                        ),
+                        eq(
+                            clients.client_id,
+                            client_id
+                        ),
                     ),
                 );
             return tx
                 .select()
                 .from(clients)
-                .where(eq(clients.client_organization_id, organization_id));
+                .where(eq(
+                    clients.client_organization_id,
+                    organization_id
+                ));
         });
         return this.logger.logAndReturn(
             result,
@@ -717,22 +908,31 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     async updateClientsByIds(
         organization_id: string,
         clients_ids: string[],
-        clientUpdates: Partial<TClient>,
-    ): Promise<TClient[]> {
+        clientUpdates: TClientUpdate,
+    ): Promise<TClientSelect[]> {
         const result = await this.driver.transaction(async (tx) => {
             await tx
                 .update(clients)
                 .set(clientUpdates)
                 .where(
                     and(
-                        eq(clients.client_organization_id, organization_id),
-                        inArray(clients.client_id, clients_ids),
+                        eq(
+                            clients.client_organization_id,
+                            organization_id
+                        ),
+                        inArray(
+                            clients.client_id,
+                            clients_ids
+                        ),
                     ),
                 );
             return tx
                 .select()
                 .from(clients)
-                .where(eq(clients.client_organization_id, organization_id));
+                .where(eq(
+                    clients.client_organization_id,
+                    organization_id
+                ));
         });
         return this.logger.logAndReturn(
             result,
@@ -742,17 +942,22 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     
     
     async addOrganizationPayment(
-        paymentDetails: TOrganizationPayment,
-    ): Promise<TOrganizationPayment[]> {
+        organization_id: string,
+        paymentDetails: TOrganizationPaymentInsert,
+    ): Promise<TOrganizationPaymentSelect[]> {
         const result = await this.driver.transaction(async (tx) => {
-            await tx.insert(organizationsPayments).values(paymentDetails);
+            await tx.insert(organizationsPayments)
+                    .values({
+                                ...paymentDetails,
+                                organization_payment_organization_id: organization_id
+                            });
             return tx
                 .select()
                 .from(organizationsPayments)
                 .where(
                     eq(
-                        organizationsPayments.payment_organization_id,
-                        paymentDetails.payment_organization_id,
+                        organizationsPayments.organization_payment_organization_id,
+                        paymentDetails.organization_payment_organization_id,
                     ),
                 );
         });
@@ -766,7 +971,7 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     async getOrganizationPaymentById(
         organization_id: string,
         payment_id: string
-    ): Promise<TOrganizationPayment> {
+    ): Promise<TOrganizationPaymentSelect> {
         return this.logger.logAndReturn(
             (await this.driver
                        .select()
@@ -774,11 +979,11 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
                        .where(
                            and(
                                eq(
-                                   organizationsPayments.payment_organization_id,
+                                   organizationsPayments.organization_payment_organization_id,
                                    organization_id
                                ),
                                eq(
-                                   organizationsPayments.payment_id,
+                                   organizationsPayments.organization_payment_id,
                                    payment_id
                                )
                            )
@@ -790,14 +995,14 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     
     async getOrganizationPaymentsByOrganizationId(
         organization_id: string,
-    ): Promise<TOrganizationPayment[]> {
+    ): Promise<TOrganizationPaymentSelect[]> {
         return this.logger.logAndReturn(
             await this.driver
                       .select()
                       .from(organizationsPayments)
                       .where(
                           eq(
-                              organizationsPayments.payment_organization_id,
+                              organizationsPayments.organization_payment_organization_id,
                               organization_id
                           ),
                       ),
@@ -809,8 +1014,8 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     async updateOrganizationPaymentById(
         organization_id: string,
         payment_id: string,
-        paymentUpdates: Partial<TOrganizationPayment>,
-    ): Promise<TOrganizationPayment[]> {
+        paymentUpdates: TOrganizationPaymentUpdate,
+    ): Promise<TOrganizationPaymentSelect[]> {
         const result = await this.driver.transaction(async (tx) => {
             await tx
                 .update(organizationsPayments)
@@ -818,10 +1023,13 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
                 .where(
                     and(
                         eq(
-                            organizationsPayments.payment_organization_id,
+                            organizationsPayments.organization_payment_organization_id,
                             organization_id
                         ),
-                        eq(organizationsPayments.payment_id, payment_id),
+                        eq(
+                            organizationsPayments.organization_payment_id,
+                            payment_id
+                        ),
                     ),
                 );
             return tx
@@ -829,7 +1037,7 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
                 .from(organizationsPayments)
                 .where(
                     eq(
-                        organizationsPayments.payment_organization_id,
+                        organizationsPayments.organization_payment_organization_id,
                         organization_id
                     ),
                 );
@@ -842,10 +1050,16 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     
     
     async addClientPayment(
-        paymentDetails: TClientPayment,
-    ): Promise<TClientPayment[]> {
+        organization_id: string,
+        client_id: string,
+        paymentDetails: TClientPaymentInsert
+    ): Promise<TClientPaymentSelect[]> {
         const result = await this.driver.transaction(async (tx) => {
-            await tx.insert(clientsPayments).values(paymentDetails);
+            await tx.insert(clientsPayments)
+                    .values({
+                                ...paymentDetails,
+                                client_payment_organization_id: organization_id
+                            });
             return tx
                 .select()
                 .from(clientsPayments)
@@ -863,7 +1077,7 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     }
     
     
-    async getClientPaymentById(payment_id: string): Promise<TClientPayment> {
+    async getClientPaymentById(payment_id: string): Promise<TClientPaymentSelect> {
         const result = await this.driver
                                  .select()
                                  .from(clientsPayments)
@@ -881,7 +1095,7 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     
     async getClientPaymentsByClientId(
         client_id: string,
-    ): Promise<TClientPayment[]> {
+    ): Promise<TClientPaymentSelect[]> {
         const result = await this.driver
                                  .select()
                                  .from(clientsPayments)
@@ -899,8 +1113,8 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     async updateClientPaymentById(
         organization_id: string,
         client_payment_id: string,
-        clientPaymentUpdates: Partial<TClientPayment>,
-    ): Promise<TClientPayment[]> {
+        clientPaymentUpdates: TClientPaymentUpdate,
+    ): Promise<TClientPaymentSelect[]> {
         const result = await this.driver.transaction(async (tx) => {
             await tx
                 .update(clientsPayments)
@@ -934,9 +1148,16 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     }
     
     
-    async addSaleItem(saleDetails: TSale): Promise<TSale[]> {
+    async addSale(
+        organization_id: string,
+        saleDetails: TSaleInsert
+    ): Promise<TSaleSelect[]> {
         const result = await this.driver.transaction(async (tx) => {
-            await tx.insert(sales).values(saleDetails);
+            await tx.insert(sales)
+                    .values({
+                                ...saleDetails,
+                                sale_organization_id: organization_id,
+                            });
             return tx
                 .select()
                 .from(sales)
@@ -947,15 +1168,21 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
                     ),
                 );
         });
-        return this.logger.logAndReturn(result, 'operation: add_sale_item');
+        return this.logger.logAndReturn(
+            result,
+            'operation: add_sale_item'
+        );
     }
     
     
-    async viewSaleById(sale_id: string): Promise<TSale> {
+    async getSaleById(sale_id: string): Promise<TSaleSelect> {
         const result = await this.driver
                                  .select()
                                  .from(sales)
-                                 .where(eq(sales.sale_id, sale_id));
+                                 .where(eq(
+                                     sales.sale_id,
+                                     sale_id
+                                 ));
         return this.logger.logAndReturn(
             result[0],
             'operation: view_sale_by_id'
@@ -963,45 +1190,57 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     }
     
     
-    async getSalesByEmployeeId(employee_id: string): Promise<TSale[]> {
+    async getSalesByEmployeeId(employee_id: string): Promise<TSaleSelect[]> {
         return this.logger.logAndReturn(
             await this.driver
                       .select()
                       .from(sales)
-                      .where(eq(sales.sale_employee_id, employee_id)),
+                      .where(eq(
+                          sales.sale_employee_id,
+                          employee_id
+                      )),
             'operation: get_sales_by_employee_id',
         );
     }
     
     
-    async getSalesByItemId(item_id: string): Promise<TSale[]> {
+    async getSalesByItemId(item_id: string): Promise<TSaleSelect[]> {
         return this.logger.logAndReturn(
             await this.driver
                       .select()
                       .from(sales)
-                      .where(eq(sales.sale_item_id, item_id)),
+                      .where(eq(
+                          sales.sale_item_id,
+                          item_id
+                      )),
             'operation: get_sales_by_item_id',
         );
     }
     
     
-    async getSalesByOrganizationId(organization_id: string): Promise<TSale[]> {
+    async getSalesByOrganizationId(organization_id: string): Promise<TSaleSelect[]> {
         return this.logger.logAndReturn(
             await this.driver
                       .select()
                       .from(sales)
-                      .where(eq(sales.sale_organization_id, organization_id)),
+                      .where(eq(
+                          sales.sale_organization_id,
+                          organization_id
+                      )),
             'operation: get_sales_by_organization_id',
         );
     }
     
     
-    async getSalesByClientId(client_id: string): Promise<TSale[]> {
+    async getSalesByClientId(client_id: string): Promise<TSaleSelect[]> {
         return this.logger.logAndReturn(
             await this.driver
                       .select()
                       .from(sales)
-                      .where(eq(sales.sale_client_id, client_id)),
+                      .where(eq(
+                          sales.sale_client_id,
+                          client_id
+                      )),
             'operation: get_sales_by_client_id',
         );
     }
@@ -1010,7 +1249,7 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     async getSalesByDate(
         organization_id: string,
         date: number,
-    ): Promise<TSale[]> {
+    ): Promise<TSaleSelect[]> {
         const result = await this.driver
                                  .select()
                                  .from(sales)
@@ -1020,10 +1259,16 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
                                              sales.sale_organization_id,
                                              organization_id
                                          ),
-                                         eq(sales.sale_date, date),
+                                         eq(
+                                             sales.sale_date,
+                                             date
+                                         ),
                                      ),
                                  );
-        return this.logger.logAndReturn(result, 'operation: get_sales_by_date');
+        return this.logger.logAndReturn(
+            result,
+            'operation: get_sales_by_date'
+        );
     }
     
     
@@ -1031,7 +1276,7 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
         organization_id: string,
         date_start: number,
         date_end: number,
-    ): Promise<TSale[]> {
+    ): Promise<TSaleSelect[]> {
         const result = await this.driver
                                  .select()
                                  .from(sales)
