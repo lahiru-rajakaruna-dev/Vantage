@@ -1,4 +1,3 @@
-import { TEmployeeUpdate } from '../schemas';
 import {
     TClientInsert,
     TClientPaymentInsert,
@@ -14,6 +13,7 @@ import {
     TEmployeeSalarySelect,
     TEmployeeSalaryUpdate,
     TEmployeeSelect,
+    TEmployeeUpdateSchema,
     TItemInsert,
     TItemSelect,
     TItemUpdate,
@@ -28,7 +28,7 @@ import {
     TSalesGroupInsert,
     TSalesGroupSelect,
     TSalesGroupUpdate
-}                          from './drizzle/drizzle-postgres/drizzle-postgres.schema';
+} from './drizzle/drizzle-postgres/drizzle-postgres.schema';
 
 
 
@@ -49,8 +49,8 @@ export default interface IOrmInterface {
     // --- EMPLOYEE (Transaction-based Onboarding) ---
     addEmployee(
         organization_id: string,
-        employeeCredentials: TEmployeeCredentialsInsert // Starts the
-                                                        // transaction
+        employeeCredentials: Pick<TEmployeeCredentialsInsert, 'employee_credential_username' | 'employee_credential_password'> // Starts the
+        // transaction
     ): Promise<TEmployeeSelect[]>;
     
     getEmployeeProfileById(
@@ -71,13 +71,14 @@ export default interface IOrmInterface {
     updateEmployeeById(
         organization_id: string,
         employee_id: string,
-        employeeUpdates: TEmployeeUpdate, // Includes "deactivation" via status
+        employeeUpdates: TEmployeeUpdateSchema, // Includes "deactivation" via
+                                                // status
     ): Promise<TEmployeeSelect[]>;
     
     updateEmployeesByIds(
         organization_id: string,
         employees_ids: string[],
-        employeeUpdates: TEmployeeUpdate,
+        employeeUpdates: TEmployeeUpdateSchema,
     ): Promise<TEmployeeSelect[]>;
     
     // --- EMPLOYEE CREDENTIALS (Security Update) ---
