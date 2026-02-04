@@ -9,6 +9,11 @@ import {
     text,
 }                    from 'drizzle-orm/pg-core';
 import {
+    createInsertSchema,
+    createSelectSchema
+}                    from 'drizzle-zod';
+import { z }         from 'zod';
+import {
     EAccountStatus,
     EOrganizationStatus,
     EPaymentStatus,
@@ -17,10 +22,11 @@ import {
 
 
 
-export const EPGPaymentStatus      = pgEnum(
+export const EPGPaymentStatus = pgEnum(
     'EPaymentStatus',
     EPaymentStatus
 );
+
 export const EPGSubscriptionStatus = pgEnum(
     'ESubscriptionStatus',
     ESubscriptionStatus,
@@ -108,6 +114,11 @@ export const organizations = pgTable(
     },
 );
 
+export const SchemaInsertOrganization = createInsertSchema(organizations)
+export type TOrganizationInsert = z.infer<typeof SchemaInsertOrganization>;
+export const SchemaSelectOrganization = createSelectSchema(organizations)
+export type TOrganizationSelect = z.infer<typeof SchemaSelectOrganization>
+
 export const employees = pgTable(
     'employees',
     {
@@ -171,6 +182,11 @@ export const employees = pgTable(
     },
 );
 
+export const SchemaInsertEmployee = createInsertSchema(employees)
+export type TEmployeeInsert = z.infer<typeof SchemaInsertEmployee>
+export const SchemaSelectEmployee = createSelectSchema(employees)
+export type TEmployeeSelect = z.infer<typeof SchemaSelectEmployee>
+
 export const employeesLeaves = pgTable(
     'employees_leaves',
     {
@@ -208,6 +224,11 @@ export const employeesLeaves = pgTable(
         }
     }
 )
+
+export const SchemaInsertEmployeeLeaves = createInsertSchema(employeesLeaves)
+export type TEmployeeLeavesInsert = z.infer<typeof SchemaInsertEmployeeLeaves>
+export const SchemaSelectEmployeeLeaves = createSelectSchema(employeesLeaves)
+export type TEmployeeLeavesSelect = z.infer<typeof SchemaSelectEmployeeLeaves>
 
 export const employeesCredentials = pgTable(
     'employees_credentials',
@@ -247,6 +268,11 @@ export const employeesCredentials = pgTable(
         }
     }
 )
+
+export const SchemaInsertEmployeeCredentials = createInsertSchema(employeesCredentials)
+export type TEmployeeCredentialsInsert = z.infer<typeof SchemaInsertEmployeeCredentials>
+export const SchemaSelectEmployeeCredentials = createSelectSchema(employeesCredentials)
+export type TEmployeeCredentialsSelect = z.infer<typeof SchemaSelectEmployeeCredentials>
 
 export const employeesSalaries = pgTable(
     'employees_salaries',
@@ -291,6 +317,11 @@ export const employeesSalaries = pgTable(
     }
 )
 
+export const SchemaInsertEmployeeSalary = createInsertSchema(employeesSalaries)
+export type TEmployeeSalaryInsert = z.infer<typeof SchemaInsertEmployeeSalary>
+export const SchemaSelectEmployeeSalary = createSelectSchema(employeesSalaries)
+export type TEmployeeSalarySelect = z.infer<typeof SchemaSelectEmployeeSalary>
+
 export const salesGroups = pgTable(
     'sales_groups',
     {
@@ -327,6 +358,11 @@ export const salesGroups = pgTable(
     },
 );
 
+export const SchemaInsertSalesGroup = createInsertSchema(salesGroups);
+export type TSalesGroupInsert = z.infer<typeof SchemaInsertSalesGroup>
+export const SchemaSelectSalesGroup = createSelectSchema(salesGroups)
+export type TSalesGroupSelect = z.infer<typeof SchemaSelectSalesGroup>
+
 export const items = pgTable(
     'items',
     {
@@ -359,6 +395,11 @@ export const items = pgTable(
         };
     },
 );
+
+export const SchemaInsertItem = createInsertSchema(items);
+export type TItemInsert = z.infer<typeof SchemaInsertItem>
+export const SchemaSelectItem = createSelectSchema(items)
+export type TItemSelect = z.infer<typeof SchemaSelectItem>
 
 export const clients = pgTable(
     'clients',
@@ -415,6 +456,11 @@ export const clients = pgTable(
         };
     },
 );
+
+export const SchemaInsertClient = createInsertSchema(clients);
+export type TClientInsert = z.infer<typeof SchemaInsertClient>
+export const SchemaSelectClient = createSelectSchema(clients)
+export type TClientSelect = z.infer<typeof SchemaSelectClient>
 
 export const clientsPayments = pgTable(
     'clients_payments',
@@ -476,6 +522,11 @@ export const clientsPayments = pgTable(
         };
     },
 );
+
+export const SchemaInsertClientPayment = createInsertSchema(clientsPayments)
+export type TClientPaymentInsert = z.infer<typeof SchemaInsertClientPayment>
+export const SchemaSelectClientPayment = createSelectSchema(clientsPayments)
+export type TClientPaymentSelect = z.infer<typeof SchemaSelectClientPayment>
 
 export const sales = pgTable(
     'sales',
@@ -541,6 +592,11 @@ export const sales = pgTable(
     },
 );
 
+export const SchemaInsertSale = createInsertSchema(sales);
+export type TSaleInsert = z.infer<typeof SchemaInsertSale>;
+export const SchemaSelectSale = createSelectSchema(sales);
+export type TSaleSelect = z.infer<typeof SchemaSelectSale>;
+
 export const organizationsPayments = pgTable(
     'organizations_payments',
     {
@@ -588,6 +644,11 @@ export const organizationsPayments = pgTable(
         };
     },
 );
+
+export const SchemaInsertOrganizationPayment = createInsertSchema(organizationsPayments)
+export type TOrganizationPaymentInsert = z.infer<typeof SchemaInsertOrganizationPayment>
+export const SchemaSelectOrganizationPayment = createSelectSchema(organizationsPayments)
+export type TOrganizationPaymentSelect = z.infer<typeof SchemaSelectOrganizationPayment>
 
 // --- RELATIONS ---
 export const organizationsRelations = relations(
