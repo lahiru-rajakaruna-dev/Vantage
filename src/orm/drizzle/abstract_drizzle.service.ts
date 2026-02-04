@@ -1,243 +1,314 @@
-import { Inject }           from '@nestjs/common';
-import { ConfigService }    from '@nestjs/config';
-import type ILoggerService  from '../../logger/logger.interface';
+import { ConfigService }      from '@nestjs/config';
+import { LibSQLDatabase }     from 'drizzle-orm/libsql';
+import { PostgresJsDatabase } from 'drizzle-orm/postgres-js'
+import type ILoggerService    from '../../logger/logger.interface';
 import {
-    TOKEN__LOGGER_FACTORY
-}                           from '../../logger/logger_factory/logger_factory.service';
-import { TEmployeeProfile } from '../../schemas';
-import IOrmInterface, {
-    TClient,
-    TClientPayment,
-    TEmployee,
-    TItem,
-    TOrganization,
-    TOrganizationPayment,
-    TSale,
-    TSalesGroup,
-}                           from '../orm.interface';
+    TEmployeesLeavesUpdate,
+    TEmployeeUpdate
+}                             from '../../schemas';
+import IOrmInterface          from '../orm.interface';
+import {
+    TClientInsert,
+    TClientPaymentInsert,
+    TClientPaymentSelect,
+    TClientPaymentUpdate,
+    TClientSelect,
+    TClientUpdate,
+    TEmployeeCredentialsInsert,
+    TEmployeeCredentialsSelect,
+    TEmployeeCredentialsUpdate,
+    TEmployeeLeavesInsert,
+    TEmployeeLeavesSelect,
+    TEmployeeSalaryInsert,
+    TEmployeeSalarySelect,
+    TEmployeeSalaryUpdate,
+    TEmployeeSelect,
+    TItemInsert,
+    TItemSelect,
+    TItemUpdate,
+    TOrganizationInsert,
+    TOrganizationPaymentInsert,
+    TOrganizationPaymentSelect,
+    TOrganizationPaymentUpdate,
+    TOrganizationSelect,
+    TOrganizationUpdate,
+    TSaleInsert,
+    TSaleSelect,
+    TSalesGroupInsert,
+    TSalesGroupSelect,
+    TSalesGroupUpdate
+}                             from './drizzle-postgres/drizzle-postgres.schema';
 
 
 
 export default abstract class AbstractDrizzlerService implements IOrmInterface {
     protected readonly configService: ConfigService;
     protected readonly logger: ILoggerService;
+    protected readonly driver: PostgresJsDatabase | LibSQLDatabase;
     
     
     protected constructor(
-        @Inject() configService: ConfigService,
-        @Inject(TOKEN__LOGGER_FACTORY) logger: ILoggerService,
+        configService: ConfigService, logger: ILoggerService,
+        driver: PostgresJsDatabase | LibSQLDatabase
     ) {
         this.configService = configService;
         this.logger        = logger;
+        this.driver        = driver
     }
     
     
-    abstract addOrganization(organizationDetails: TOrganization,): Promise<TOrganization>;
+    abstract addOrganization(organizationDetails: TOrganizationInsert): Promise<TOrganizationSelect>
     
     
     abstract updateOrganizationById(
         organization_id: string,
-        organizationUpdates: Partial<TOrganization>,
-    ): Promise<TOrganization>;
+        organizationUpdates: TOrganizationUpdate
+    ): Promise<TOrganizationSelect>
     
     
-    abstract getOrganizationDetailsById(organization_id: string,): Promise<TOrganization>;
-    
-    
-    abstract getOrganizationDetailsByAdminId(admin_id: string,): Promise<TOrganization>;
-    
-    
-    abstract addEmployee(
+    // ORGANIZATION_PAYMENT
+    abstract addOrganizationPayment(
         organization_id: string,
-        employeeDetails: {
-            employees_credentials_username: string;
-            employees_credentials_password: string
-        }
-    ): Promise<TEmployee[]>;
+        paymentDetails: TOrganizationPaymentInsert
+    ): Promise<TOrganizationPaymentSelect[]>
     
     
-    abstract getEmployeeProfileById(
-        organization_id: string,
-        employee_id: string
-    ): Promise<TEmployeeProfile>;
-    
-    
-    abstract getEmployeesByOrganizationId(organization_id: string,): Promise<TEmployee[]>;
-    
-    
-    abstract getEmployeesBySalesGroupId(sales_group_id: string,): Promise<TEmployee[]>;
-    
-    
-    abstract updateEmployeeById(
-        organization_id: string,
-        employee_id: string,
-        employeeUpdates: Partial<TEmployee>,
-    ): Promise<TEmployee[]>;
-    
-    
-    abstract updateEmployeesByIds(
-        organization_id: string,
-        employees_ids: string[],
-        employeeUpdates: Partial<TEmployee>,
-    ): Promise<TEmployee[]>;
-    
-    
-    abstract deleteEmployeeById(
-        organization_id: string,
-        employee_id: string,
-    ): Promise<TEmployee[]>;
-    
-    
-    abstract addItem(itemDetails: TItem): Promise<TItem[]>;
-    
-    
-    abstract viewItemById(item_id: string): Promise<TItem>;
-    
-    
-    abstract getItemsByOrganizationId(organization_id: string): Promise<TItem[]>;
-    
-    
-    abstract updateItemById(
-        organization_id: string,
-        item_id: string,
-        itemUpdates: Partial<TItem>,
-    ): Promise<TItem[]>;
-    
-    
-    abstract updateItemsByIds(
-        organization_id: string,
-        items_ids: string[],
-        itemUpdates: Partial<TItem>,
-    ): Promise<TItem[]>;
-    
-    
-    abstract deleteItemById(
-        organization_id: string,
-        item_id: string
-    ): Promise<TItem[]>
-    
-    abstract deleteItemById(
-        organization_id: string,
-        item_id: string,
-    ): Promise<TItem[]>;
-    
-    
-    abstract deleteItemsByIds(
-        organization_id: string,
-        items_ids: string[],
-    ): Promise<TItem[]>;
-    
-    
-    abstract addSalesGroup(salesGroupDetails: TSalesGroup,): Promise<TSalesGroup[]>;
-    
-    
-    abstract getSalesGroupsByOrganizationId(organization_id: string,): Promise<TSalesGroup[]>;
-    
-    
-    abstract getSalesGroupDetailsById(
-        organization_id: string,
-        sales_group_id: string,
-    ): Promise<TSalesGroup>
-    
-    
-    abstract updateSalesGroupById(
-        organization_id: string,
-        sales_group_id: string,
-        salesGroupUpdates: Partial<TSalesGroup>,
-    ): Promise<TSalesGroup[]>;
-    
-    
-    abstract deleteSalesGroupById(
-        organization_id: string,
-        sales_group_id: string,
-    ): Promise<TSalesGroup[]>;
-    
-    
-    abstract addClient(clientDetails: TClient): Promise<TClient[]>;
-    
-    
-    abstract getClientProfileById(client_id: string): Promise<TClient>;
-    
-    
-    abstract getClientsByOrganizationId(organization_id: string,): Promise<TClient[]>;
-    
-    
-    abstract updateClientById(
-        organization_id: string,
-        client_id: string,
-        clientUpdates: Partial<TClient>,
-    ): Promise<TClient[]>;
-    
-    
-    abstract updateClientsByIds(
-        organization_id: string,
-        clients_ids: string[],
-        clientUpdates: Partial<TClient>,
-    ): Promise<TClient[]>;
-    
-    
-    abstract addOrganizationPayment(paymentDetails: TOrganizationPayment,): Promise<TOrganizationPayment[]>;
+    abstract updateOrganizationPaymentById(
+        organization_id: string, payment_id: string,
+        paymentUpdates: TOrganizationPaymentUpdate
+    ): Promise<TOrganizationPaymentSelect[]>
     
     
     abstract getOrganizationPaymentById(
         organization_id: string,
         payment_id: string
-    ): Promise<TOrganizationPayment>
+    ): Promise<TOrganizationPaymentSelect>
     
     
-    abstract getOrganizationPaymentsByOrganizationId(organization_id: string,): Promise<TOrganizationPayment[]>;
+    abstract getOrganizationPaymentsByOrganizationId(organization_id: string): Promise<TOrganizationPaymentSelect[]>
     
     
-    abstract updateOrganizationPaymentById(
+    // EMPLOYEE
+    
+    abstract addEmployee(
         organization_id: string,
-        payment_id: string,
-        paymentUpdates: Partial<TOrganizationPayment>,
-    ): Promise<TOrganizationPayment[]>;
+        employeeCredentials: TEmployeeCredentialsInsert
+    ): Promise<TEmployeeSelect[]>
     
     
-    abstract addClientPayment(paymentDetails: TClientPayment,): Promise<TClientPayment[]>;
+    abstract updateEmployeeById(
+        organization_id: string, employee_id: string,
+        employeeUpdates: TEmployeeUpdate
+    ): Promise<TEmployeeSelect[]>
     
     
-    abstract getClientPaymentById(payment_id: string): Promise<TClientPayment>;
+    abstract updateEmployeesByIds(
+        organization_id: string, employees_ids: string[],
+        employeeUpdates: TEmployeeUpdate
+    ): Promise<TEmployeeSelect[]>
     
     
-    abstract getClientPaymentsByClientId(client_id: string,): Promise<TClientPayment[]>;
+    abstract getEmployeeProfileById(
+        organization_id: string,
+        employee_id: string
+    ): Promise<TEmployeeSelect & {
+        employee_sales: TSaleSelect[];
+        employee_leaves: TEmployeeLeavesSelect[]
+    }>
+    
+    
+    abstract getEmployeesByOrganizationId(organization_id: string): Promise<TEmployeeSelect[]>
+    
+    
+    abstract getEmployeesBySalesGroupId(
+        organization_id: string,
+        sales_group_id: string
+    ): Promise<TEmployeeSelect[]>
+
+
+//     EMPLOYEE_CREDENTIALS
+    
+    abstract updateEmployeeCredentials(
+        organization_id: string, employee_id: string,
+        credentialUpdates: TEmployeeCredentialsUpdate
+    ): Promise<TEmployeeCredentialsSelect>
+
+
+//     EMPLOYEE_LEAVES
+    
+    abstract addEmployeeLeave(
+        organization_id: string,
+        employeeLeavesDetails: TEmployeeLeavesInsert
+    ): Promise<TEmployeeLeavesSelect[]>
+    
+    
+    abstract updateEmployeeLeave(
+        organization_id: string, employee_id: string,
+        employeeLeavesUpdates: TEmployeesLeavesUpdate
+    ): Promise<TEmployeeLeavesSelect[]>
+
+
+//     EMPLOYEE_SALARY
+    abstract addEmployeeSalary(
+        organization_id: string,
+        employeeSalaryDetails: TEmployeeSalaryInsert
+    ): Promise<TEmployeeSalarySelect[]>
+    
+    
+    abstract updateEmployeeSalary(
+        organization_id: string, employee_id: string,
+        employeeSalaryUpdates: TEmployeeSalaryUpdate
+    ): Promise<TEmployeeSalarySelect[]>
+    
+    
+    abstract getOrganizationDetailsByAdminId(admin_id: string): Promise<TOrganizationSelect>
+    
+    
+    abstract getOrganizationDetailsById(organization_id: string): Promise<TOrganizationSelect>
+
+
+//     SALES_GROUP
+    
+    abstract addSalesGroup(
+        organization_id: string,
+        salesGroupDetails: TSalesGroupInsert
+    ): Promise<TSalesGroupSelect[]>
+    
+    
+    abstract updateSalesGroupById(
+        organization_id: string, sales_group_id: string,
+        salesGroupUpdates: TSalesGroupUpdate
+    ): Promise<TSalesGroupSelect[]>
+    
+    
+    abstract getSalesGroupDetailsById(
+        organization_id: string,
+        sales_group_id: string
+    ): Promise<TSalesGroupSelect & {
+        sales_group_employees: (TEmployeeSelect & {
+            employee_sales: TSaleSelect[]
+        })[]
+    }>
+    
+    
+    abstract getSalesGroupsByOrganizationId(organization_id: string): Promise<TSalesGroupSelect[]>
+    
+    
+    abstract deleteSalesGroupById(
+        organization_id: string,
+        sales_group_id: string
+    ): Promise<TSalesGroupSelect[]>
+
+
+//     CLIENT
+    abstract addClient(
+        organization_id: string,
+        clientDetails: TClientInsert
+    ): Promise<TClientSelect[]>
+    
+    
+    abstract updateClientById(
+        organization_id: string, client_id: string,
+        clientUpdates: TClientUpdate
+    ): Promise<TClientSelect[]>
+    
+    
+    abstract updateClientsByIds(
+        organization_id: string, clients_ids: string[],
+        clientUpdates: TClientUpdate
+    ): Promise<TClientSelect[]>
+    
+    
+    abstract getClientProfileById(
+        organization_id: string, client_id: string): Promise<TClientSelect>
+    
+    
+    abstract getClientsByOrganizationId(organization_id: string): Promise<TClientSelect[]>
+
+
+//     CLIENT_PAYMENT
+    abstract addClientPayment(
+        organization_id: string,
+        paymentDetails: TClientPaymentInsert
+    ): Promise<TClientPaymentSelect[]>
     
     
     abstract updateClientPaymentById(
+        organization_id: string, client_payment_id: string,
+        clientPaymentUpdates: TClientPaymentUpdate
+    ): Promise<TClientPaymentSelect[]>
+    
+    
+    abstract getClientPaymentsByClientId(
         organization_id: string,
-        client_payment_id: string,
-        clientPaymentUpdates: Partial<TClientPayment>,
-    ): Promise<TClientPayment[]>;
+        client_id: string
+    ): Promise<TClientPaymentSelect[]>
     
     
-    abstract addSaleItem(saleDetails: TSale): Promise<TSale[]>;
+    abstract getClientPaymentById(
+        organization_id: string,
+        payment_id: string
+    ): Promise<TClientPaymentSelect>
+
+
+//     ITEM
+    abstract addItem(
+        organization_id: string,
+        itemDetails: TItemInsert
+    ): Promise<TItemSelect[]>
     
     
-    abstract viewSaleById(sale_id: string): Promise<TSale>;
+    abstract updateItemById(
+        organization_id: string, item_id: string,
+        itemUpdates: TItemUpdate
+    ): Promise<TItemSelect[]>
     
     
-    abstract getSalesByEmployeeId(employee_id: string): Promise<TSale[]>;
+    abstract updateItemsByIds(
+        organization_id: string, items_ids: string[],
+        itemUpdates: TItemUpdate
+    ): Promise<TItemSelect[]>
     
     
-    abstract getSalesByItemId(item_id: string): Promise<TSale[]>;
+    abstract getItemsByOrganizationId(organization_id: string): Promise<TItemSelect[]>
     
     
-    abstract getSalesByOrganizationId(organization_id: string): Promise<TSale[]>;
+    abstract getItemById(
+        organization_id: string, item_id: string): Promise<TItemSelect>
+
+
+//     SALE
+    abstract addSale(
+        organization_id: string,
+        saleDetails: TSaleInsert
+    ): Promise<TSaleSelect[]>
     
     
-    abstract getSalesByClientId(client_id: string): Promise<TSale[]>;
+    abstract getSaleById(
+        organization_id: string, sale_id: string): Promise<TSaleSelect>
+    
+    
+    abstract getSalesByClientId(
+        organization_id: string, client_id: string): Promise<TSaleSelect[]>
+    
+    
+    abstract getSalesByEmployeeId(
+        organization_id: string, employee_id: string): Promise<TSaleSelect[]>
+    
+    
+    abstract getSalesByItemId(
+        organization_id: string, item_id: string): Promise<TSaleSelect[]>
+    
+    
+    abstract getSalesByOrganizationId(organization_id: string): Promise<TSaleSelect[]>
     
     
     abstract getSalesByDate(
-        organization_id: string,
-        date: number,
-    ): Promise<TSale[]>;
+        organization_id: string, date: number): Promise<TSaleSelect[]>
     
     
     abstract getSalesWithinDates(
-        organization_id: string,
-        date_start: number,
-        date_end: number,
-    ): Promise<TSale[]>;
+        organization_id: string, date_start: number,
+        date_end: number
+    ): Promise<TSaleSelect[]>
 }
