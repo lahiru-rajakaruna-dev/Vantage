@@ -11,31 +11,28 @@ import {
     Post,
     Req,
     UsePipes,
-}                                                   from '@nestjs/common';
+}                                from '@nestjs/common';
 import {
     Business,
     Customer
-}                                                   from '@paddle/paddle-node-sdk';
-import { v4 as uuid }                               from 'uuid';
-import type ILoggerService
-                                                    from '../../logger/logger.interface';
+}                                from '@paddle/paddle-node-sdk';
+import { v4 as uuid }            from 'uuid';
+import type ILoggerService       from '../../logger/logger.interface';
+import { TOKEN__LOGGER_FACTORY } from '../../logger/logger_factory/logger_factory.service';
 import {
-    TOKEN__LOGGER_FACTORY
-}                                                   from '../../logger/logger_factory/logger_factory.service';
+    SchemaInsertOrganization,
+    SchemaUpdateOrganization,
+    TOrganizationInsert,
+    type   TOrganizationSelect,
+    type TOrganizationUpdate
+}                                from '../../orm/drizzle/drizzle-postgres/drizzle-postgres.schema';
+import { PaddleService }         from '../../paddle/paddle.service';
+import ZodSchemaValidationPipe   from '../../pipes/schema_validation.pipe';
 import {
-    PaddleService
-}                                                   from '../../paddle/paddle.service';
-import ZodSchemaValidationPipe
-                                                    from '../../pipes/schema_validation.pipe';
-import {
-    CreateOrganizationRequestSchema,
-    type TOrganization,
-    UpdateOrganizationRequestSchema
-}                                                   from '../../schemas';
-import { EOrganizationStatus, ESubscriptionStatus } from '../../types';
-import {
-    OrganizationService
-}                                                   from './organization.service';
+    EOrganizationStatus,
+    ESubscriptionStatus
+}                                from '../../types';
+import { OrganizationService }   from './organization.service';
 
 
 
@@ -84,7 +81,7 @@ export class OrganizationController {
     @Get('/view')
     async getOrganizationById(
         @Req() request: Request & {
-            organization: TOrganization
+            organization: TOrganizationSelect
         },
     ) {
         return request.organization
@@ -94,18 +91,19 @@ export class OrganizationController {
     @Post('/add')
     @UsePipes(
         new ZodSchemaValidationPipe(
-            CreateOrganizationRequestSchema
+            SchemaInsertOrganization.pick({
+                                              organization_admin_email: true,
+                                              organization_admin_phone: true,
+                                              organization_logo_url   : true,
+                                              organization_name       : true,
+                                          })
+                                    .nonoptional()
         ),
     )
     async addOrganization(
         @Req() req: Request,
         @Body()
-        organizationData: {
-            organization_name: string;
-            organization_admin_email: string;
-            organization_logo_url: string;
-            organization_admin_phone: string;
-        },
+        organizationData: Pick<TOrganizationInsert, 'organization_name' | 'organization_admin_email' | 'organization_logo_url' | 'organization_admin_phone'>,
     ) {
         const user_id = req['cookies']['user_id'];
         
@@ -124,7 +122,7 @@ export class OrganizationController {
             !organization_admin_phone
         ) {
             throw new BadRequestException(
-                'Invalid request. Required data is missing...',
+                'Missing required data',
             );
         }
         
@@ -159,7 +157,8 @@ export class OrganizationController {
         try {
             const organizationRecord = await this.organizationService.addOrganization(
                 {
-                    organization_id                   : uuid().toString(),
+                    organization_id                   : uuid()
+                        .toString(),
                     organization_admin_id             : user_id,
                     organization_stripe_customer_id   : paddleCustomerAccount.id,
                     organization_name,
@@ -185,12 +184,12 @@ export class OrganizationController {
     @Patch('/update/name')
     @UsePipes(
         new ZodSchemaValidationPipe(
-            UpdateOrganizationRequestSchema
+            SchemaUpdateOrganization
         ),
     )
     updateOrganizationById(
         @Headers('organization_id') organization_id: string,
-        @Body() organizationData: Pick<TOrganization, 'organization_name'>,
+        @Body() organizationData: TOrganizationUpdate,
     ) {
         if (!organization_id) {
             throw new BadRequestException('[-] Invalid request...');
@@ -198,7 +197,7 @@ export class OrganizationController {
         
         return this.organizationService.updateOrganizationNameById(
             organization_id,
-            organizationData.organization_name,
+            organizationData.organization_name!,
         );
     }
     
@@ -206,7 +205,7 @@ export class OrganizationController {
     @Patch('/update/subscription/expired')
     updateOrganizationSubscriptionStatusToExpiredById(
         @Req() request: Request & {
-            organization: TOrganization
+            organization: TOrganizationSelect
         },
     ) {
         if (!request.organization) {
@@ -222,7 +221,7 @@ export class OrganizationController {
     @Patch('/update/subscription/valid')
     updateOrganizationSubscriptionStatusToValidById(
         @Req() request: Request & {
-            organization: TOrganization
+            organization: TOrganizationSelect
         },
     ) {
         if (!request.organization) {
@@ -238,7 +237,7 @@ export class OrganizationController {
     @Patch('/update/subscription/date')
     extendOrganizationSubscriptionEndDateBy30ById(
         @Req() request: Request & {
-            organization: TOrganization
+            organization: TOrganizationSelect
         },
     ) {
         if (!request.organization) {
@@ -254,7 +253,7 @@ export class OrganizationController {
     @Delete('/deactivate')
     deactivateOrganizationById(
         @Req() request: Request & {
-            organization: TOrganization
+            organization: TOrganizationSelect
         },
     ) {
         if (!request.organization) {
