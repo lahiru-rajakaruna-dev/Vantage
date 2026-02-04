@@ -642,7 +642,8 @@ export const organizationsPayments = pgTable(
                 ],
             }
         )
-            .default(EPaymentStatus.VERIFIED),
+            .default(EPaymentStatus.VERIFIED)
+            .notNull(),
         organization_payment_timestamp      : integer()
             .notNull(),
     },
