@@ -118,7 +118,7 @@ export const organizations = pgTable(
 export const SchemaInsertOrganization = createInsertSchema(organizations)
 export type TOrganizationInsert = z.infer<typeof SchemaInsertOrganization>;
 export const SchemaUpdateOrganization = createUpdateSchema(organizations);
-export type TOrganizationUpdateSchema = z.infer<typeof SchemaUpdateOrganization>
+export type TOrganizationUpdate = z.infer<typeof SchemaUpdateOrganization>
 export const SchemaSelectOrganization = createSelectSchema(organizations)
 export type TOrganizationSelect = z.infer<typeof SchemaSelectOrganization>
 
@@ -669,7 +669,7 @@ export const organizationsPayments = pgTable(
 export const SchemaInsertOrganizationPayment = createInsertSchema(organizationsPayments)
 export type TOrganizationPaymentInsert = z.infer<typeof SchemaInsertOrganizationPayment>
 export const SchemaUpdateOrganizationPayment = createUpdateSchema(organizationsPayments)
-export type TOrganizationUpdate = z.infer<typeof SchemaUpdateOrganizationPayment>
+export type TOrganizationPaymentUpdate = z.infer<typeof SchemaUpdateOrganizationPayment>
 export const SchemaSelectOrganizationPayment = createSelectSchema(organizationsPayments)
 export type TOrganizationPaymentSelect = z.infer<typeof SchemaSelectOrganizationPayment>
 
