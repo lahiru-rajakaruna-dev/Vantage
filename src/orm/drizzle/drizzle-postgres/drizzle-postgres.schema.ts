@@ -135,8 +135,7 @@ export const employees = pgTable(
             .references(
                 () => salesGroups.sales_group_id,
             ),
-        employee_profile_picture_url: text()
-            .notNull(),
+        employee_profile_picture_url: text(),
         employee_first_name         : text(),
         employee_last_name          : text(),
         employee_phone              : text(),

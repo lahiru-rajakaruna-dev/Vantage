@@ -97,8 +97,7 @@ export const employees = sqliteTable(
             .references(() => organizations.organization_id),
         employee_sales_group_id     : text()
             .references(() => salesGroups.sales_group_id),
-        employee_profile_picture_url: text()
-            .notNull(),
+        employee_profile_picture_url: text(),
         employee_first_name         : text(),
         employee_last_name          : text(),
         employee_phone              : text(),
