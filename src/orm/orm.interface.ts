@@ -121,7 +121,7 @@ export default interface IOrmInterface {
         itemDetails: TItemInsert
     ): Promise<TItemSelect[]>;
     
-    viewItemById(
+    getItemById(
         organization_id: string,
         item_id: string
     ): Promise<TItemSelect>;
@@ -163,13 +163,18 @@ export default interface IOrmInterface {
         salesGroupUpdates: TSalesGroupUpdate,
     ): Promise<TSalesGroupSelect[]>;
     
+    deleteSalesGroupById(
+        organization_id: string,
+        sales_group_id: string
+    ): Promise<TSalesGroupSelect[]>
+    
     // --- SALE ---
-    addSaleItem(
+    addSale(
         organization_id: string,
         saleDetails: TSaleInsert
     ): Promise<TSaleSelect[]>;
     
-    viewSaleById(
+    getSaleById(
         organization_id: string,
         sale_id: string
     ): Promise<TSaleSelect>;
