@@ -211,7 +211,8 @@ export default abstract class AbstractDrizzlerService implements IOrmInterface {
 //     CLIENT_PAYMENT
     abstract addClientPayment(
         organization_id: string,
-        paymentDetails: TClientPaymentInsert
+        client_id: string
+        , paymentDetails: TClientPaymentInsert
     ): Promise<TClientPaymentSelect[]>
     
     

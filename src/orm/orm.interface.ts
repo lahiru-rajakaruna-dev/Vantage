@@ -242,7 +242,8 @@ export default interface IOrmInterface {
     // --- CLIENT PAYMENTS ---
     addClientPayment(
         organization_id: string,
-        paymentDetails: TClientPaymentInsert
+        client_id: string
+        , paymentDetails: TClientPaymentInsert
     ): Promise<TClientPaymentSelect[]>;
     
     getClientPaymentById(
