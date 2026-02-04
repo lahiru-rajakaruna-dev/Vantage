@@ -1,9 +1,6 @@
 import { ConfigService } from '@nestjs/config';
 import type ILoggerService from '../../logger/logger.interface';
-import {
-    TEmployeesLeavesUpdate,
-    TEmployeeUpdate
-} from '../../schemas';
+import { TEmployeeUpdate } from '../../schemas';
 import IOrmInterface from '../orm.interface';
 import {
     TClientInsert,
@@ -15,9 +12,8 @@ import {
     TEmployeeCredentialsInsert,
     TEmployeeCredentialsSelect,
     TEmployeeCredentialsUpdate,
-    TEmployeeLeavesInsert,
     TEmployeeLeavesSelect,
-    TEmployeeSalaryInsert,
+    TEmployeeLeavesUpdateSchema,
     TEmployeeSalarySelect,
     TEmployeeSalaryUpdate,
     TEmployeeSelect,
@@ -132,29 +128,19 @@ export default abstract class AbstractDrizzlerService implements IOrmInterface {
 
 //     EMPLOYEE_LEAVES
     
-    abstract addEmployeeLeave(
-        organization_id: string,
-        employeeLeavesDetails: TEmployeeLeavesInsert
-    ): Promise<TEmployeeLeavesSelect[]>
-    
-    
     abstract updateEmployeeLeave(
-        organization_id: string, employee_id: string,
-        employeeLeavesUpdates: TEmployeesLeavesUpdate
-    ): Promise<TEmployeeLeavesSelect[]>
+        organization_id: string,
+        employee_id: string,
+        employeeLeavesUpdates: TEmployeeLeavesUpdateSchema
+    ): Promise<TEmployeeLeavesSelect>
 
 
 //     EMPLOYEE_SALARY
-    abstract addEmployeeSalary(
-        organization_id: string,
-        employeeSalaryDetails: TEmployeeSalaryInsert
-    ): Promise<TEmployeeSalarySelect[]>
-    
     
     abstract updateEmployeeSalary(
         organization_id: string, employee_id: string,
         employeeSalaryUpdates: TEmployeeSalaryUpdate
-    ): Promise<TEmployeeSalarySelect[]>
+    ): Promise<TEmployeeSalarySelect>
     
     
     abstract getOrganizationDetailsByAdminId(admin_id: string): Promise<TOrganizationSelect>

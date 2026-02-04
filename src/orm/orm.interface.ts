@@ -1,7 +1,4 @@
-import {
-    TEmployeesLeavesUpdate,
-    TEmployeeUpdate
-} from '../schemas';
+import { TEmployeeUpdate } from '../schemas';
 import {
     TClientInsert,
     TClientPaymentInsert,
@@ -12,9 +9,8 @@ import {
     TEmployeeCredentialsInsert,
     TEmployeeCredentialsSelect,
     TEmployeeCredentialsUpdate,
-    TEmployeeLeavesInsert,
     TEmployeeLeavesSelect,
-    TEmployeeSalaryInsert,
+    TEmployeeLeavesUpdateSchema,
     TEmployeeSalarySelect,
     TEmployeeSalaryUpdate,
     TEmployeeSelect,
@@ -32,7 +28,7 @@ import {
     TSalesGroupInsert,
     TSalesGroupSelect,
     TSalesGroupUpdate
-} from './drizzle/drizzle-postgres/drizzle-postgres.schema';
+}                          from './drizzle/drizzle-postgres/drizzle-postgres.schema';
 
 
 
@@ -92,28 +88,20 @@ export default interface IOrmInterface {
     ): Promise<TEmployeeCredentialsSelect>;
     
     // --- EMPLOYEE LEAVE ---
-    addEmployeeLeave(
-        organization_id: string,
-        employeeLeavesDetails: TEmployeeLeavesInsert
-    ): Promise<TEmployeeLeavesSelect[]>; // List return
     
     updateEmployeeLeave(
         organization_id: string,
         employee_id: string, // Added parameter
-        employeeLeavesUpdates: TEmployeesLeavesUpdate
-    ): Promise<TEmployeeLeavesSelect[]>;
+        employeeLeavesUpdates: TEmployeeLeavesUpdateSchema
+    ): Promise<TEmployeeLeavesSelect>;
     
     // --- EMPLOYEE SALARY ---
-    addEmployeeSalary(
-        organization_id: string,
-        employeeSalaryDetails: TEmployeeSalaryInsert
-    ): Promise<TEmployeeSalarySelect[]>;
     
     updateEmployeeSalary(
         organization_id: string,
         employee_id: string,
         employeeSalaryUpdates: TEmployeeSalaryUpdate
-    ): Promise<TEmployeeSalarySelect[]>;
+    ): Promise<TEmployeeSalarySelect>;
     
     // --- ITEM ---
     addItem(
