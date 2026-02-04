@@ -1,12 +1,10 @@
-import { ConfigService }      from '@nestjs/config';
-import { LibSQLDatabase }     from 'drizzle-orm/libsql';
-import { PostgresJsDatabase } from 'drizzle-orm/postgres-js'
-import type ILoggerService    from '../../logger/logger.interface';
+import { ConfigService } from '@nestjs/config';
+import type ILoggerService from '../../logger/logger.interface';
 import {
     TEmployeesLeavesUpdate,
     TEmployeeUpdate
-}                             from '../../schemas';
-import IOrmInterface          from '../orm.interface';
+} from '../../schemas';
+import IOrmInterface from '../orm.interface';
 import {
     TClientInsert,
     TClientPaymentInsert,
@@ -37,23 +35,21 @@ import {
     TSalesGroupInsert,
     TSalesGroupSelect,
     TSalesGroupUpdate
-}                             from './drizzle-postgres/drizzle-postgres.schema';
+} from './drizzle-postgres/drizzle-postgres.schema';
 
 
 
 export default abstract class AbstractDrizzlerService implements IOrmInterface {
     protected readonly configService: ConfigService;
     protected readonly logger: ILoggerService;
-    protected readonly driver: PostgresJsDatabase | LibSQLDatabase;
     
     
     protected constructor(
-        configService: ConfigService, logger: ILoggerService,
-        driver: PostgresJsDatabase | LibSQLDatabase
+        configService: ConfigService,
+        logger: ILoggerService,
     ) {
         this.configService = configService;
         this.logger        = logger;
-        this.driver        = driver
     }
     
     
