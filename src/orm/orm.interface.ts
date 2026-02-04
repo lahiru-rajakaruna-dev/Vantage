@@ -1,233 +1,270 @@
-import { TEmployeeProfile } from '../schemas';
 import {
-    TPGClient,
-    TPGClientPayment,
-    TPGEmployee,
-    TPGItem,
-    TPGOrganization,
-    TPGOrganizationPayment,
-    TPGSale,
-    TPGSalesGroup,
-}                           from './drizzle/drizzle-postgres/drizzle-postgres.schema';
+    TEmployeesLeavesUpdate,
+    TEmployeeUpdate
+} from '../schemas';
 import {
-    TSQLiteClient,
-    TSQLiteClientPayment,
-    TSQLiteEmployee,
-    TSQLiteItem,
-    TSQLiteOrganization,
-    TSQLiteOrganizationPayment,
-    TSQLiteSale,
-    TSQLiteSalesGroup,
-}                           from './drizzle/drizzle-sqlite/drizzle-sqlite.schema';
+    TClientInsert,
+    TClientPaymentInsert,
+    TClientPaymentSelect,
+    TClientPaymentUpdate,
+    TClientSelect,
+    TClientUpdate,
+    TEmployeeCredentialsInsert,
+    TEmployeeCredentialsSelect,
+    TEmployeeCredentialsUpdate,
+    TEmployeeLeavesInsert,
+    TEmployeeLeavesSelect,
+    TEmployeeSalaryInsert,
+    TEmployeeSalarySelect,
+    TEmployeeSalaryUpdate,
+    TEmployeeSelect,
+    TItemInsert,
+    TItemSelect,
+    TItemUpdate,
+    TOrganizationInsert,
+    TOrganizationPaymentInsert,
+    TOrganizationPaymentSelect,
+    TOrganizationPaymentUpdate,
+    TOrganizationSelect,
+    TOrganizationUpdate,
+    TSaleInsert,
+    TSaleSelect,
+    TSalesGroupInsert,
+    TSalesGroupSelect,
+    TSalesGroupUpdate
+} from './drizzle/drizzle-postgres/drizzle-postgres.schema';
 
 
-
-export type TOrganization =
-    TPGOrganization
-    | TSQLiteOrganization;
-export type TEmployee =
-    TPGEmployee
-    | TSQLiteEmployee;
-export type TItem =
-    TPGItem
-    | TSQLiteItem;
-export type TSalesGroup =
-    TPGSalesGroup
-    | TSQLiteSalesGroup;
-export type TClient =
-    TPGClient
-    | TSQLiteClient;
-export type TSale =
-    TPGSale
-    | TSQLiteSale;
-export type TOrganizationPayment =
-    | TPGOrganizationPayment
-    | TSQLiteOrganizationPayment;
-export type TClientPayment =
-    TPGClientPayment
-    | TSQLiteClientPayment;
 
 export default interface IOrmInterface {
-    addOrganization(organizationDetails: TOrganization): Promise<TOrganization>;
+    // --- ORGANIZATION ---
+    // Returns single object as requested
+    addOrganization(organizationDetails: TOrganizationInsert): Promise<TOrganizationSelect>;
     
-    getOrganizationDetailsById(organization_id: string): Promise<TOrganization>;
+    getOrganizationDetailsById(organization_id: string): Promise<TOrganizationSelect>;
     
-    getOrganizationDetailsByAdminId(admin_id: string): Promise<TOrganization>;
+    getOrganizationDetailsByAdminId(admin_id: string): Promise<TOrganizationSelect>;
     
     updateOrganizationById(
         organization_id: string,
-        organizationUpdates: Partial<TOrganization>,
-    ): Promise<TOrganization>;
+        organizationUpdates: TOrganizationUpdate,
+    ): Promise<TOrganizationSelect>;
     
-    //   EMPLOYEE
+    // --- EMPLOYEE (Transaction-based Onboarding) ---
     addEmployee(
         organization_id: string,
-        employeeDetails: {
-            employees_credentials_username: string;
-            employees_credentials_password: string
-        }
-    ): Promise<TEmployee[]>;
+        employeeCredentials: TEmployeeCredentialsInsert // Starts the
+                                                        // transaction
+    ): Promise<TEmployeeSelect[]>;
     
     getEmployeeProfileById(
         organization_id: string,
         employee_id: string,
-    ): Promise<TEmployeeProfile>;
+    ): Promise<TEmployeeSelect & {
+        employee_sales: TSaleSelect[]
+        employee_leaves: TEmployeeLeavesSelect[]
+    }>;
     
-    getEmployeesByOrganizationId(organization_id: string): Promise<TEmployee[]>;
+    getEmployeesByOrganizationId(organization_id: string): Promise<TEmployeeSelect[]>;
     
     getEmployeesBySalesGroupId(
         organization_id: string,
         sales_group_id: string,
-    ): Promise<TEmployee[]>;
+    ): Promise<TEmployeeSelect[]>;
     
     updateEmployeeById(
         organization_id: string,
         employee_id: string,
-        employeeUpdates: Partial<TEmployee>,
-    ): Promise<TEmployee[]>;
+        employeeUpdates: TEmployeeUpdate, // Includes "deactivation" via status
+    ): Promise<TEmployeeSelect[]>;
     
     updateEmployeesByIds(
         organization_id: string,
         employees_ids: string[],
-        employeeUpdates: Partial<TEmployee>,
-    ): Promise<TEmployee[]>;
+        employeeUpdates: TEmployeeUpdate,
+    ): Promise<TEmployeeSelect[]>;
     
-    deleteEmployeeById(
+    // --- EMPLOYEE CREDENTIALS (Security Update) ---
+    updateEmployeeCredentials(
         organization_id: string,
         employee_id: string,
-    ): Promise<TEmployee[]>;
+        credentialUpdates: TEmployeeCredentialsUpdate
+    ): Promise<TEmployeeCredentialsSelect>;
     
-    //   ITEM
-    addItem(itemDetails: TItem): Promise<TItem[]>;
+    // --- EMPLOYEE LEAVE ---
+    addEmployeeLeave(
+        organization_id: string,
+        employeeLeavesDetails: TEmployeeLeavesInsert
+    ): Promise<TEmployeeLeavesSelect[]>; // List return
     
-    viewItemById(organization_id: string, item_id: string): Promise<TItem>;
+    updateEmployeeLeave(
+        organization_id: string,
+        employee_id: string, // Added parameter
+        employeeLeavesUpdates: TEmployeesLeavesUpdate
+    ): Promise<TEmployeeLeavesSelect[]>;
     
-    getItemsByOrganizationId(organization_id: string): Promise<TItem[]>;
+    // --- EMPLOYEE SALARY ---
+    addEmployeeSalary(
+        organization_id: string,
+        employeeSalaryDetails: TEmployeeSalaryInsert
+    ): Promise<TEmployeeSalarySelect[]>;
+    
+    updateEmployeeSalary(
+        organization_id: string,
+        employee_id: string,
+        employeeSalaryUpdates: TEmployeeSalaryUpdate
+    ): Promise<TEmployeeSalarySelect[]>;
+    
+    // --- ITEM ---
+    addItem(
+        organization_id: string,
+        itemDetails: TItemInsert
+    ): Promise<TItemSelect[]>;
+    
+    viewItemById(
+        organization_id: string,
+        item_id: string
+    ): Promise<TItemSelect>;
+    
+    getItemsByOrganizationId(organization_id: string): Promise<TItemSelect[]>;
     
     updateItemById(
         organization_id: string,
         item_id: string,
-        itemUpdates: Partial<TItem>,
-    ): Promise<TItem[]>;
+        itemUpdates: TItemUpdate,
+    ): Promise<TItemSelect[]>;
     
     updateItemsByIds(
         organization_id: string,
         items_ids: string[],
-        itemUpdates: Partial<TItem>,
-    ): Promise<TItem[]>;
+        itemUpdates: TItemUpdate,
+    ): Promise<TItemSelect[]>;
     
-    deleteItemById(organization_id: string, item_id: string): Promise<TItem[]>
-    
-    deleteItemsByIds(
+    // --- SALES_GROUP ---
+    addSalesGroup(
         organization_id: string,
-        items_ids: string[],
-    ): Promise<TItem[]>;
+        salesGroupDetails: TSalesGroupInsert
+    ): Promise<TSalesGroupSelect[]>;
     
-    //   SALES_GROUP
-    addSalesGroup(salesGroupDetails: TSalesGroup): Promise<TSalesGroup[]>;
-    
-    getSalesGroupsByOrganizationId(organization_id: string,): Promise<TSalesGroup[]>;
+    getSalesGroupsByOrganizationId(organization_id: string): Promise<TSalesGroupSelect[]>;
     
     getSalesGroupDetailsById(
         organization_id: string,
         sales_group_id: string,
-    ): Promise<TSalesGroup>;
+    ): Promise<TSalesGroupSelect & {
+        sales_group_employees: (TEmployeeSelect & {
+            employee_sales: TSaleSelect[]
+        })[]
+    }>;
     
     updateSalesGroupById(
         organization_id: string,
         sales_group_id: string,
-        salesGroupUpdates: Partial<TSalesGroup>,
-    ): Promise<TSalesGroup[]>;
+        salesGroupUpdates: TSalesGroupUpdate,
+    ): Promise<TSalesGroupSelect[]>;
     
-    deleteSalesGroupById(
+    // --- SALE ---
+    addSaleItem(
         organization_id: string,
-        sales_group_id: string,
-    ): Promise<TSalesGroup[]>;
+        saleDetails: TSaleInsert
+    ): Promise<TSaleSelect[]>;
     
-    //   SALE
-    addSaleItem(saleDetails: TSale): Promise<TSale[]>;
-    
-    viewSaleById(organization_id: string, sale_id: string): Promise<TSale>;
+    viewSaleById(
+        organization_id: string,
+        sale_id: string
+    ): Promise<TSaleSelect>;
     
     getSalesByEmployeeId(
         organization_id: string,
         employee_id: string,
-    ): Promise<TSale[]>;
+    ): Promise<TSaleSelect[]>;
     
     getSalesByClientId(
         organization_id: string,
         client_id: string,
-    ): Promise<TSale[]>;
+    ): Promise<TSaleSelect[]>;
     
     getSalesByItemId(
         organization_id: string,
         item_id: string
-    ): Promise<TSale[]>;
+    ): Promise<TSaleSelect[]>;
     
-    getSalesByOrganizationId(organization_id: string): Promise<TSale[]>;
+    getSalesByOrganizationId(organization_id: string): Promise<TSaleSelect[]>;
     
-    getSalesByDate(organization_id: string, date: number): Promise<TSale[]>;
+    getSalesByDate(
+        organization_id: string,
+        date: number
+    ): Promise<TSaleSelect[]>;
     
     getSalesWithinDates(
         organization_id: string,
         date_start: number,
         date_end: number,
-    ): Promise<TSale[]>;
+    ): Promise<TSaleSelect[]>;
     
-    //   PAYMENT
-    addOrganizationPayment(paymentDetails: TOrganizationPayment,): Promise<TOrganizationPayment[]>;
+    // --- ORGANIZATION PAYMENT ---
+    addOrganizationPayment(
+        organization_id: string,
+        paymentDetails: TOrganizationPaymentInsert,
+    ): Promise<TOrganizationPaymentSelect[]>;
     
     getOrganizationPaymentById(
         organization_id: string,
         payment_id: string
-    ): Promise<TOrganizationPayment>
+    ): Promise<TOrganizationPaymentSelect>;
     
-    getOrganizationPaymentsByOrganizationId(organization_id: string,): Promise<TOrganizationPayment[]>;
+    getOrganizationPaymentsByOrganizationId(organization_id: string): Promise<TOrganizationPaymentSelect[]>;
     
     updateOrganizationPaymentById(
         organization_id: string,
         payment_id: string,
-        paymentUpdates: Partial<TOrganizationPayment>,
-    ): Promise<TOrganizationPayment[]>;
+        paymentUpdates: TOrganizationPaymentUpdate,
+    ): Promise<TOrganizationPaymentSelect[]>;
     
-    //   CLIENT
-    addClient(clientDetails: TClient): Promise<TClient[]>;
+    // --- CLIENT ---
+    addClient(
+        organization_id: string, // Added missing scope
+        clientDetails: TClientInsert
+    ): Promise<TClientSelect[]>;
     
     getClientProfileById(
         organization_id: string,
         client_id: string,
-    ): Promise<TClient>;
+    ): Promise<TClientSelect>;
     
-    getClientsByOrganizationId(organization_id: string): Promise<TClient[]>;
+    getClientsByOrganizationId(organization_id: string): Promise<TClientSelect[]>;
     
     updateClientById(
         organization_id: string,
         client_id: string,
-        clientUpdates: Partial<TClient>,
-    ): Promise<TClient[]>;
+        clientUpdates: TClientUpdate, // Includes "deactivation" logic
+    ): Promise<TClientSelect[]>;
     
     updateClientsByIds(
         organization_id: string,
         clients_ids: string[],
-        clientUpdates: Partial<TClient>,
-    ): Promise<TClient[]>;
+        clientUpdates: TClientUpdate,
+    ): Promise<TClientSelect[]>;
     
-    //   CLIENT PAYMENTS
-    addClientPayment(paymentDetails: TClientPayment): Promise<TClientPayment[]>;
+    // --- CLIENT PAYMENTS ---
+    addClientPayment(
+        organization_id: string,
+        paymentDetails: TClientPaymentInsert
+    ): Promise<TClientPaymentSelect[]>;
     
     getClientPaymentById(
         organization_id: string,
         payment_id: string,
-    ): Promise<TClientPayment>;
+    ): Promise<TClientPaymentSelect>;
     
     getClientPaymentsByClientId(
         organization_id: string,
         client_id: string,
-    ): Promise<TClientPayment[]>;
+    ): Promise<TClientPaymentSelect[]>;
     
     updateClientPaymentById(
         organization_id: string,
         client_payment_id: string,
-        clientPaymentUpdates: Partial<TClientPayment>,
-    ): Promise<TClientPayment[]>;
+        clientPaymentUpdates: TClientPaymentUpdate,
+    ): Promise<TClientPaymentSelect[]>;
 }
