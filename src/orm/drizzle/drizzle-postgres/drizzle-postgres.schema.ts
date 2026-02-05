@@ -187,7 +187,7 @@ export const employees = pgTable(
 export const SchemaInsertEmployee = createInsertSchema(employees)
 export type TEmployeeInsert = z.infer<typeof SchemaInsertEmployee>
 export const SchemaUpdateEmployee = createUpdateSchema(employees);
-export type TEmployeeUpdateSchema = z.infer<typeof SchemaUpdateEmployee>
+export type TEmployeeUpdate = z.infer<typeof SchemaUpdateEmployee>
 export const SchemaSelectEmployee = createSelectSchema(employees)
 export type TEmployeeSelect = z.infer<typeof SchemaSelectEmployee>
 
@@ -232,7 +232,7 @@ export const employeesLeaves = pgTable(
 export const SchemaInsertEmployeeLeaves = createInsertSchema(employeesLeaves)
 export type TEmployeeLeavesInsert = z.infer<typeof SchemaInsertEmployeeLeaves>
 export const SchemaUpdateEmployeeLeaves = createUpdateSchema(employeesLeaves);
-export type TEmployeeLeavesUpdateSchema = z.infer<typeof SchemaUpdateEmployeeLeaves>
+export type TEmployeeLeavesUpdate = z.infer<typeof SchemaUpdateEmployeeLeaves>
 export const SchemaSelectEmployeeLeaves = createSelectSchema(employeesLeaves)
 export type TEmployeeLeavesSelect = z.infer<typeof SchemaSelectEmployeeLeaves>
 
