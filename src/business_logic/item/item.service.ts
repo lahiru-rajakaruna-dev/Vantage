@@ -1,9 +1,15 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import {
-    TOKEN__ORM_FACTORY
-}                                                from 'src/orm/orm-factory/orm-factory.service';
-import type IOrmInterface                        from '../../orm/orm.interface';
-import { type TItem }                            from '../../orm/orm.interface';
+    Inject,
+    Injectable,
+    NotFoundException
+}                             from '@nestjs/common';
+import { TOKEN__ORM_FACTORY } from 'src/orm/orm-factory/orm-factory.service';
+import { v4 as uuid }         from 'uuid'
+import {
+    TItemInsert,
+    TItemSelect
+}                             from '../../orm/drizzle/drizzle-postgres/drizzle-postgres.schema';
+import type IOrmInterface     from '../../orm/orm.interface';
 
 
 
@@ -17,16 +23,29 @@ export class ItemService {
     }
     
     
-    async addItem(itemData: TItem): Promise<TItem[]> {
-        return await this.orm.addItem(itemData);
+    async addItem(
+        organization_id: string,
+        itemData: Omit<TItemInsert, 'item_organization_id' | 'item_id'>
+    ): Promise<TItemSelect[]> {
+        return await this.orm.addItem(
+            organization_id,
+            {
+                ...itemData,
+                item_id: uuid()
+                    .toString()
+            }
+        );
     }
     
     
     async viewItemById(
         organization_id: string,
         item_id: string
-    ): Promise<TItem> {
-        const item = await this.orm.viewItemById(organization_id, item_id);
+    ): Promise<TItemSelect> {
+        const item = await this.orm.getItemById(
+            organization_id,
+            item_id
+        );
         
         if (!item) {
             throw new NotFoundException(`Item with ID "${ item_id }" not found`);
@@ -36,7 +55,9 @@ export class ItemService {
     }
     
     
-    async getItemsByOrganizationId(organization_id: string): Promise<TItem[]> {
+    async getItemsByOrganizationId(
+        organization_id: string
+    ): Promise<TItemSelect[]> {
         return this.orm.getItemsByOrganizationId(organization_id);
     }
     
@@ -45,17 +66,19 @@ export class ItemService {
         organization_id: string,
         item_id: string,
         item_name: string,
-    ): Promise<TItem[]> {
+    ): Promise<TItemSelect[]> {
         const updatedItem = await this.orm.updateItemById(
             organization_id,
             item_id,
             {
                 item_name: item_name,
-            },
+            }
         );
-        if (!updatedItem) {
+        
+        if (!updatedItem || updatedItem.length === 0) {
             throw new NotFoundException(`Item with ID "${ item_id }" not found`);
         }
+        
         return updatedItem;
     }
     
@@ -64,33 +87,19 @@ export class ItemService {
         organization_id: string,
         item_id: string,
         item_stock_units: number,
-    ): Promise<TItem[]> {
+    ): Promise<TItemSelect[]> {
         const updatedItem = await this.orm.updateItemById(
             organization_id,
             item_id,
             {
                 item_stock_unit_count: item_stock_units,
-            },
+            }
         );
         
-        if (!updatedItem) {
+        if (!updatedItem || updatedItem.length === 0) {
             throw new NotFoundException(`Item with ID "${ item_id }" not found`);
         }
         
         return updatedItem;
-    }
-    
-    
-    async deleteItemById(organization_id: string, item_id: string) {
-        
-        return await this.orm.deleteItemById(organization_id, item_id)
-    }
-    
-    
-    async deleteItemsByIds(
-        organization_id: string,
-        items_ids: string[],
-    ): Promise<TItem[]> {
-        return await this.orm.deleteItemsByIds(organization_id, items_ids);
     }
 }

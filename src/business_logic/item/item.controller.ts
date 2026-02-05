@@ -2,22 +2,23 @@ import {
     BadRequestException,
     Body,
     Controller,
-    Delete,
     Get,
-    Inject,
     Param,
     Patch,
     Post,
-    Query,
     Req,
     UnauthorizedException,
     UsePipes,
-}                                    from '@nestjs/common';
-import { v4 as uuid }                from 'uuid';
-import { type TItem }                from '../../orm/orm.interface';
-import ZodSchemaValidationPipe       from '../../pipes/schema_validation.pipe';
-import { ItemSchema, TOrganization } from '../../schemas';
-import { ItemService }               from './item.service';
+}                              from '@nestjs/common';
+import {
+    SchemaInsertItem,
+    SchemaUpdateItem,
+    type   TItemInsert,
+    TItemUpdate,
+    TOrganizationSelect
+}                              from '../../orm/drizzle/drizzle-postgres/drizzle-postgres.schema';
+import ZodSchemaValidationPipe from '../../pipes/schema_validation.pipe';
+import { ItemService }         from './item.service';
 
 
 
@@ -26,7 +27,8 @@ export class ItemController {
     private readonly itemService: ItemService;
     
     
-    constructor(@Inject() itemService: ItemService) {
+    // EDITED: Removed incorrect @Inject() decorator
+    constructor(itemService: ItemService) {
         this.itemService = itemService;
     }
     
@@ -34,48 +36,53 @@ export class ItemController {
     @Post()
     @UsePipes(
         new ZodSchemaValidationPipe(
-            ItemSchema.pick({
-                                item_name            : true,
-                                item_stock_unit_count: true,
-                            })
+            SchemaInsertItem.pick({
+                                      item_name            : true,
+                                      item_stock_unit_count: true,
+                                  })
+                            .nonoptional()
         ),
     )
     async addItem(
         @Req() request: Request & {
-            organization: TOrganization
+            organization: TOrganizationSelect
         },
-        @Body() itemData: TItem,
+        @Body() itemData: Omit<TItemInsert, 'item_organization_id' | 'item_id'> // EDITED: Fixed type to match service
     ) {
         if (!request.organization) {
             throw new BadRequestException('[-] Invalid request...');
         }
         
-        return await this.itemService.addItem({
-                                                  item_id              : uuid()
-                                                      .toString(),
-                                                  item_organization_id : request.organization.organization_id,
-                                                  item_name            : itemData.item_name,
-                                                  item_stock_unit_count: itemData.item_stock_unit_count ||
-                                                                         0,
-                                              });
+        return await this.itemService.addItem(
+            request.organization.organization_id,
+            {
+                item_name            : itemData.item_name,
+                item_stock_unit_count: itemData.item_stock_unit_count,
+            }
+        );
     }
     
     
     @Patch('/update/name/:item_id')
     @UsePipes(
         new ZodSchemaValidationPipe(
-            ItemSchema.pick({ item_name: true })
+            SchemaUpdateItem.pick({ item_name: true })
+                            .nonoptional()
         ),
     )
     async updateItemName(
         @Req() request: Request & {
-            organization: TOrganization
+            organization: TOrganizationSelect
         },
         @Param('item_id') item_id: string,
         @Body('item_name') item_name: string,
     ) {
         if (!request.organization) {
             throw new UnauthorizedException('Organization not found');
+        }
+        
+        if (!item_id) {
+            throw new BadRequestException('Item id not found');
         }
         
         return await this.itemService.updateItemNameById(
@@ -89,20 +96,29 @@ export class ItemController {
     @Patch('/update/stock/:item_id')
     @UsePipes(
         new ZodSchemaValidationPipe(
-            ItemSchema.pick({ item_stock_unit_count: true })
+            SchemaUpdateItem.pick({ item_stock_unit_count: true })
+                            .nonoptional()
         ),
     )
     async updateItemStock(
         @Req() request: Request & {
-            organization: TOrganization
+            organization: TOrganizationSelect
         },
         @Param('item_id') item_id: string,
-        @Body() itemData: {
-            item_stock_unit_count: number
-        },
+        @Body() itemData: Pick<TItemUpdate, 'item_stock_unit_count'>, // EDITED:
+                                                                      // Fixed
+                                                                      // type
     ) {
         if (!request.organization) {
             throw new UnauthorizedException('Organization not found');
+        }
+        
+        if (!item_id) {
+            throw new BadRequestException('Item id not found');
+        }
+        
+        if (!itemData.item_stock_unit_count) {
+            throw new BadRequestException('Missing required data')
         }
         
         return await this.itemService.updateItemStockById(
@@ -113,52 +129,19 @@ export class ItemController {
     }
     
     
-    @Delete('/delete/:item_id')
-    async deleteItem(
-        @Req() request: Request & {
-            organization: TOrganization
-        },
-        @Param('item_id') item_id: string,
-    ) {
-        if (!request.organization) {
-            throw new UnauthorizedException('Organization not found');
-        }
-        
-        return await this.itemService.deleteItemById(
-            request.organization.organization_id,
-            item_id,
-        );
-    }
-    
-    
-    @Delete('/delete-batch')
-    async deleteItemsBatch(
-        @Req() request: Request & {
-            organization: TOrganization
-        },
-        @Query('item_ids') item_ids: string,
-    ) {
-        if (!request.organization) {
-            throw new UnauthorizedException('Organization not found');
-        }
-        
-        const itemIdsArray = item_ids.split(',').map(id => id.trim());
-        return await this.itemService.deleteItemsByIds(
-            request.organization.organization_id,
-            itemIdsArray,
-        );
-    }
-    
-    
     @Get('/profile/:item_id')
     async getItemProfile(
         @Req() request: Request & {
-            organization: TOrganization
+            organization: TOrganizationSelect
         },
         @Param('item_id') item_id: string,
     ) {
         if (!request.organization) {
             throw new UnauthorizedException('Organization not found');
+        }
+        
+        if (!item_id) {
+            throw new BadRequestException('Item id not found');
         }
         
         return await this.itemService.viewItemById(
@@ -171,7 +154,7 @@ export class ItemController {
     @Get('/view/organization')
     async getItemsByOrganizationId(
         @Req() request: Request & {
-            organization: TOrganization
+            organization: TOrganizationSelect
         },
     ) {
         if (!request.organization) {
