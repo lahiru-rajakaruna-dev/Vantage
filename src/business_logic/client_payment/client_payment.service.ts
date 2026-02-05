@@ -1,8 +1,15 @@
-import { Inject, Injectable }  from '@nestjs/common';
-import { TOKEN__ORM_FACTORY }  from '../../orm/orm-factory/orm-factory.service';
-import type IOrmInterface      from '../../orm/orm.interface';
-import { type TClientPayment } from '../../orm/orm.interface';
-import { EPaymentStatus }      from '../../types';
+import {
+    Inject,
+    Injectable
+}                             from '@nestjs/common';
+import { v4 as uuid }         from 'uuid'
+import {
+    TClientPaymentInsert,
+    TClientPaymentSelect
+}                             from '../../orm/drizzle/drizzle-postgres/drizzle-postgres.schema';
+import { TOKEN__ORM_FACTORY } from '../../orm/orm-factory/orm-factory.service';
+import type IOrmInterface     from '../../orm/orm.interface';
+import { EPaymentStatus }     from '../../types';
 
 
 
@@ -17,8 +24,21 @@ export class ClientPaymentService {
     
     
     //   ADD CLIENT PAYMENT
-    async addClientPayment(paymentDetails: TClientPayment,): Promise<TClientPayment[]> {
-        return this.orm.addClientPayment(paymentDetails);
+    // EDITED: Fixed parameters to match ORM interface
+    async addClientPayment(
+        organization_id: string, // Added missing parameter
+        client_id: string, // Added missing parameter
+        paymentDetails: Omit<TClientPaymentInsert, 'client_payment_organization_id' | 'client_payment_client_id' | 'client_payment_id'> // Changed type
+    ): Promise<TClientPaymentSelect[]> { // Changed return type
+        return this.orm.addClientPayment(
+            organization_id,
+            client_id,
+            {
+                ...paymentDetails,
+                client_payment_id: uuid()
+                    .toString()
+            }
+        );
     }
     
     
@@ -26,40 +46,56 @@ export class ClientPaymentService {
     async updateClientPaymentStatusToPendingById(
         organization_id: string,
         payment_id: string,
-    ): Promise<TClientPayment[]> {
-        return this.orm.updateClientPaymentById(organization_id, payment_id, {
-            client_payment_status: EPaymentStatus.PENDING,
-        });
+    ): Promise<TClientPaymentSelect[]> { // Fixed return type
+        return this.orm.updateClientPaymentById(
+            organization_id,
+            payment_id,
+            {
+                client_payment_status: EPaymentStatus.PENDING,
+            }
+        );
     }
     
     
     async updateClientPaymentStatusToPaidById(
         organization_id: string,
         payment_id: string,
-    ): Promise<TClientPayment[]> {
-        return this.orm.updateClientPaymentById(organization_id, payment_id, {
-            client_payment_status: EPaymentStatus.PAID,
-        });
+    ): Promise<TClientPaymentSelect[]> { // Fixed return type
+        return this.orm.updateClientPaymentById(
+            organization_id,
+            payment_id,
+            {
+                client_payment_status: EPaymentStatus.PAID,
+            }
+        );
     }
     
     
     async updateClientPaymentStatusToVerifiedById(
         organization_id: string,
         payment_id: string,
-    ): Promise<TClientPayment[]> {
-        return this.orm.updateClientPaymentById(organization_id, payment_id, {
-            client_payment_status: EPaymentStatus.VERIFIED,
-        });
+    ): Promise<TClientPaymentSelect[]> { // Fixed return type
+        return this.orm.updateClientPaymentById(
+            organization_id,
+            payment_id,
+            {
+                client_payment_status: EPaymentStatus.VERIFIED,
+            }
+        );
     }
     
     
     async updateClientPaymentStatusToRefundedById(
         organization_id: string,
         payment_id: string,
-    ): Promise<TClientPayment[]> {
-        return this.orm.updateClientPaymentById(organization_id, payment_id, {
-            client_payment_status: EPaymentStatus.REFUNDED,
-        });
+    ): Promise<TClientPaymentSelect[]> { // Fixed return type
+        return this.orm.updateClientPaymentById(
+            organization_id,
+            payment_id,
+            {
+                client_payment_status: EPaymentStatus.REFUNDED,
+            }
+        );
     }
     
     
@@ -67,10 +103,14 @@ export class ClientPaymentService {
         organization_id: string,
         payment_id: string,
         payment_amount: number,
-    ): Promise<TClientPayment[]> {
-        return this.orm.updateClientPaymentById(organization_id, payment_id, {
-            client_payment_amount: payment_amount
-        })
+    ): Promise<TClientPaymentSelect[]> { // Fixed return type
+        return this.orm.updateClientPaymentById(
+            organization_id,
+            payment_id,
+            {
+                client_payment_amount: payment_amount
+            }
+        )
     }
     
     
@@ -78,8 +118,11 @@ export class ClientPaymentService {
     async viewClientPaymentById(
         organization_id: string,
         payment_id: string,
-    ): Promise<TClientPayment> {
-        return this.orm.getClientPaymentById(organization_id, payment_id);
+    ): Promise<TClientPaymentSelect> { // Fixed return type
+        return this.orm.getClientPaymentById(
+            organization_id,
+            payment_id
+        );
     }
     
     
@@ -87,7 +130,10 @@ export class ClientPaymentService {
     async getClientPaymentsByClientId(
         organization_id: string,
         client_id: string,
-    ): Promise<TClientPayment[]> {
-        return this.orm.getClientPaymentsByClientId(organization_id, client_id);
+    ): Promise<TClientPaymentSelect[]> { // Fixed return type
+        return this.orm.getClientPaymentsByClientId(
+            organization_id,
+            client_id
+        );
     }
 }

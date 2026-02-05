@@ -3,26 +3,23 @@ import {
     Body,
     Controller,
     Get,
-    Inject,
     Param,
     Patch,
     Post,
     Req,
     UnauthorizedException,
     UsePipes,
-}                              from '@nestjs/common';
+}                               from '@nestjs/common';
 import {
-    v4 as uuid
-}                              from 'uuid';
-import ZodSchemaValidationPipe from '../../pipes/schema_validation.pipe';
-import {
-    ClientPaymentSchema,
-    type TClientPaymentInsert,
-    TOrganization
-}                              from '../../schemas';
-import {
-    ClientPaymentService
-}                              from './client_payment.service';
+    SchemaInsertClientPayment,
+    SchemaUpdateClientPayment,
+    TClientPaymentInsert,
+    TClientPaymentUpdate,
+    TOrganizationSelect
+}                               from '../../orm/drizzle/drizzle-postgres/drizzle-postgres.schema';
+import ZodSchemaValidationPipe  from '../../pipes/schema_validation.pipe';
+import { EPaymentStatus }       from '../../types';
+import { ClientPaymentService } from './client_payment.service';
 
 
 
@@ -31,59 +28,63 @@ export class ClientPaymentController {
     private readonly clientPaymentService: ClientPaymentService;
     
     
-    constructor(@Inject() clientPaymentService: ClientPaymentService) {
+    constructor(clientPaymentService: ClientPaymentService) {
         this.clientPaymentService = clientPaymentService;
     }
     
     
-    @Post()
+    @Post('/add/:client_id')
     @UsePipes(
         new ZodSchemaValidationPipe(
-            ClientPaymentSchema.pick({
-                                         client_payment_client_id: true,
-                                         client_payment_amount   : true,
-                                     })
+            SchemaInsertClientPayment.pick({
+                                               client_payment_amount: true,
+                                           })
+                                     .nonoptional()
         ),
     )
     async addClientPayment(
         @Req() request: Request & {
-            organization: TOrganization
+            organization: TOrganizationSelect
         },
-        @Body() clientPaymentData: TClientPaymentInsert,
+        @Param('client_id') client_id: string,
+        @Body() clientPaymentData: Pick<TClientPaymentInsert, 'client_payment_amount'>,
     ) {
-        if (!request.organization) {
+        if (!request.organization || !client_id) {
             throw new BadRequestException('[-] Invalid request...');
         }
         
-        return await this.clientPaymentService.addClientPayment({
-                                                                    client_payment_id             : uuid()
-                                                                        .toString(),
-                                                                    client_payment_organization_id: request.organization.organization_id,
-                                                                    client_payment_client_id      : clientPaymentData.client_payment_client_id,
-                                                                    client_payment_amount         : clientPaymentData.client_payment_amount,
-                                                                    client_payment_date           : Date.now(),
-                                                                    client_payment_status         : 'VERIFIED',
-                                                                });
+        return await this.clientPaymentService.addClientPayment(
+            request.organization.organization_id,
+            client_id,
+            {
+                client_payment_amount: clientPaymentData.client_payment_amount,
+                client_payment_date  : Date.now(),
+                client_payment_status: EPaymentStatus.PENDING,
+            }
+        );
     }
     
     
     @Patch('/update/amount/:client_payment_id')
     @UsePipes(
         new ZodSchemaValidationPipe(
-            ClientPaymentSchema.pick({ client_payment_amount: true })
+            SchemaUpdateClientPayment.pick({ client_payment_amount: true })
+                                     .nonoptional()
         ),
     )
     async updateClientPaymentAmount(
         @Req() request: Request & {
-            organization: TOrganization
+            organization: TOrganizationSelect
         },
         @Param('client_payment_id') client_payment_id: string,
-        @Body() clientPaymentData: {
-            client_payment_amount: number
-        },
+        @Body() clientPaymentData: Pick<TClientPaymentUpdate, 'client_payment_amount'>,
     ) {
         if (!request.organization) {
             throw new UnauthorizedException('Organization not found');
+        }
+        
+        if (!clientPaymentData.client_payment_amount) {
+            throw new BadRequestException('Missing required data')
         }
         
         return await this.clientPaymentService.updateClientPaymentAmountById(
@@ -97,7 +98,7 @@ export class ClientPaymentController {
     @Patch('/update/status/pending/:client_payment_id')
     async updateClientPaymentStatusToPending(
         @Req() request: Request & {
-            organization: TOrganization
+            organization: TOrganizationSelect
         },
         @Param('client_payment_id') client_payment_id: string,
     ) {
@@ -115,7 +116,7 @@ export class ClientPaymentController {
     @Patch('/update/status/paid/:client_payment_id')
     async updateClientPaymentStatusToPaid(
         @Req() request: Request & {
-            organization: TOrganization
+            organization: TOrganizationSelect
         },
         @Param('client_payment_id') client_payment_id: string,
     ) {
@@ -133,7 +134,7 @@ export class ClientPaymentController {
     @Patch('/update/status/verified/:client_payment_id')
     async updateClientPaymentStatusToVerified(
         @Req() request: Request & {
-            organization: TOrganization
+            organization: TOrganizationSelect
         },
         @Param('client_payment_id') client_payment_id: string,
     ) {
@@ -151,7 +152,7 @@ export class ClientPaymentController {
     @Patch('/update/status/refunded/:client_payment_id')
     async updateClientPaymentStatusToRefunded(
         @Req() request: Request & {
-            organization: TOrganization
+            organization: TOrganizationSelect
         },
         @Param('client_payment_id') client_payment_id: string,
     ) {
@@ -169,7 +170,7 @@ export class ClientPaymentController {
     @Get('/profile/:client_payment_id')
     async getClientPaymentProfile(
         @Req() request: Request & {
-            organization: TOrganization
+            organization: TOrganizationSelect
         },
         @Param('client_payment_id') client_payment_id: string,
     ) {
@@ -187,7 +188,7 @@ export class ClientPaymentController {
     @Get('/view/client/:client_id')
     async getClientPaymentsByClientId(
         @Req() request: Request & {
-            organization: TOrganization
+            organization: TOrganizationSelect
         },
         @Param('client_id') client_id: string,
     ) {
