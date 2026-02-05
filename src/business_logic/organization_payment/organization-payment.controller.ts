@@ -3,24 +3,23 @@ import {
     Body,
     Controller,
     Get,
-    Inject,
     Param,
     Patch,
     Post,
     Req,
     UnauthorizedException,
     UsePipes,
-}                                                   from '@nestjs/common';
-import { v4 as uuid }                               from 'uuid';
+}                                     from '@nestjs/common';
 import {
-    type TOrganizationPayment
-}                                                   from '../../orm/orm.interface';
-import ZodSchemaValidationPipe
-                                                    from '../../pipes/schema_validation.pipe';
-import { OrganizationPaymentSchema, TOrganization } from '../../schemas';
-import {
-    OrganizationPaymentService
-}                                                   from './organization-payment.service';
+    SchemaInsertOrganizationPayment,
+    SchemaUpdateOrganizationPayment,
+    TOrganizationPaymentInsert,
+    type TOrganizationPaymentUpdate,
+    type   TOrganizationSelect,
+}                                     from '../../orm/drizzle/drizzle-postgres/drizzle-postgres.schema';
+import ZodSchemaValidationPipe        from '../../pipes/schema_validation.pipe';
+import { EPaymentStatus }             from '../../types';
+import { OrganizationPaymentService } from './organization-payment.service';
 
 
 
@@ -29,7 +28,7 @@ export class OrganizationPaymentController {
     private readonly organizationPaymentService: OrganizationPaymentService;
     
     
-    constructor(@Inject() organizationPaymentService: OrganizationPaymentService) {
+    constructor(organizationPaymentService: OrganizationPaymentService) {
         this.organizationPaymentService = organizationPaymentService;
     }
     
@@ -37,55 +36,59 @@ export class OrganizationPaymentController {
     @Post()
     @UsePipes(
         new ZodSchemaValidationPipe(
-            OrganizationPaymentSchema.pick({
-                                               payment_amount: true,
-                                           })
+            SchemaInsertOrganizationPayment.pick({
+                                                     organization_payment_amount: true,
+                                                 })
+                                           .nonoptional()
         ),
     )
     async addOrganizationPayment(
         @Req() request: Request & {
-            organization: TOrganization
+            organization: TOrganizationSelect
         },
-        @Body() paymentData: TOrganizationPayment,
+        @Body() paymentData: Pick<TOrganizationPaymentInsert, 'organization_payment_amount'>,
     ) {
         if (!request.organization) {
             throw new BadRequestException('[-] Invalid request...');
         }
         
-        return await this.organizationPaymentService.addOrganizationPayment({
-                                                                                payment_id             : uuid()
-                                                                                    .toString(),
-                                                                                payment_organization_id: request.organization.organization_id,
-                                                                                payment_amount         : paymentData.payment_amount,
-                                                                                payment_timestamp      : Date.now(),
-                                                                                payment_status         : 'PAID',
-                                                                            });
+        return await this.organizationPaymentService.addOrganizationPayment(
+            request.organization.organization_id,
+            {
+                organization_payment_amount   : paymentData.organization_payment_amount,
+                organization_payment_timestamp: Date.now(),
+                organization_payment_status   : EPaymentStatus.PAID,
+            }
+        );
     }
     
     
     @Patch('/update/amount/:payment_id')
     @UsePipes(
         new ZodSchemaValidationPipe(
-            OrganizationPaymentSchema.pick({ payment_amount: true })
+            SchemaUpdateOrganizationPayment.pick({ organization_payment_amount: true })
+                                           .nonoptional()
         ),
     )
     async updateOrganizationPaymentAmount(
         @Req() request: Request & {
-            organization: TOrganization
+            organization: TOrganizationSelect
         },
         @Param('payment_id') payment_id: string,
-        @Body() paymentData: {
-            payment_amount: number
-        },
+        @Body() paymentData: Pick<TOrganizationPaymentUpdate, 'organization_payment_amount'>,
     ) {
         if (!request.organization) {
             throw new UnauthorizedException('Organization not found');
         }
         
+        if (!paymentData.organization_payment_amount) {
+            throw new BadRequestException('Missing required data')
+        }
+        
         return await this.organizationPaymentService.updateOrganizationPaymentAmountById(
             request.organization.organization_id,
             payment_id,
-            paymentData.payment_amount,
+            paymentData.organization_payment_amount
         );
     }
     
@@ -93,7 +96,7 @@ export class OrganizationPaymentController {
     @Patch('/update/status/pending/:payment_id')
     async updateOrganizationPaymentStatusToPending(
         @Req() request: Request & {
-            organization: TOrganization
+            organization: TOrganizationSelect
         },
         @Param('payment_id') payment_id: string,
     ) {
@@ -111,7 +114,7 @@ export class OrganizationPaymentController {
     @Patch('/update/status/paid/:payment_id')
     async updateOrganizationPaymentStatusToPaid(
         @Req() request: Request & {
-            organization: TOrganization
+            organization: TOrganizationSelect
         },
         @Param('payment_id') payment_id: string,
     ) {
@@ -129,7 +132,7 @@ export class OrganizationPaymentController {
     @Patch('/update/status/verified/:payment_id')
     async updateOrganizationPaymentStatusToVerified(
         @Req() request: Request & {
-            organization: TOrganization
+            organization: TOrganizationSelect
         },
         @Param('payment_id') payment_id: string,
     ) {
@@ -147,7 +150,7 @@ export class OrganizationPaymentController {
     @Patch('/update/status/refunded/:payment_id')
     async updateOrganizationPaymentStatusToRefunded(
         @Req() request: Request & {
-            organization: TOrganization
+            organization: TOrganizationSelect
         },
         @Param('payment_id') payment_id: string,
     ) {
@@ -165,7 +168,7 @@ export class OrganizationPaymentController {
     @Get('/profile/:payment_id')
     async getOrganizationPaymentProfile(
         @Req() request: Request & {
-            organization: TOrganization
+            organization: TOrganizationSelect
         },
         @Param('payment_id') payment_id: string,
     ) {
@@ -183,7 +186,7 @@ export class OrganizationPaymentController {
     @Get('/view/organization')
     async getOrganizationPaymentsByOrganizationId(
         @Req() request: Request & {
-            organization: TOrganization
+            organization: TOrganizationSelect
         },
     ) {
         if (!request.organization) {

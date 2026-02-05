@@ -1,10 +1,15 @@
-import { Inject, Injectable }        from '@nestjs/common';
 import {
-    TOKEN__ORM_FACTORY
-}                                    from '../../orm/orm-factory/orm-factory.service';
-import type IOrmInterface            from '../../orm/orm.interface';
-import { type TOrganizationPayment } from '../../orm/orm.interface';
-import { EPaymentStatus }            from '../../types';
+    Inject,
+    Injectable
+}                             from '@nestjs/common';
+import { v4 as uuid }         from 'uuid'
+import {
+    TOrganizationPaymentInsert,
+    TOrganizationPaymentSelect
+}                             from '../../orm/drizzle/drizzle-postgres/drizzle-postgres.schema';
+import { TOKEN__ORM_FACTORY } from '../../orm/orm-factory/orm-factory.service';
+import type IOrmInterface     from '../../orm/orm.interface';
+import { EPaymentStatus }     from '../../types';
 
 
 
@@ -18,23 +23,35 @@ export class OrganizationPaymentService {
     }
     
     
-    async addOrganizationPayment(paymentData: TOrganizationPayment,): Promise<TOrganizationPayment[]> {
-        return await this.orm.addOrganizationPayment(paymentData);
+    async addOrganizationPayment(
+        organization_id: string,
+        paymentData: Omit<TOrganizationPaymentInsert, 'organization_payment_organization_id' | 'organization_payment_id'>
+    ): Promise<TOrganizationPaymentSelect[]> {
+        return await this.orm.addOrganizationPayment(
+            organization_id,
+            {
+                ...paymentData,
+                organization_payment_id: uuid()
+                    .toString()
+            }
+        );
     }
     
     
     async getOrganizationPaymentById(
         organization_id: string,
         payment_id: string
-    ) {
+    ): Promise<TOrganizationPaymentSelect> {
         return await this.orm.getOrganizationPaymentById(
             organization_id,
             payment_id
-        )
+        );
     }
     
     
-    async getOrganizationPaymentsByOrganizationId(organization_id: string,): Promise<TOrganizationPayment[]> {
+    async getOrganizationPaymentsByOrganizationId(
+        organization_id: string,
+    ): Promise<TOrganizationPaymentSelect[]> {
         return this.orm.getOrganizationPaymentsByOrganizationId(organization_id);
     }
     
@@ -42,13 +59,13 @@ export class OrganizationPaymentService {
     async updateOrganizationPaymentStatusToPendingById(
         organization_id: string,
         payment_id: string,
-    ): Promise<TOrganizationPayment[]> {
+    ): Promise<TOrganizationPaymentSelect[]> {
         return await this.orm.updateOrganizationPaymentById(
             organization_id,
             payment_id,
             {
-                payment_status: EPaymentStatus.PENDING,
-            },
+                organization_payment_status: EPaymentStatus.PENDING,
+            }
         );
     }
     
@@ -56,12 +73,12 @@ export class OrganizationPaymentService {
     async updateOrganizationPaymentStatusToPaidById(
         organization_id: string,
         payment_id: string,
-    ): Promise<TOrganizationPayment[]> {
+    ): Promise<TOrganizationPaymentSelect[]> {
         return this.orm.updateOrganizationPaymentById(
             organization_id,
             payment_id,
             {
-                payment_status: EPaymentStatus.PAID,
+                organization_payment_status: EPaymentStatus.PAID,
             }
         );
     }
@@ -70,12 +87,12 @@ export class OrganizationPaymentService {
     async updateOrganizationPaymentStatusToVerifiedById(
         organization_id: string,
         payment_id: string,
-    ): Promise<TOrganizationPayment[]> {
+    ): Promise<TOrganizationPaymentSelect[]> {
         return this.orm.updateOrganizationPaymentById(
             organization_id,
             payment_id,
             {
-                payment_status: EPaymentStatus.VERIFIED,
+                organization_payment_status: EPaymentStatus.VERIFIED,
             }
         );
     }
@@ -84,12 +101,12 @@ export class OrganizationPaymentService {
     async updateOrganizationPaymentStatusToRefundedById(
         organization_id: string,
         payment_id: string,
-    ): Promise<TOrganizationPayment[]> {
+    ): Promise<TOrganizationPaymentSelect[]> {
         return this.orm.updateOrganizationPaymentById(
             organization_id,
             payment_id,
             {
-                payment_status: EPaymentStatus.REFUNDED,
+                organization_payment_status: EPaymentStatus.REFUNDED,
             }
         );
     }
@@ -99,13 +116,13 @@ export class OrganizationPaymentService {
         organization_id: string,
         payment_id: string,
         payment_amount: number
-    ) {
+    ): Promise<TOrganizationPaymentSelect[]> {
         return this.orm.updateOrganizationPaymentById(
             organization_id,
             payment_id,
             {
-                payment_amount
+                organization_payment_amount: payment_amount
             }
-        )
+        );
     }
 }
