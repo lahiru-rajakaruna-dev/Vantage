@@ -9,11 +9,11 @@ import {
     TEmployeeCredentialsSelect,
     TEmployeeCredentialsUpdate,
     TEmployeeLeavesSelect,
-    TEmployeeLeavesUpdateSchema,
+    TEmployeeLeavesUpdate,
     TEmployeeSalarySelect,
     TEmployeeSalaryUpdate,
     TEmployeeSelect,
-    TEmployeeUpdateSchema,
+    TEmployeeUpdate,
     TItemInsert,
     TItemSelect,
     TItemUpdate,
@@ -27,7 +27,8 @@ import {
     TSaleSelect,
     TSalesGroupInsert,
     TSalesGroupSelect,
-    TSalesGroupUpdate
+    TSalesGroupUpdate,
+    TSaleUpdate
 } from './drizzle/drizzle-postgres/drizzle-postgres.schema';
 
 
@@ -49,8 +50,7 @@ export default interface IOrmInterface {
     // --- EMPLOYEE (Transaction-based Onboarding) ---
     addEmployee(
         organization_id: string,
-        employeeCredentials: Pick<TEmployeeCredentialsInsert, 'employee_credential_username' | 'employee_credential_password'> // Starts the
-        // transaction
+        employeeCredentials: Pick<TEmployeeCredentialsInsert, 'employee_credential_username' | 'employee_credential_password'>
     ): Promise<TEmployeeSelect[]>;
     
     getEmployeeProfileById(
@@ -58,7 +58,8 @@ export default interface IOrmInterface {
         employee_id: string,
     ): Promise<TEmployeeSelect & {
         employee_sales: TSaleSelect[];
-        employee_leaves: TEmployeeLeavesSelect
+        employee_leaves: TEmployeeLeavesSelect;
+        employee_salary: TEmployeeSalarySelect
     }>;
     
     getEmployeesByOrganizationId(organization_id: string): Promise<TEmployeeSelect[]>;
@@ -71,43 +72,40 @@ export default interface IOrmInterface {
     updateEmployeeById(
         organization_id: string,
         employee_id: string,
-        employeeUpdates: TEmployeeUpdateSchema, // Includes "deactivation" via
-                                                // status
+        employeeUpdates: Omit<TEmployeeUpdate, 'employee_id' | 'employee_organization_id'>,
     ): Promise<TEmployeeSelect[]>;
     
     updateEmployeesByIds(
         organization_id: string,
         employees_ids: string[],
-        employeeUpdates: TEmployeeUpdateSchema,
+        employeeUpdates: Omit<TEmployeeUpdate, 'employee_id' | 'employee_organization_id'>,
     ): Promise<TEmployeeSelect[]>;
     
     // --- EMPLOYEE CREDENTIALS (Security Update) ---
     updateEmployeeCredentials(
         organization_id: string,
         employee_id: string,
-        credentialUpdates: TEmployeeCredentialsUpdate
+        credentialUpdates: Omit<TEmployeeCredentialsUpdate, 'employee_credential_id' | 'employee_credential_organization_id' | 'employee_credential_employee_id'>
     ): Promise<TEmployeeCredentialsSelect>;
     
     // --- EMPLOYEE LEAVE ---
-    
     updateEmployeeLeave(
         organization_id: string,
-        employee_id: string, // Added parameter
-        employeeLeavesUpdates: TEmployeeLeavesUpdateSchema
+        employee_id: string,
+        employeeLeavesUpdates: Omit<TEmployeeLeavesUpdate, 'employee_leave_id' | 'employee_leave_organization_id' | 'employee_leave_employee_id'> // Changed from employee_salary_id to employee_leave_id
     ): Promise<TEmployeeLeavesSelect>;
     
     // --- EMPLOYEE SALARY ---
-    
     updateEmployeeSalary(
         organization_id: string,
         employee_id: string,
-        employeeSalaryUpdates: TEmployeeSalaryUpdate
+        employeeSalaryUpdates: Omit<TEmployeeSalaryUpdate, 'employee_salary_id' | 'employee_salary_organization_id' | 'employee_salary_employee_id'>
     ): Promise<TEmployeeSalarySelect>;
     
     // --- ITEM ---
     addItem(
         organization_id: string,
-        itemDetails: TItemInsert
+        itemDetails: Omit<TItemInsert, 'item_organization_id'>
     ): Promise<TItemSelect[]>;
     
     getItemById(
@@ -120,19 +118,19 @@ export default interface IOrmInterface {
     updateItemById(
         organization_id: string,
         item_id: string,
-        itemUpdates: TItemUpdate,
+        itemUpdates: Omit<TItemUpdate, 'item_organization_id' | 'item_id'>,
     ): Promise<TItemSelect[]>;
     
     updateItemsByIds(
         organization_id: string,
         items_ids: string[],
-        itemUpdates: TItemUpdate,
+        itemUpdates: Omit<TItemUpdate, 'item_organization_id' | 'item_id'>,
     ): Promise<TItemSelect[]>;
     
     // --- SALES_GROUP ---
     addSalesGroup(
         organization_id: string,
-        salesGroupDetails: TSalesGroupInsert
+        salesGroupDetails: Omit<TSalesGroupInsert, 'sales_group_organization_id'>
     ): Promise<TSalesGroupSelect[]>;
     
     getSalesGroupsByOrganizationId(organization_id: string): Promise<TSalesGroupSelect[]>;
@@ -142,14 +140,15 @@ export default interface IOrmInterface {
         sales_group_id: string,
     ): Promise<TSalesGroupSelect & {
         sales_group_employees: (TEmployeeSelect & {
-            employee_sales: TSaleSelect[]
+            employee_sales: TSaleSelect[];
+            employee_leaves: TEmployeeLeavesSelect
         })[]
     }>;
     
     updateSalesGroupById(
         organization_id: string,
         sales_group_id: string,
-        salesGroupUpdates: TSalesGroupUpdate,
+        salesGroupUpdates: Omit<TSalesGroupUpdate, 'sales_group_organization_id' | 'sales_group_id'>,
     ): Promise<TSalesGroupSelect[]>;
     
     deleteSalesGroupById(
@@ -160,7 +159,8 @@ export default interface IOrmInterface {
     // --- SALE ---
     addSale(
         organization_id: string,
-        saleDetails: TSaleInsert
+        employee_id: string,
+        saleDetails: Omit<TSaleInsert, 'sale_organization_id' | 'sale_employee_id'>
     ): Promise<TSaleSelect[]>;
     
     getSaleById(
@@ -196,10 +196,16 @@ export default interface IOrmInterface {
         date_end: number,
     ): Promise<TSaleSelect[]>;
     
+    updateSaleById(
+        organization_id: string,
+        sale_id: string,
+        saleUpdates: Omit<TSaleUpdate, 'sale_id' | 'sale_organization_id' | 'sale_employee_id'>,
+    ): Promise<TSaleSelect[]>;
+    
     // --- ORGANIZATION PAYMENT ---
     addOrganizationPayment(
         organization_id: string,
-        paymentDetails: TOrganizationPaymentInsert,
+        paymentDetails: Omit<TOrganizationPaymentInsert, 'organization_payment_organization_id'>,
     ): Promise<TOrganizationPaymentSelect[]>;
     
     getOrganizationPaymentById(
@@ -212,13 +218,13 @@ export default interface IOrmInterface {
     updateOrganizationPaymentById(
         organization_id: string,
         payment_id: string,
-        paymentUpdates: TOrganizationPaymentUpdate,
+        paymentUpdates: Omit<TOrganizationPaymentUpdate, 'organization_payment_id' | 'organization_payment_organization_id'>,
     ): Promise<TOrganizationPaymentSelect[]>;
     
     // --- CLIENT ---
     addClient(
-        organization_id: string, // Added missing scope
-        clientDetails: TClientInsert
+        organization_id: string,
+        clientDetails: Omit<TClientInsert, 'client_organization_id'>
     ): Promise<TClientSelect[]>;
     
     getClientProfileById(
@@ -231,21 +237,21 @@ export default interface IOrmInterface {
     updateClientById(
         organization_id: string,
         client_id: string,
-        clientUpdates: TClientUpdate, // Includes "deactivation" logic
+        clientUpdates: Omit<TClientUpdate, 'client_id' | 'client_organization_id'>,
     ): Promise<TClientSelect[]>;
     
     updateClientsByIds(
         organization_id: string,
         clients_ids: string[],
-        clientUpdates: TClientUpdate,
+        clientUpdates: Omit<TClientUpdate, 'client_organization_id' | 'client_id'>,
     ): Promise<TClientSelect[]>;
     
     // --- CLIENT PAYMENTS ---
     addClientPayment(
         organization_id: string,
-        client_id: string
-        , paymentDetails: TClientPaymentInsert
-    ): Promise<TClientPaymentSelect[]>;
+        client_id: string,
+        paymentDetails: Omit<TClientPaymentInsert, 'client_payment_organization_id' | 'client_payment_client_id'>
+    ): Promise<TClientPaymentSelect[]>
     
     getClientPaymentById(
         organization_id: string,
@@ -259,7 +265,7 @@ export default interface IOrmInterface {
     
     updateClientPaymentById(
         organization_id: string,
-        client_payment_id: string,
-        clientPaymentUpdates: TClientPaymentUpdate,
+        payment_id: string,
+        clientPaymentUpdates: Omit<TClientPaymentUpdate, 'client_payment_id' | 'client_payment_organization_id' | 'client_payment_client_id'>,
     ): Promise<TClientPaymentSelect[]>;
 }
