@@ -116,7 +116,7 @@ export class SalesGroupController {
             organization: TOrganizationSelect
         },
         @Param('sales_group_id') sales_group_id: string,
-        @Body() salesGroupData: Pick<TSalesGroupUpdate, 'sales_group_territory'>, // Fixed: consistent type
+        @Body() salesGroupData: Pick<TSalesGroupUpdate, 'sales_group_territory'>,
     ) {
         if (!request.organization) {
             throw new UnauthorizedException('Organization not found');

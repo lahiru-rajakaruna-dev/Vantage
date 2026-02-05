@@ -4,6 +4,9 @@ import {
 }                             from '@nestjs/common';
 import { v4 as uuid }         from 'uuid'
 import {
+    TEmployeeLeavesSelect,
+    TEmployeeSelect,
+    TSaleSelect,
     TSalesGroupInsert,
     TSalesGroupSelect
 }                             from '../../orm/drizzle/drizzle-postgres/drizzle-postgres.schema';
@@ -30,15 +33,16 @@ export class SalesGroupService {
             organization_id,
             {
                 ...salesGroupData,
-                sales_group_id             : uuid()
-                    .toString(),
-                sales_group_organization_id: organization_id
+                sales_group_id: uuid()
+                    .toString()
             }
         );
     }
     
     
-    async getSalesGroupsByOrganizationId(organization_id: string,): Promise<TSalesGroupSelect[]> {
+    async getSalesGroupsByOrganizationId(
+        organization_id: string,
+    ): Promise<TSalesGroupSelect[]> {
         return await this.orm.getSalesGroupsByOrganizationId(organization_id);
     }
     
@@ -46,10 +50,15 @@ export class SalesGroupService {
     async getSalesGroupDetailsById(
         organization_id: string,
         sales_group_id: string,
-    ): Promise<TSalesGroupSelect> {
+    ): Promise<TSalesGroupSelect & {
+        sales_group_employees: (TEmployeeSelect & {
+            employee_sales: TSaleSelect[];
+            employee_leaves: TEmployeeLeavesSelect
+        })[]
+    }> { // EDITED: Added proper return type to match ORM interface
         return await this.orm.getSalesGroupDetailsById(
             organization_id,
-            sales_group_id,
+            sales_group_id
         );
     }
     
@@ -64,7 +73,7 @@ export class SalesGroupService {
             sales_group_id,
             {
                 sales_group_name: sales_group_name,
-            },
+            }
         );
     }
     
@@ -80,7 +89,7 @@ export class SalesGroupService {
             {
                 sales_group_territory: sales_group_territory
             }
-        )
+        );
     }
     
     
