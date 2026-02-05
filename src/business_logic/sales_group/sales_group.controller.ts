@@ -4,20 +4,22 @@ import {
     Controller,
     Delete,
     Get,
-    Inject,
     Param,
     Patch,
     Post,
     Req,
     UnauthorizedException,
     UsePipes,
-}                                          from '@nestjs/common';
-import { v4 as uuid }                      from 'uuid';
-import { type TSalesGroup }                from '../../orm/orm.interface';
-import ZodSchemaValidationPipe
-                                           from '../../pipes/schema_validation.pipe';
-import { SalesGroupSchema, TOrganization } from '../../schemas';
-import { SalesGroupService }               from './sales_group.service';
+}                              from '@nestjs/common';
+import {
+    SchemaInsertSalesGroup,
+    SchemaUpdateSalesGroup,
+    TOrganizationSelect,
+    TSalesGroupInsert,
+    TSalesGroupUpdate
+}                              from '../../orm/drizzle/drizzle-postgres/drizzle-postgres.schema';
+import ZodSchemaValidationPipe from '../../pipes/schema_validation.pipe';
+import { SalesGroupService }   from './sales_group.service';
 
 
 
@@ -26,61 +28,78 @@ export class SalesGroupController {
     private readonly salesGroupService: SalesGroupService;
     
     
-    constructor(@Inject() salesGroupService: SalesGroupService) {
-        this.salesGroupService = salesGroupService;
+    constructor(
+        salesGroupService: SalesGroupService
+    ) {
+        this.salesGroupService = salesGroupService
     }
     
     
     @Post()
     @UsePipes(
         new ZodSchemaValidationPipe(
-            SalesGroupSchema.pick({
-                                      sales_group_name     : true,
-                                      sales_group_territory: true,
-                                  })
+            SchemaInsertSalesGroup.pick({
+                                            sales_group_name     : true,
+                                            sales_group_territory: true,
+                                        })
+                                  .nonoptional()
         ),
     )
     async addSalesGroup(
         @Req() request: Request & {
-            organization: TOrganization
+            organization: TOrganizationSelect
         },
-        @Body() salesGroupData: TSalesGroup,
+        @Body() salesGroupData: Pick<TSalesGroupInsert, 'sales_group_name' | 'sales_group_territory'>,
     ) {
         if (!request.organization) {
-            throw new BadRequestException('[-] Invalid request...');
+            throw new UnauthorizedException('Organization not found');
         }
         
-        return await this.salesGroupService.addSalesGroup({
-                                                              sales_group_id             : uuid()
-                                                                  .toString(),
-                                                              sales_group_organization_id: request.organization.organization_id,
-                                                              sales_group_name           : salesGroupData.sales_group_name,
-                                                              sales_group_territory      : salesGroupData.sales_group_territory,
-                                                          });
+        const {
+                  sales_group_name,
+                  sales_group_territory
+              } = salesGroupData
+        
+        if (!sales_group_name || !sales_group_territory) {
+            throw new BadRequestException('Missing required data...')
+        }
+        
+        return await this.salesGroupService.addSalesGroup(
+            request.organization.organization_id,
+            {
+                sales_group_name     : salesGroupData.sales_group_name,
+                sales_group_territory: salesGroupData.sales_group_territory,
+            }
+        );
     }
     
     
     @Patch('/update/name/:sales_group_id')
     @UsePipes(
         new ZodSchemaValidationPipe(
-            SalesGroupSchema.pick({ sales_group_name: true })
+            SchemaUpdateSalesGroup.pick({ sales_group_name: true })
+                                  .nonoptional()
         ),
     )
     async updateSalesGroupName(
         @Req() request: Request & {
-            organization: TOrganization
+            organization: TOrganizationSelect
         },
         @Param('sales_group_id') sales_group_id: string,
-        @Body('sales_group_name') sales_group_name: string,
+        @Body() salesGroupData: Pick<TSalesGroupUpdate, 'sales_group_name'>,
     ) {
         if (!request.organization) {
             throw new UnauthorizedException('Organization not found');
         }
         
+        if (!salesGroupData.sales_group_name) {
+            throw new BadRequestException('Missing required data...')
+        }
+        
         return await this.salesGroupService.updateSalesGroupNameById(
             request.organization.organization_id,
             sales_group_id,
-            sales_group_name,
+            salesGroupData.sales_group_name,
         );
     }
     
@@ -88,20 +107,23 @@ export class SalesGroupController {
     @Patch('/update/territory/:sales_group_id')
     @UsePipes(
         new ZodSchemaValidationPipe(
-            SalesGroupSchema.pick({ sales_group_territory: true })
+            SchemaUpdateSalesGroup.pick({ sales_group_territory: true })
+                                  .nonoptional()
         ),
     )
     async updateSalesGroupTerritory(
         @Req() request: Request & {
-            organization: TOrganization
+            organization: TOrganizationSelect
         },
         @Param('sales_group_id') sales_group_id: string,
-        @Body() salesGroupData: {
-            sales_group_territory: string
-        },
+        @Body() salesGroupData: Pick<TSalesGroupUpdate, 'sales_group_territory'>, // Fixed: consistent type
     ) {
         if (!request.organization) {
             throw new UnauthorizedException('Organization not found');
+        }
+        
+        if (!salesGroupData.sales_group_territory) {
+            throw new BadRequestException('Missing required data...')
         }
         
         return await this.salesGroupService.updateSalesGroupTerritoryById(
@@ -115,7 +137,7 @@ export class SalesGroupController {
     @Delete('/delete/:sales_group_id')
     async deleteSalesGroup(
         @Req() request: Request & {
-            organization: TOrganization
+            organization: TOrganizationSelect
         },
         @Param('sales_group_id') sales_group_id: string,
     ) {
@@ -133,7 +155,7 @@ export class SalesGroupController {
     @Get('/profile/:sales_group_id')
     async getSalesGroupProfile(
         @Req() request: Request & {
-            organization: TOrganization
+            organization: TOrganizationSelect
         },
         @Param('sales_group_id') sales_group_id: string,
     ) {
@@ -151,7 +173,7 @@ export class SalesGroupController {
     @Get('/view/organization')
     async getSalesGroupsByOrganizationId(
         @Req() request: Request & {
-            organization: TOrganization
+            organization: TOrganizationSelect
         },
     ) {
         if (!request.organization) {
