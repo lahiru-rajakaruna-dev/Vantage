@@ -7,6 +7,7 @@ import {
     Headers,
     Inject,
     InternalServerErrorException,
+    Param,
     Patch,
     Post,
     Req,
@@ -44,9 +45,9 @@ export class OrganizationController {
     
     
     constructor(
-        @Inject() organizationService: OrganizationService,
+        organizationService: OrganizationService,
         @Inject(TOKEN__LOGGER_FACTORY) logger: ILoggerService,
-        @Inject() paddle: PaddleService,
+        paddle: PaddleService,
     ) {
         this.organizationService = organizationService;
         this.logger              = logger;
@@ -63,8 +64,7 @@ export class OrganizationController {
         }
         
         const organization =
-                  await this.organizationService.getOrganizationDetailsAdminId(
-                      user_id);
+                  await this.organizationService.getOrganizationDetailsAdminById(user_id);
         
         if (organization) {
             return {
@@ -266,7 +266,7 @@ export class OrganizationController {
     
     
     @Patch('/activate/:organization_id')
-    activateOrganizationById(organization_id: string) {
+    activateOrganizationById(@Param('organization_id') organization_id: string) {
         if (!organization_id) {
             throw new BadRequestException('[-] Invalid request...');
         }
