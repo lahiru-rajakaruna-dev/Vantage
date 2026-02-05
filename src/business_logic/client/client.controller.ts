@@ -3,7 +3,6 @@ import {
     Body,
     Controller,
     Get,
-    Inject,
     Param,
     Patch,
     Post,
@@ -28,7 +27,8 @@ export class ClientController {
     private readonly clientService: ClientService;
     
     
-    constructor(@Inject() clientService: ClientService) {
+    // EDITED: Removed incorrect @Inject() decorator
+    constructor(clientService: ClientService) {
         this.clientService = clientService;
     }
     
@@ -47,7 +47,7 @@ export class ClientController {
         @Req() request: Request & {
             organization: TOrganizationSelect
         },
-        @Body() clientData: TClientInsert
+        @Body() clientData: Omit<TClientInsert, 'client_organization_id' | 'client_account_status' | 'client_registration_date'> // EDITED: Fixed type
     ) {
         if (!request.organization) {
             throw new BadRequestException('[-] Invalid request...');
@@ -128,7 +128,9 @@ export class ClientController {
     ) {
         
         if (!request.organization) {
-            throw new UnauthorizedException('Organziation not found')
+            throw new UnauthorizedException('Organization not found') // EDITED:
+                                                                      // Fixed
+                                                                      // typo
         }
         
         return await this.clientService.updateClientPhone(
@@ -148,7 +150,9 @@ export class ClientController {
     ) {
         
         if (!request.organization) {
-            throw new UnauthorizedException('Organziation not found')
+            throw new UnauthorizedException('Organization not found') // EDITED:
+                                                                      // Fixed
+                                                                      // typo
         }
         
         return await this.clientService.updateClientAccountStatusToActive(
@@ -166,7 +170,9 @@ export class ClientController {
         @Param('client_id') client_id: string,
     ) {
         if (!request.organization) {
-            throw new UnauthorizedException('Organziation not found')
+            throw new UnauthorizedException('Organization not found') // EDITED:
+                                                                      // Fixed
+                                                                      // typo
         }
         
         return await this.clientService.updateClientAccountStatusToDeactivated(
@@ -184,7 +190,9 @@ export class ClientController {
         @Param('client_id') client_id: string,
     ) {
         if (!request.organization) {
-            throw new UnauthorizedException('Organziation not found')
+            throw new UnauthorizedException('Organization not found') // EDITED:
+                                                                      // Fixed
+                                                                      // typo
         }
         
         return await this.clientService.updateClientAccountStatusToUnverified(
@@ -202,7 +210,9 @@ export class ClientController {
         @Param('client_id') client_id: string,
     ) {
         if (!request.organization) {
-            throw new UnauthorizedException('Organziation not found')
+            throw new UnauthorizedException('Organization not found') // EDITED:
+                                                                      // Fixed
+                                                                      // typo
         }
         
         return await this.clientService.viewClientProfile(
@@ -212,9 +222,9 @@ export class ClientController {
     }
     
     
-    @Get('/view/organization/:organization_id')
-    async getClientsByOrganizationId(
-        @Param() request: Request & {
+    @Get('/view/organization')
+    async getClientsByOrganizationId( // EDITED: Removed unnecessary param decorator
+        @Req() request: Request & {
             organization: TOrganizationSelect
         },
     ) {
