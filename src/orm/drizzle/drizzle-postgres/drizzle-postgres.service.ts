@@ -182,7 +182,7 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
                                                         employee_nic_number         : employeeDetails.employee_credential_username,
                                                         employee_organization_id    : organization_id,
                                                         employee_sales_group_id     : null,
-                                                        employee_profile_picture_url: employeeDetails.employee_profile_picture_url // Added missing field
+                                                        employee_profile_picture_url: null // Added missing field
                                                     })
                                             .returning())[0]
             
