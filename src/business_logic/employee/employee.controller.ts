@@ -14,7 +14,7 @@ import {
     SchemaInsertEmployeeCredentials,
     SchemaUpdateEmployee,
     TEmployeeCredentialsInsert,
-    TEmployeeUpdateSchema,
+    TEmployeeUpdate,
     TOrganizationSelect
 }                              from '../../orm/drizzle/drizzle-postgres/drizzle-postgres.schema';
 import ZodSchemaValidationPipe from '../../pipes/schema_validation.pipe';
@@ -56,7 +56,7 @@ export class EmployeeController {
         @Param('sales_group_id') sales_group_id: string,
     ) {
         if (!request.organization) {
-            return new UnauthorizedException('Organization not found')
+            throw new UnauthorizedException('Organization not found');
         }
         
         return await this.employeesService.getEmployeesBySalesGroupId(
@@ -74,7 +74,7 @@ export class EmployeeController {
         @Param('employee_id') employee_id: string,
     ) {
         if (!request.organization) {
-            return new UnauthorizedException('Organization not found')
+            throw new UnauthorizedException('Organization not found');
         }
         
         return await this.employeesService.getEmployeeProfile(
@@ -88,9 +88,10 @@ export class EmployeeController {
     @UsePipes(
         new ZodSchemaValidationPipe(
             SchemaInsertEmployeeCredentials.pick({
-                                                     employee_credential_username : true,
-                                                     employee_credentials_password: true
+                                                     employee_credential_username: true,
+                                                     employee_credential_password: true
                                                  })
+                                           .nonoptional()
         )
     )
     async addEmployee(
@@ -133,7 +134,7 @@ export class EmployeeController {
             organization: TOrganizationSelect
         },
         @Param('employee_id') employee_id: string,
-        @Body() employeeData: Pick<TEmployeeUpdateSchema, 'employee_first_name' | 'employee_last_name'>,
+        @Body() employeeData: Pick<TEmployeeUpdate, 'employee_first_name' | 'employee_last_name'>,
     ) {
         if (!request.organization) {
             throw new BadRequestException('[-] Invalid request...');
@@ -166,7 +167,7 @@ export class EmployeeController {
             organization: TOrganizationSelect
         },
         @Param('employee_id') employee_id: string,
-        @Body() employeeData: Pick<TEmployeeUpdateSchema, 'employee_nic_number'>,
+        @Body() employeeData: Pick<TEmployeeUpdate, 'employee_nic_number'>,
     ) {
         if (!request.organization) {
             throw new BadRequestException('[-] Invalid request...');
@@ -196,7 +197,7 @@ export class EmployeeController {
             organization: TOrganizationSelect
         },
         @Param('employee_id') employee_id: string,
-        @Body() employeeData: Pick<TEmployeeUpdateSchema, 'employee_phone'>,
+        @Body() employeeData: Pick<TEmployeeUpdate, 'employee_phone'>,
     ) {
         if (!request.organization) {
             throw new BadRequestException('[-] Invalid request...');
@@ -227,8 +228,9 @@ export class EmployeeController {
         @Req() request: Request & {
             organization: TOrganizationSelect
         },
-        @Param('employees_ids') employees_ids: string[],
-        @Body() employeeData: Pick<TEmployeeUpdateSchema, 'employee_sales_group_id'>,
+        @Body() employeeData: Pick<TEmployeeUpdate, 'employee_sales_group_id'> & {
+            employees_ids: string[]
+        },
     ) {
         if (!request.organization) {
             throw new BadRequestException('[-] Invalid request...');
@@ -240,7 +242,7 @@ export class EmployeeController {
         
         return await this.employeesService.addEmployeesToSalesGroupByIds(
             request.organization.organization_id,
-            employees_ids,
+            employeeData.employees_ids,
             employeeData.employee_sales_group_id,
         );
     }
@@ -251,7 +253,7 @@ export class EmployeeController {
         @Req() request: Request & {
             organization: TOrganizationSelect
         },
-        @Param('employees_ids') employees_ids: string[],
+        @Body('employees_ids') employees_ids: string[],
     ) {
         if (!request.organization) {
             throw new BadRequestException('[-] Invalid request...');
