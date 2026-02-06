@@ -2,33 +2,35 @@ import { ConfigService } from '@nestjs/config';
 import type ILoggerService from '../../logger/logger.interface';
 import IOrmInterface from '../orm.interface';
 import {
-    TClientInsert,
-    TClientPaymentInsert,
+    TClientData,
+    TClientPaymentData,
     TClientPaymentSelect,
     TClientPaymentUpdate,
     TClientSelect,
     TClientUpdate,
-    TEmployeeCredentialsInsert,
+    TEmployeeActivityData,
+    TEmployeeActivitySelect,
+    TEmployeeAttendanceSelect,
+    TEmployeeAttendanceUpdate,
+    TEmployeeCredentialsData,
     TEmployeeCredentialsSelect,
     TEmployeeCredentialsUpdate,
-    TEmployeeLeavesSelect,
-    TEmployeeLeavesUpdate,
     TEmployeeSalarySelect,
     TEmployeeSalaryUpdate,
     TEmployeeSelect,
     TEmployeeUpdate,
-    TItemInsert,
+    TItemData,
     TItemSelect,
     TItemUpdate,
-    TOrganizationInsert,
-    TOrganizationPaymentInsert,
+    TOrganizationData,
+    TOrganizationPaymentData,
     TOrganizationPaymentSelect,
     TOrganizationPaymentUpdate,
     TOrganizationSelect,
     TOrganizationUpdate,
-    TSaleInsert,
+    TSaleData,
     TSaleSelect,
-    TSalesGroupInsert,
+    TSalesGroupData,
     TSalesGroupSelect,
     TSalesGroupUpdate,
     TSaleUpdate
@@ -50,7 +52,12 @@ export default abstract class AbstractDrizzlerService implements IOrmInterface {
     }
     
     
-    abstract addOrganization(organizationDetails: TOrganizationInsert): Promise<TOrganizationSelect>
+    abstract addOrganization(
+        organization_id: string,
+        organization_admin_id: string,
+        organization_stripe_customer_id: string,
+        organizationDetails: TOrganizationData
+    ): Promise<TOrganizationSelect>
     
     
     abstract updateOrganizationById(
@@ -62,13 +69,15 @@ export default abstract class AbstractDrizzlerService implements IOrmInterface {
     // ORGANIZATION_PAYMENT
     abstract addOrganizationPayment(
         organization_id: string,
-        paymentDetails: Omit<TOrganizationPaymentInsert, 'organization_payment_organization_id'>
+        organization_payment_id: string,
+        paymentDetails: TOrganizationPaymentData
     ): Promise<TOrganizationPaymentSelect[]>
     
     
     abstract updateOrganizationPaymentById(
-        organization_id: string, payment_id: string,
-        paymentUpdates: Omit<TOrganizationPaymentUpdate, 'organization_payment_id' | 'organization_payment_organization_id'>
+        organization_id: string,
+        payment_id: string,
+        paymentUpdates: TOrganizationPaymentUpdate
     ): Promise<TOrganizationPaymentSelect[]>
     
     
@@ -85,30 +94,31 @@ export default abstract class AbstractDrizzlerService implements IOrmInterface {
     
     abstract addEmployee(
         organization_id: string,
-        employeeCredentials: Pick<TEmployeeCredentialsInsert, 'employee_credential_username' | 'employee_credential_password'>
+        employee_id: string,
+        currentMonth: number,
+        currentYear: number,
+        employeeCredentials: TEmployeeCredentialsData
     ): Promise<TEmployeeSelect[]>
     
     
     abstract updateEmployeeById(
-        organization_id: string, employee_id: string,
-        employeeUpdates: Omit<TEmployeeUpdate, 'employee_id' | 'employee_organization_id'>
+        organization_id: string,
+        employee_id: string,
+        employeeUpdates: TEmployeeUpdate
     ): Promise<TEmployeeSelect[]>
     
     
     abstract updateEmployeesByIds(
-        organization_id: string, employees_ids: string[],
-        employeeUpdates: Omit<TEmployeeUpdate, 'employee_id' | 'employee_organization_id'>
+        organization_id: string,
+        employees_ids: string[],
+        employeeUpdates: TEmployeeUpdate
     ): Promise<TEmployeeSelect[]>
     
     
     abstract getEmployeeProfileById(
         organization_id: string,
         employee_id: string
-    ): Promise<TEmployeeSelect & {
-        employee_sales: TSaleSelect[];
-        employee_leaves: TEmployeeLeavesSelect;
-        employee_salary: TEmployeeSalarySelect
-    }>
+    ): Promise<TEmployeeSelect>
     
     
     abstract getEmployeesByOrganizationId(organization_id: string): Promise<TEmployeeSelect[]>
@@ -123,25 +133,41 @@ export default abstract class AbstractDrizzlerService implements IOrmInterface {
 //     EMPLOYEE_CREDENTIALS
     
     abstract updateEmployeeCredentials(
-        organization_id: string, employee_id: string,
-        credentialUpdates: Omit<TEmployeeCredentialsUpdate, 'employee_credential_id' | 'employee_credential_organization_id' | 'employee_credential_employee_id'>
+        organization_id: string,
+        employee_id: string,
+        credentialUpdates: TEmployeeCredentialsUpdate
     ): Promise<TEmployeeCredentialsSelect>
 
 
-//     EMPLOYEE_LEAVES
+//     EMPLOYEE_ATTENDANCE
+    abstract getEmployeeAttendance(
+        organization_id: string,
+        employee_id: string
+    ): Promise<TEmployeeAttendanceSelect>
     
-    abstract updateEmployeeLeave(
+    
+    abstract updateEmployeeAttendance(
         organization_id: string,
         employee_id: string,
-        employeeLeavesUpdates: Omit<TEmployeeLeavesUpdate, 'employee_leave_id' | 'employee_leave_organization_id' | 'employee_leave_employee_id'>
-    ): Promise<TEmployeeLeavesSelect>
+        employeeAttendanceUpdates: TEmployeeAttendanceUpdate
+    ): Promise<TEmployeeAttendanceSelect>
+
+
+//     EMPLOYEE ACTIVITY
+    abstract addEmployeeActivity(
+        organization_id: string,
+        employee_id: string,
+        activity_id: string,
+        employeeActivityData: TEmployeeActivityData
+    ): Promise<TEmployeeActivitySelect[]>
 
 
 //     EMPLOYEE_SALARY
     
     abstract updateEmployeeSalary(
-        organization_id: string, employee_id: string,
-        employeeSalaryUpdates: Omit<TEmployeeSalaryUpdate, 'employee_salary_id' | 'employee_salary_organization_id' | 'employee_salary_employee_id'>
+        organization_id: string,
+        employee_id: string,
+        employeeSalaryUpdates: TEmployeeSalaryUpdate
     ): Promise<TEmployeeSalarySelect>
     
     
@@ -155,25 +181,22 @@ export default abstract class AbstractDrizzlerService implements IOrmInterface {
     
     abstract addSalesGroup(
         organization_id: string,
-        salesGroupDetails: Omit<TSalesGroupInsert, 'sales_group_organization_id'>
+        sales_group_id: string,
+        salesGroupDetails: TSalesGroupData
     ): Promise<TSalesGroupSelect[]>
     
     
     abstract updateSalesGroupById(
-        organization_id: string, sales_group_id: string,
-        salesGroupUpdates: Omit<TSalesGroupUpdate, 'sales_group_organization_id' | 'sales_group_id'>
+        organization_id: string,
+        sales_group_id: string,
+        salesGroupUpdates: TSalesGroupUpdate
     ): Promise<TSalesGroupSelect[]>
     
     
     abstract getSalesGroupDetailsById(
         organization_id: string,
         sales_group_id: string
-    ): Promise<TSalesGroupSelect & {
-        sales_group_employees: (TEmployeeSelect & {
-            employee_sales: TSaleSelect[];
-            employee_leaves: TEmployeeLeavesSelect
-        })[]
-    }>
+    ): Promise<TSalesGroupSelect>
     
     
     abstract getSalesGroupsByOrganizationId(organization_id: string): Promise<TSalesGroupSelect[]>
@@ -188,24 +211,29 @@ export default abstract class AbstractDrizzlerService implements IOrmInterface {
 //     CLIENT
     abstract addClient(
         organization_id: string,
-        clientDetails: Omit<TClientInsert, 'client_organization_id'>
+        client_id: string,
+        clientDetails: TClientData
     ): Promise<TClientSelect[]>
     
     
     abstract updateClientById(
-        organization_id: string, client_id: string,
-        clientUpdates: Omit<TClientUpdate, 'client_id' | 'client_organization_id'>
+        organization_id: string,
+        client_id: string,
+        clientUpdates: TClientUpdate
     ): Promise<TClientSelect[]>
     
     
     abstract updateClientsByIds(
-        organization_id: string, clients_ids: string[],
-        clientUpdates: Omit<TClientUpdate, 'client_organization_id' | 'client_id'>
+        organization_id: string,
+        clients_ids: string[],
+        clientUpdates: TClientUpdate
     ): Promise<TClientSelect[]>
     
     
     abstract getClientProfileById(
-        organization_id: string, client_id: string): Promise<TClientSelect>
+        organization_id: string,
+        client_id: string
+    ): Promise<TClientSelect>
     
     
     abstract getClientsByOrganizationId(organization_id: string): Promise<TClientSelect[]>
@@ -214,15 +242,16 @@ export default abstract class AbstractDrizzlerService implements IOrmInterface {
 //     CLIENT_PAYMENT
     abstract addClientPayment(
         organization_id: string,
-        client_id: string
-        ,
-        paymentDetails: Omit<TClientPaymentInsert, 'client_payment_organization_id' | 'client_payment_client_id'>
+        client_id: string,
+        client_payment_id: string,
+        paymentDetails: TClientPaymentData
     ): Promise<TClientPaymentSelect[]>
     
     
     abstract updateClientPaymentById(
-        organization_id: string, payment_id: string,
-        clientPaymentUpdates: Omit<TClientPaymentUpdate, 'client_payment_id' | 'client_payment_organization_id' | 'client_payment_client_id'>
+        organization_id: string,
+        payment_id: string,
+        clientPaymentUpdates: TClientPaymentUpdate
     ): Promise<TClientPaymentSelect[]>
     
     
@@ -241,19 +270,22 @@ export default abstract class AbstractDrizzlerService implements IOrmInterface {
 //     ITEM
     abstract addItem(
         organization_id: string,
-        itemDetails: Omit<TItemInsert, 'item_organization_id'>
+        item_id: string,
+        itemDetails: TItemData
     ): Promise<TItemSelect[]>
     
     
     abstract updateItemById(
-        organization_id: string, item_id: string,
-        itemUpdates: Omit<TItemUpdate, 'item_organization_id' | 'item_id'>
+        organization_id: string,
+        item_id: string,
+        itemUpdates: TItemUpdate
     ): Promise<TItemSelect[]>
     
     
     abstract updateItemsByIds(
-        organization_id: string, items_ids: string[],
-        itemUpdates: Omit<TItemUpdate, 'item_organization_id' | 'item_id'>
+        organization_id: string,
+        items_ids: string[],
+        itemUpdates: TItemUpdate
     ): Promise<TItemSelect[]>
     
     
@@ -261,48 +293,63 @@ export default abstract class AbstractDrizzlerService implements IOrmInterface {
     
     
     abstract getItemById(
-        organization_id: string, item_id: string): Promise<TItemSelect>
+        organization_id: string,
+        item_id: string
+    ): Promise<TItemSelect>
 
 
 //     SALE
     abstract addSale(
         organization_id: string,
         employee_id: string,
-        saleDetails: TSaleInsert
+        sale_id: string,
+        saleDetails: TSaleData
     ): Promise<TSaleSelect[]>
     
     
     abstract getSaleById(
-        organization_id: string, sale_id: string): Promise<TSaleSelect>
+        organization_id: string,
+        sale_id: string
+    ): Promise<TSaleSelect>
     
     
     abstract getSalesByClientId(
-        organization_id: string, client_id: string): Promise<TSaleSelect[]>
+        organization_id: string,
+        client_id: string
+    ): Promise<TSaleSelect[]>
     
     
     abstract getSalesByEmployeeId(
-        organization_id: string, employee_id: string): Promise<TSaleSelect[]>
+        organization_id: string,
+        employee_id: string
+    ): Promise<TSaleSelect[]>
     
     
     abstract getSalesByItemId(
-        organization_id: string, item_id: string): Promise<TSaleSelect[]>
+        organization_id: string,
+        item_id: string
+    ): Promise<TSaleSelect[]>
     
     
     abstract getSalesByOrganizationId(organization_id: string): Promise<TSaleSelect[]>
     
     
     abstract getSalesByDate(
-        organization_id: string, date: number): Promise<TSaleSelect[]>
+        organization_id: string,
+        date: number
+    ): Promise<TSaleSelect[]>
     
     
     abstract getSalesWithinDates(
-        organization_id: string, date_start: number,
+        organization_id: string,
+        date_start: number,
         date_end: number
     ): Promise<TSaleSelect[]>
     
     
     abstract updateSaleById(
-        organization_id: string, sale_id: string,
-        saleUpdates: Omit<TSaleUpdate, 'sale_id' | 'sale_organization_id' | 'sale_employee_id'>
+        organization_id: string,
+        sale_id: string,
+        saleUpdates: TSaleUpdate
     ): Promise<TSaleSelect[]>
 }

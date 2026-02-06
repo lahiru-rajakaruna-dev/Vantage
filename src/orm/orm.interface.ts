@@ -5,6 +5,8 @@ import {
     TClientPaymentUpdate,
     TClientSelect,
     TClientUpdate,
+    TEmployeeActivityData,
+    TEmployeeActivitySelect,
     TEmployeeAttendanceSelect,
     TEmployeeAttendanceUpdate,
     TEmployeeCredentialsData,
@@ -55,6 +57,8 @@ export default interface IOrmInterface {
     addEmployee(
         organization_id: string,
         employee_id: string,
+        currentMonth: number,
+        currentYear: number,
         employeeCredentials: TEmployeeCredentialsData
     ): Promise<TEmployeeSelect[]>;
     
@@ -100,6 +104,15 @@ export default interface IOrmInterface {
         employee_id: string,
         employeeAttendanceUpdates: TEmployeeAttendanceUpdate
     ): Promise<TEmployeeAttendanceSelect>;
+    
+    // --- EMPLOYEE ACTIVITY ---
+    
+    addEmployeeActivity(
+        organization_id: string,
+        employee_id: string,
+        activity_id: string,
+        employeeActivityData: TEmployeeActivityData
+    ): Promise<TEmployeeActivitySelect[]>
     
     // --- EMPLOYEE SALARY ---
     updateEmployeeSalary(
