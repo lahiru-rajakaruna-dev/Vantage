@@ -480,25 +480,23 @@ export const organizationsPayments = sqliteTable('organizations_payments', {
 }),);
 
 export const clients = sqliteTable('clients', {
-    client_id                : text()
+    client_id               : text()
         .notNull(),
-    client_organization_id   : text()
+    client_organization_id  : text()
         .notNull()
         .references(() => organizations.organization_id),
-    client_stripe_customer_id: text()
+    client_name             : text()
         .notNull(),
-    client_name              : text()
+    client_nic_number       : text()
         .notNull(),
-    client_nic_number        : text()
+    client_email            : text()
         .notNull(),
-    client_email             : text()
+    client_phone            : text()
         .notNull(),
-    client_phone             : text()
-        .notNull(),
-    client_account_status    : text({ enum: AccountStatus })
+    client_account_status   : text({ enum: AccountStatus })
         .notNull()
         .default('UNVERIFIED'),
-    client_registration_date : integer()
+    client_registration_date: integer()
         .notNull(),
 }, (table) => ({
     pk                 : primaryKey({
@@ -506,13 +504,10 @@ export const clients = sqliteTable('clients', {
                                         columns: [
                                             table.client_id,
                                             table.client_organization_id,
-                                            table.client_stripe_customer_id,
                                         ],
                                     }),
     organizationIdIndex: index('client_organization_id_fk_idx')
         .on(table.client_organization_id),
-    stripeIdIndex      : index('client_stripe_customer_id_idx')
-        .on(table.client_stripe_customer_id),
 }),);
 
 export const clientsPayments = sqliteTable('clients_payments', {

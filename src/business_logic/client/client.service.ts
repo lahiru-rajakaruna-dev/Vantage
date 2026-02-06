@@ -33,7 +33,6 @@ export class ClientService {
         const client_id = uuid().toString()
         return this.orm.addClient(organization_id, client_id, {
             ...clientDetails,
-            client_stripe_customer_id: 'no-stripe-customer-id-yet'
         });
     }
     
