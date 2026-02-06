@@ -1,15 +1,14 @@
 import {
     Inject,
     Injectable
-}                             from '@nestjs/common';
+} from '@nestjs/common';
 import { TOKEN__ORM_FACTORY } from 'src/orm/orm-factory/orm-factory.service';
+import { v4 as uuid } from 'uuid'
 import {
-    TEmployeeCredentialsInsert,
-    TEmployeeLeavesSelect,
+    TEmployeeCredentialsData,
     TEmployeeSelect,
-    TSaleSelect
-}                             from '../../orm/drizzle/drizzle-postgres/drizzle-postgres.schema';
-import type IOrmInterface     from '../../orm/orm.interface';
+} from '../../orm/drizzle/drizzle-postgres/drizzle-postgres.schema';
+import type IOrmInterface from '../../orm/orm.interface';
 
 
 
@@ -18,17 +17,22 @@ export class EmployeeService {
     private readonly orm: IOrmInterface
     
     
-    constructor(@Inject(TOKEN__ORM_FACTORY) orm: IOrmInterface) {
+    constructor(
+        @Inject(TOKEN__ORM_FACTORY)
+        orm: IOrmInterface) {
         this.orm = orm;
     }
     
     
     async addEmployee(
         organization_id: string,
-        employeeData: Pick<TEmployeeCredentialsInsert, 'employee_credential_username' | 'employee_credential_password'>
+        employeeData: TEmployeeCredentialsData
     ): Promise<TEmployeeSelect[]> {
+        const employee_id = uuid().toString()
+        
         return await this.orm.addEmployee(
             organization_id,
+            employee_id,
             employeeData
         );
     }
@@ -37,10 +41,7 @@ export class EmployeeService {
     async getEmployeeProfile(
         organization_id: string,
         employee_id: string,
-    ): Promise<TEmployeeSelect & {
-        employee_sales: TSaleSelect[],
-        employee_leaves: TEmployeeLeavesSelect
-    }> {
+    ): Promise<TEmployeeSelect> {
         return await this.orm.getEmployeeProfileById(
             organization_id,
             employee_id
@@ -99,14 +100,10 @@ export class EmployeeService {
         employee_first_name: string,
         employee_last_name: string
     ): Promise<TEmployeeSelect[]> {
-        return await this.orm.updateEmployeeById(
-            organization_id,
-            employee_id,
-            {
-                employee_first_name: employee_first_name,
-                employee_last_name : employee_last_name,
-            }
-        );
+        return await this.orm.updateEmployeeById(organization_id, employee_id, {
+            employee_first_name: employee_first_name,
+            employee_last_name : employee_last_name,
+        });
     }
     
     
@@ -115,13 +112,9 @@ export class EmployeeService {
         employee_id: string,
         employee_nic_number: string,
     ): Promise<TEmployeeSelect[]> {
-        return await this.orm.updateEmployeeById(
-            organization_id,
-            employee_id,
-            {
-                employee_nic_number: employee_nic_number,
-            }
-        );
+        return await this.orm.updateEmployeeById(organization_id, employee_id, {
+            employee_nic_number: employee_nic_number,
+        });
     }
     
     
@@ -130,13 +123,9 @@ export class EmployeeService {
         employee_id: string,
         employee_phone: string,
     ): Promise<TEmployeeSelect[]> {
-        return await this.orm.updateEmployeeById(
-            organization_id,
-            employee_id,
-            {
-                employee_phone: employee_phone,
-            }
-        );
+        return await this.orm.updateEmployeeById(organization_id, employee_id, {
+            employee_phone: employee_phone,
+        });
     }
     
     
@@ -144,13 +133,9 @@ export class EmployeeService {
         organization_id: string,
         employee_id: string,
     ): Promise<TEmployeeSelect[]> {
-        return await this.orm.updateEmployeeById(
-            organization_id,
-            employee_id,
-            {
-                employee_status: 'SUSPENDED'
-            }
-        );
+        return await this.orm.updateEmployeeById(organization_id, employee_id, {
+            employee_status: 'SUSPENDED'
+        });
     }
     
     
@@ -158,12 +143,8 @@ export class EmployeeService {
         organization_id: string,
         employee_id: string,
     ): Promise<TEmployeeSelect[]> {
-        return await this.orm.updateEmployeeById(
-            organization_id,
-            employee_id,
-            {
-                employee_status: 'FIRED'
-            }
-        );
+        return await this.orm.updateEmployeeById(organization_id, employee_id, {
+            employee_status: 'FIRED'
+        });
     }
 }

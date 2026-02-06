@@ -18,7 +18,9 @@ export class OrganizationPaymentService {
     private readonly orm: IOrmInterface;
     
     
-    constructor(@Inject(TOKEN__ORM_FACTORY) orm: IOrmInterface) {
+    constructor(
+        @Inject(TOKEN__ORM_FACTORY)
+        orm: IOrmInterface) {
         this.orm = orm;
     }
     
@@ -27,13 +29,11 @@ export class OrganizationPaymentService {
         organization_id: string,
         paymentData: Omit<TOrganizationPaymentInsert, 'organization_payment_organization_id' | 'organization_payment_id'>
     ): Promise<TOrganizationPaymentSelect[]> {
+        const organization_payment_id = uuid().toString()
         return await this.orm.addOrganizationPayment(
             organization_id,
-            {
-                ...paymentData,
-                organization_payment_id: uuid()
-                    .toString()
-            }
+            organization_payment_id,
+            paymentData,
         );
     }
     
@@ -49,9 +49,7 @@ export class OrganizationPaymentService {
     }
     
     
-    async getOrganizationPaymentsByOrganizationId(
-        organization_id: string,
-    ): Promise<TOrganizationPaymentSelect[]> {
+    async getOrganizationPaymentsByOrganizationId(organization_id: string,): Promise<TOrganizationPaymentSelect[]> {
         return this.orm.getOrganizationPaymentsByOrganizationId(organization_id);
     }
     

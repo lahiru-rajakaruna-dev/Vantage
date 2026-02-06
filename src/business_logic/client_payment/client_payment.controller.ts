@@ -11,8 +11,8 @@ import {
     UsePipes,
 }                               from '@nestjs/common';
 import {
-    SchemaInsertClientPayment,
-    SchemaUpdateClientPayment,
+    SchemaClientPaymentInsert,
+    SchemaClientPaymentUpdate,
     TClientPaymentInsert,
     TClientPaymentUpdate,
     TOrganizationSelect
@@ -34,20 +34,19 @@ export class ClientPaymentController {
     
     
     @Post('/add/:client_id')
-    @UsePipes(
-        new ZodSchemaValidationPipe(
-            SchemaInsertClientPayment.pick({
-                                               client_payment_amount: true,
-                                           })
-                                     .nonoptional()
-        ),
-    )
+    @UsePipes(new ZodSchemaValidationPipe(SchemaClientPaymentInsert.pick({
+                                                                             client_payment_amount: true,
+                                                                         })
+                                                                   .nonoptional()),)
     async addClientPayment(
-        @Req() request: Request & {
+        @Req()
+        request: Request & {
             organization: TOrganizationSelect
         },
-        @Param('client_id') client_id: string,
-        @Body() clientPaymentData: Pick<TClientPaymentInsert, 'client_payment_amount'>,
+        @Param('client_id')
+        client_id: string,
+        @Body()
+        clientPaymentData: Pick<TClientPaymentInsert, 'client_payment_amount'>,
     ) {
         if (!request.organization || !client_id) {
             throw new BadRequestException('[-] Invalid request...');
@@ -66,18 +65,17 @@ export class ClientPaymentController {
     
     
     @Patch('/update/amount/:client_payment_id')
-    @UsePipes(
-        new ZodSchemaValidationPipe(
-            SchemaUpdateClientPayment.pick({ client_payment_amount: true })
-                                     .nonoptional()
-        ),
-    )
+    @UsePipes(new ZodSchemaValidationPipe(SchemaClientPaymentUpdate.pick({ client_payment_amount: true })
+                                                                   .nonoptional()),)
     async updateClientPaymentAmount(
-        @Req() request: Request & {
+        @Req()
+        request: Request & {
             organization: TOrganizationSelect
         },
-        @Param('client_payment_id') client_payment_id: string,
-        @Body() clientPaymentData: Pick<TClientPaymentUpdate, 'client_payment_amount'>,
+        @Param('client_payment_id')
+        client_payment_id: string,
+        @Body()
+        clientPaymentData: Pick<TClientPaymentUpdate, 'client_payment_amount'>,
     ) {
         if (!request.organization) {
             throw new UnauthorizedException('Organization not found');
@@ -97,82 +95,88 @@ export class ClientPaymentController {
     
     @Patch('/update/status/pending/:client_payment_id')
     async updateClientPaymentStatusToPending(
-        @Req() request: Request & {
+        @Req()
+        request: Request & {
             organization: TOrganizationSelect
         },
-        @Param('client_payment_id') client_payment_id: string,
+        @Param('client_payment_id')
+        client_payment_id: string,
     ) {
         if (!request.organization) {
             throw new UnauthorizedException('Organization not found');
         }
         
-        return await this.clientPaymentService.updateClientPaymentStatusToPendingById(
-            request.organization.organization_id,
-            client_payment_id,
+        return await this.clientPaymentService.updateClientPaymentStatusToPendingById(request.organization.organization_id,
+                                                                                      client_payment_id,
         );
     }
     
     
     @Patch('/update/status/paid/:client_payment_id')
     async updateClientPaymentStatusToPaid(
-        @Req() request: Request & {
+        @Req()
+        request: Request & {
             organization: TOrganizationSelect
         },
-        @Param('client_payment_id') client_payment_id: string,
+        @Param('client_payment_id')
+        client_payment_id: string,
     ) {
         if (!request.organization) {
             throw new UnauthorizedException('Organization not found');
         }
         
-        return await this.clientPaymentService.updateClientPaymentStatusToPaidById(
-            request.organization.organization_id,
-            client_payment_id,
+        return await this.clientPaymentService.updateClientPaymentStatusToPaidById(request.organization.organization_id,
+                                                                                   client_payment_id,
         );
     }
     
     
     @Patch('/update/status/verified/:client_payment_id')
     async updateClientPaymentStatusToVerified(
-        @Req() request: Request & {
+        @Req()
+        request: Request & {
             organization: TOrganizationSelect
         },
-        @Param('client_payment_id') client_payment_id: string,
+        @Param('client_payment_id')
+        client_payment_id: string,
     ) {
         if (!request.organization) {
             throw new UnauthorizedException('Organization not found');
         }
         
-        return await this.clientPaymentService.updateClientPaymentStatusToVerifiedById(
-            request.organization.organization_id,
-            client_payment_id,
+        return await this.clientPaymentService.updateClientPaymentStatusToVerifiedById(request.organization.organization_id,
+                                                                                       client_payment_id,
         );
     }
     
     
     @Patch('/update/status/refunded/:client_payment_id')
     async updateClientPaymentStatusToRefunded(
-        @Req() request: Request & {
+        @Req()
+        request: Request & {
             organization: TOrganizationSelect
         },
-        @Param('client_payment_id') client_payment_id: string,
+        @Param('client_payment_id')
+        client_payment_id: string,
     ) {
         if (!request.organization) {
             throw new UnauthorizedException('Organization not found');
         }
         
-        return await this.clientPaymentService.updateClientPaymentStatusToRefundedById(
-            request.organization.organization_id,
-            client_payment_id,
+        return await this.clientPaymentService.updateClientPaymentStatusToRefundedById(request.organization.organization_id,
+                                                                                       client_payment_id,
         );
     }
     
     
     @Get('/profile/:client_payment_id')
     async getClientPaymentProfile(
-        @Req() request: Request & {
+        @Req()
+        request: Request & {
             organization: TOrganizationSelect
         },
-        @Param('client_payment_id') client_payment_id: string,
+        @Param('client_payment_id')
+        client_payment_id: string,
     ) {
         if (!request.organization) {
             throw new UnauthorizedException('Organization not found');
@@ -187,18 +191,19 @@ export class ClientPaymentController {
     
     @Get('/view/client/:client_id')
     async getClientPaymentsByClientId(
-        @Req() request: Request & {
+        @Req()
+        request: Request & {
             organization: TOrganizationSelect
         },
-        @Param('client_id') client_id: string,
+        @Param('client_id')
+        client_id: string,
     ) {
         if (!request.organization) {
             throw new UnauthorizedException('Organization not found');
         }
         
-        return await this.clientPaymentService.getClientPaymentsByClientId(
-            request.organization.organization_id,
-            client_id,
+        return await this.clientPaymentService.getClientPaymentsByClientId(request.organization.organization_id,
+                                                                           client_id,
         );
     }
 }

@@ -2,14 +2,14 @@ import {
     Inject,
     Injectable,
     NotFoundException
-}                             from '@nestjs/common';
+} from '@nestjs/common';
 import { TOKEN__ORM_FACTORY } from 'src/orm/orm-factory/orm-factory.service';
-import { v4 as uuid }         from 'uuid'
+import { v4 as uuid } from 'uuid'
 import {
     TItemInsert,
     TItemSelect
-}                             from '../../orm/drizzle/drizzle-postgres/drizzle-postgres.schema';
-import type IOrmInterface     from '../../orm/orm.interface';
+} from '../../orm/drizzle/drizzle-postgres/drizzle-postgres.schema';
+import type IOrmInterface from '../../orm/orm.interface';
 
 
 
@@ -18,7 +18,9 @@ export class ItemService {
     private orm: IOrmInterface;
     
     
-    constructor(@Inject(TOKEN__ORM_FACTORY) orm: IOrmInterface) {
+    constructor(
+        @Inject(TOKEN__ORM_FACTORY)
+        orm: IOrmInterface) {
         this.orm = orm;
     }
     
@@ -27,14 +29,8 @@ export class ItemService {
         organization_id: string,
         itemData: Omit<TItemInsert, 'item_organization_id' | 'item_id'>
     ): Promise<TItemSelect[]> {
-        return await this.orm.addItem(
-            organization_id,
-            {
-                ...itemData,
-                item_id: uuid()
-                    .toString()
-            }
-        );
+        const item_id = uuid().toString()
+        return await this.orm.addItem(organization_id, item_id, itemData,);
     }
     
     
@@ -42,10 +38,7 @@ export class ItemService {
         organization_id: string,
         item_id: string
     ): Promise<TItemSelect> {
-        const item = await this.orm.getItemById(
-            organization_id,
-            item_id
-        );
+        const item = await this.orm.getItemById(organization_id, item_id);
         
         if (!item) {
             throw new NotFoundException(`Item with ID "${ item_id }" not found`);
@@ -55,9 +48,7 @@ export class ItemService {
     }
     
     
-    async getItemsByOrganizationId(
-        organization_id: string
-    ): Promise<TItemSelect[]> {
+    async getItemsByOrganizationId(organization_id: string): Promise<TItemSelect[]> {
         return this.orm.getItemsByOrganizationId(organization_id);
     }
     

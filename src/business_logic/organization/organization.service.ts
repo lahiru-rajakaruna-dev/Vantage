@@ -6,8 +6,9 @@ import {
     EOrganizationStatus,
     ESubscriptionStatus
 }                             from 'src/types';
+import { v4 as uuid }         from 'uuid'
 import {
-    TOrganizationInsert,
+    TOrganizationData,
     TOrganizationSelect
 }                             from '../../orm/drizzle/drizzle-postgres/drizzle-postgres.schema';
 import { TOKEN__ORM_FACTORY } from '../../orm/orm-factory/orm-factory.service';
@@ -20,28 +21,38 @@ export class OrganizationService {
     private orm: IOrmInterface;
     
     
-    constructor(@Inject(TOKEN__ORM_FACTORY) orm: IOrmInterface) {
+    constructor(
+        @Inject(TOKEN__ORM_FACTORY)
+        orm: IOrmInterface) {
         this.orm = orm;
     }
     
     
     async addOrganization(
-        organizationData: TOrganizationInsert,
+        admin_id: string,
+        paddle_id: string,
+        organizationData: Omit<TOrganizationData, 'organization_subscription_status' | 'organization_status' | 'organization_stripe_customer_id'>,
     ): Promise<TOrganizationSelect> {
-        return await this.orm.addOrganization(organizationData);
+        // TODO ADD STRIPE
+        const organization_id = uuid().toString()
+        return await this.orm.addOrganization(
+            organization_id,
+            admin_id,
+            paddle_id,
+            {
+                ...organizationData,
+                organization_stripe_customer_id: paddle_id,
+            }
+        );
     }
     
     
-    async getOrganizationDetailsById(
-        organization_id: string,
-    ): Promise<TOrganizationSelect> {
+    async getOrganizationDetailsById(organization_id: string,): Promise<TOrganizationSelect> {
         return await this.orm.getOrganizationDetailsById(organization_id);
     }
     
     
-    async getOrganizationDetailsAdminById(
-        admin_id: string,
-    ): Promise<TOrganizationSelect> {
+    async getOrganizationDetailsAdminById(admin_id: string,): Promise<TOrganizationSelect> {
         return await this.orm.getOrganizationDetailsByAdminId(admin_id);
     }
     
@@ -50,76 +61,46 @@ export class OrganizationService {
         organization_id: string,
         organization_name: string,
     ): Promise<TOrganizationSelect> {
-        return await this.orm.updateOrganizationById(
-            organization_id,
-            {
-                organization_name: organization_name,
-            }
-        );
+        return await this.orm.updateOrganizationById(organization_id, {
+            organization_name: organization_name,
+        });
     }
     
     
-    async deactivateOrganizationById(
-        organization_id: string,
-    ): Promise<TOrganizationSelect> {
-        return await this.orm.updateOrganizationById(
-            organization_id,
-            {
-                organization_status: EOrganizationStatus.DEACTIVATED,
-            }
-        );
+    async deactivateOrganizationById(organization_id: string,): Promise<TOrganizationSelect> {
+        return await this.orm.updateOrganizationById(organization_id, {
+            organization_status: EOrganizationStatus.DEACTIVATED,
+        });
     }
     
     
-    async activateOrganizationById(
-        organization_id: string,
-    ): Promise<TOrganizationSelect> {
-        return await this.orm.updateOrganizationById(
-            organization_id,
-            {
-                organization_status: EOrganizationStatus.ACTIVE,
-            }
-        );
+    async activateOrganizationById(organization_id: string,): Promise<TOrganizationSelect> {
+        return await this.orm.updateOrganizationById(organization_id, {
+            organization_status: EOrganizationStatus.ACTIVE,
+        });
     }
     
     
-    async setOrganizationSubscriptionStatusToExpiredById(
-        organization_id: string,
-    ): Promise<TOrganizationSelect> {
-        return await this.orm.updateOrganizationById(
-            organization_id,
-            {
-                organization_subscription_status: ESubscriptionStatus.EXPIRED,
-            }
-        );
+    async setOrganizationSubscriptionStatusToExpiredById(organization_id: string,): Promise<TOrganizationSelect> {
+        return await this.orm.updateOrganizationById(organization_id, {
+            organization_subscription_status: ESubscriptionStatus.EXPIRED,
+        });
     }
     
     
-    async setOrganizationSubscriptionStatusToValidById(
-        organization_id: string,
-    ): Promise<TOrganizationSelect> {
-        return await this.orm.updateOrganizationById(
-            organization_id,
-            {
-                organization_subscription_status: ESubscriptionStatus.VALID,
-            }
-        );
+    async setOrganizationSubscriptionStatusToValidById(organization_id: string,): Promise<TOrganizationSelect> {
+        return await this.orm.updateOrganizationById(organization_id, {
+            organization_subscription_status: ESubscriptionStatus.VALID,
+        });
     }
     
     
-    async setOrganizationSubscriptionEndDateBy30ById(
-        organization_id: string,
-    ): Promise<TOrganizationSelect> {
-        const currentSubscriptionEndDate = (
-            await this.orm.getOrganizationDetailsById(organization_id)
-        ).organization_subscription_end_date;
+    async setOrganizationSubscriptionEndDateBy30ById(organization_id: string,): Promise<TOrganizationSelect> {
+        const currentSubscriptionEndDate = (await this.orm.getOrganizationDetailsById(
+            organization_id)).organization_subscription_end_date;
         
-        return await this.orm.updateOrganizationById(
-            organization_id,
-            {
-                organization_subscription_end_date:
-                    currentSubscriptionEndDate + 60 * 60 * 24 * 30,
-            }
-        );
+        return await this.orm.updateOrganizationById(organization_id, {
+            organization_subscription_end_date: currentSubscriptionEndDate + 60 * 60 * 24 * 30,
+        });
     }
 }

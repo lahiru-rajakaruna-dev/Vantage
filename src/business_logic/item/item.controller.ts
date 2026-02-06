@@ -11,8 +11,8 @@ import {
     UsePipes,
 }                              from '@nestjs/common';
 import {
-    SchemaInsertItem,
-    SchemaUpdateItem,
+    SchemaItemInsert,
+    SchemaItemUpdate,
     type   TItemInsert,
     TItemUpdate,
     TOrganizationSelect
@@ -34,20 +34,23 @@ export class ItemController {
     
     
     @Post()
-    @UsePipes(
-        new ZodSchemaValidationPipe(
-            SchemaInsertItem.pick({
-                                      item_name            : true,
-                                      item_stock_unit_count: true,
-                                  })
-                            .nonoptional()
-        ),
-    )
+    @UsePipes(new ZodSchemaValidationPipe(SchemaItemInsert.pick({
+                                                                    item_name            : true,
+                                                                    item_stock_unit_count: true,
+                                                                })
+                                                          .nonoptional()),)
     async addItem(
-        @Req() request: Request & {
+        @Req()
+        request: Request & {
             organization: TOrganizationSelect
         },
-        @Body() itemData: Omit<TItemInsert, 'item_organization_id' | 'item_id'> // EDITED: Fixed type to match service
+        @Body()
+        itemData: Omit<TItemInsert, 'item_organization_id' | 'item_id'> // EDITED:
+                                                                        // Fixed
+                                                                        // type
+                                                                        // to
+                                                                        // match
+                                                                        // service
     ) {
         if (!request.organization) {
             throw new BadRequestException('[-] Invalid request...');
@@ -64,18 +67,17 @@ export class ItemController {
     
     
     @Patch('/update/name/:item_id')
-    @UsePipes(
-        new ZodSchemaValidationPipe(
-            SchemaUpdateItem.pick({ item_name: true })
-                            .nonoptional()
-        ),
-    )
+    @UsePipes(new ZodSchemaValidationPipe(SchemaItemUpdate.pick({ item_name: true })
+                                                          .nonoptional()),)
     async updateItemName(
-        @Req() request: Request & {
+        @Req()
+        request: Request & {
             organization: TOrganizationSelect
         },
-        @Param('item_id') item_id: string,
-        @Body('item_name') item_name: string,
+        @Param('item_id')
+        item_id: string,
+        @Body('item_name')
+        item_name: string,
     ) {
         if (!request.organization) {
             throw new UnauthorizedException('Organization not found');
@@ -94,20 +96,19 @@ export class ItemController {
     
     
     @Patch('/update/stock/:item_id')
-    @UsePipes(
-        new ZodSchemaValidationPipe(
-            SchemaUpdateItem.pick({ item_stock_unit_count: true })
-                            .nonoptional()
-        ),
-    )
+    @UsePipes(new ZodSchemaValidationPipe(SchemaItemUpdate.pick({ item_stock_unit_count: true })
+                                                          .nonoptional()),)
     async updateItemStock(
-        @Req() request: Request & {
+        @Req()
+        request: Request & {
             organization: TOrganizationSelect
         },
-        @Param('item_id') item_id: string,
-        @Body() itemData: Pick<TItemUpdate, 'item_stock_unit_count'>, // EDITED:
-                                                                      // Fixed
-                                                                      // type
+        @Param('item_id')
+        item_id: string,
+        @Body()
+        itemData: Pick<TItemUpdate, 'item_stock_unit_count'>, // EDITED:
+                                                              // Fixed
+                                                              // type
     ) {
         if (!request.organization) {
             throw new UnauthorizedException('Organization not found');
@@ -131,10 +132,12 @@ export class ItemController {
     
     @Get('/profile/:item_id')
     async getItemProfile(
-        @Req() request: Request & {
+        @Req()
+        request: Request & {
             organization: TOrganizationSelect
         },
-        @Param('item_id') item_id: string,
+        @Param('item_id')
+        item_id: string,
     ) {
         if (!request.organization) {
             throw new UnauthorizedException('Organization not found');
@@ -153,16 +156,14 @@ export class ItemController {
     
     @Get('/view/organization')
     async getItemsByOrganizationId(
-        @Req() request: Request & {
+        @Req()
+        request: Request & {
             organization: TOrganizationSelect
-        },
-    ) {
+        },) {
         if (!request.organization) {
             throw new UnauthorizedException('Organization not found');
         }
         
-        return await this.itemService.getItemsByOrganizationId(
-            request.organization.organization_id,
-        );
+        return await this.itemService.getItemsByOrganizationId(request.organization.organization_id,);
     }
 }

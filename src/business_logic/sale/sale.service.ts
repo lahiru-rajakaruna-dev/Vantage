@@ -4,7 +4,7 @@ import {
 }                             from '@nestjs/common';
 import { v4 as uuid }         from 'uuid'
 import {
-    TSaleInsert,
+    TSaleData,
     TSaleSelect,
     TSaleUpdate
 }                             from '../../orm/drizzle/drizzle-postgres/drizzle-postgres.schema';
@@ -18,7 +18,9 @@ export class SaleService {
     private readonly orm: IOrmInterface;
     
     
-    constructor(@Inject(TOKEN__ORM_FACTORY) orm: IOrmInterface) {
+    constructor(
+        @Inject(TOKEN__ORM_FACTORY)
+        orm: IOrmInterface) {
         this.orm = orm;
     }
     
@@ -26,16 +28,14 @@ export class SaleService {
     async addSale(
         organization_id: string,
         employee_id: string,
-        saleData: Omit<TSaleInsert, 'sale_organization_id' | 'sale_employee_id' | 'sale_id'>
+        saleData: TSaleData
     ): Promise<TSaleSelect[]> {
+        const sale_id = uuid().toString()
         return await this.orm.addSale(
             organization_id,
             employee_id,
-            {
-                ...saleData,
-                sale_id: uuid()
-                    .toString(),
-            }
+            sale_id,
+            saleData
         );
     }
     
@@ -44,10 +44,7 @@ export class SaleService {
         organization_id: string,
         sale_id: string
     ): Promise<TSaleSelect> {
-        return await this.orm.getSaleById(
-            organization_id,
-            sale_id
-        );
+        return await this.orm.getSaleById(organization_id, sale_id);
     }
     
     
@@ -66,10 +63,7 @@ export class SaleService {
         organization_id: string,
         item_id: string,
     ): Promise<TSaleSelect[]> { // EDITED: Fixed return type
-        return await this.orm.getSalesByItemId(
-            organization_id,
-            item_id
-        );
+        return await this.orm.getSalesByItemId(organization_id, item_id);
     }
     
     
@@ -77,16 +71,11 @@ export class SaleService {
         organization_id: string,
         client_id: string,
     ): Promise<TSaleSelect[]> {
-        return await this.orm.getSalesByClientId(
-            organization_id,
-            client_id
-        );
+        return await this.orm.getSalesByClientId(organization_id, client_id);
     }
     
     
-    async getSalesByOrganizationId(
-        organization_id: string
-    ): Promise<TSaleSelect[]> {
+    async getSalesByOrganizationId(organization_id: string): Promise<TSaleSelect[]> {
         return await this.orm.getSalesByOrganizationId(organization_id);
     }
     
@@ -95,10 +84,7 @@ export class SaleService {
         organization_id: string,
         date: number,
     ): Promise<TSaleSelect[]> {
-        return await this.orm.getSalesByDate(
-            organization_id,
-            date
-        );
+        return await this.orm.getSalesByDate(organization_id, date);
     }
     
     
