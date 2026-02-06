@@ -30,9 +30,13 @@ export class EmployeeService {
     ): Promise<TEmployeeSelect[]> {
         const employee_id = uuid().toString()
         
+        const today = new Date(Date.now())
+        
         return await this.orm.addEmployee(
             organization_id,
             employee_id,
+            today.getMonth(),
+            today.getFullYear(),
             employeeData
         );
     }
