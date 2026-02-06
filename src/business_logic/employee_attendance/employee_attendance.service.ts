@@ -2,7 +2,7 @@ import {
     Inject,
     Injectable
 } from '@nestjs/common';
-import { TOKEN__DRIZZLE_FACTORY } from '../../orm/drizzle/drizzle-factory/drizzle-factory.service';
+import { TOKEN__ORM_FACTORY } from '../../orm/orm-factory/orm-factory.service';
 import type IOrmInterface from '../../orm/orm.interface';
 
 
@@ -13,7 +13,7 @@ export class EmployeeAttendanceService {
     
     
     constructor(
-        @Inject(TOKEN__DRIZZLE_FACTORY)
+        @Inject(TOKEN__ORM_FACTORY)
         orm: IOrmInterface) {
         this.orm = orm
     }
