@@ -3,64 +3,68 @@ import {
     Body,
     Controller,
     Get,
+    Inject,
     Param,
     Patch,
     Post,
     Req,
-    UnauthorizedException,
     UsePipes,
-} from '@nestjs/common';
+}                                from '@nestjs/common';
+import type ILoggerService       from '../../logger/logger.interface';
+import { TOKEN__LOGGER_FACTORY } from '../../logger/logger_factory/logger_factory.service';
 import {
     SchemaEmployeeCredentialsData,
     SchemaEmployeeUpdate,
     type TEmployeeCredentialsData,
     type TEmployeeUpdate,
     type TOrganizationSelect
-} from '../../orm/drizzle/drizzle-postgres/drizzle-postgres.schema';
-import ZodSchemaValidationPipe from '../../pipes/schema_validation.pipe';
-import { EmployeeService } from './employee.service';
+}                                from '../../orm/drizzle/drizzle-postgres/drizzle-postgres.schema';
+import ZodSchemaValidationPipe   from '../../pipes/schema_validation.pipe';
+import { BaseController }        from '../abstract.base.controller';
+import { EmployeeService }       from './employee.service';
 
 
 
 @Controller('employee')
-export class EmployeeController {
+export class EmployeeController extends BaseController {
     private employeesService: EmployeeService;
     
     
-    constructor(employeesService: EmployeeService) {
+    constructor(
+        employeesService: EmployeeService,
+        @Inject(TOKEN__LOGGER_FACTORY)
+        logger: ILoggerService
+    ) {
+        super(logger)
         this.employeesService = employeesService;
     }
     
     
-    @Get('/all')
+    @Get('/')
     async getAllEmployeesByOrganizationId(
         @Req()
-        request: Request & {
+        req: Request & {
             organization: TOrganizationSelect
         },) {
-        if (!request.organization) {
-            throw new UnauthorizedException('Organization not found');
-        }
         
-        return await this.employeesService.getEmployeesByOrganizationId(request.organization.organization_id,);
+        const req_organization_id = this.validateOrganization(req)
+        return await this.employeesService.getEmployeesByOrganizationId(req_organization_id);
     }
     
     
     @Get('/sales-group/:sales_group_id')
     async getEmployeesByGroupId(
         @Req()
-        request: Request & {
+        req: Request & {
             organization: TOrganizationSelect
         },
         @Param('sales_group_id')
         sales_group_id: string,
     ) {
-        if (!request.organization) {
-            throw new UnauthorizedException('Organization not found');
-        }
+        const req_organization_id = this.validateOrganization(req)
         
         return await this.employeesService.getEmployeesBySalesGroupId(
-            request.organization.organization_id,
+            req_organization_id,
             sales_group_id,
         );
     }
@@ -69,22 +73,20 @@ export class EmployeeController {
     @Get('/:employee_id')
     async getEmployeeById(
         @Req()
-        request: Request & {
+        req: Request & {
             organization: TOrganizationSelect
         },
         @Param('employee_id')
         employee_id: string,
     ) {
-        if (!request.organization) {
-            throw new UnauthorizedException('Organization not found');
-        }
+        const req_organization_id = this.validateOrganization(req)
         
         if (!employee_id) {
             throw new BadRequestException('Missing employee id')
         }
         
         return await this.employeesService.getEmployeeProfile(
-            request.organization.organization_id,
+            req_organization_id,
             employee_id,
         );
     }
@@ -94,18 +96,15 @@ export class EmployeeController {
     @UsePipes(new ZodSchemaValidationPipe(SchemaEmployeeCredentialsData))
     async addEmployee(
         @Req()
-        request: Request & {
+        req: Request & {
             organization: TOrganizationSelect
         },
         @Body()
         employeeData: TEmployeeCredentialsData
     ) {
-        if (!request.organization) {
-            throw new BadRequestException('[-] Invalid request...');
-        }
-        
+        const req_organization_id = this.validateOrganization(req)
         return await this.employeesService.addEmployee(
-            request.organization.organization_id,
+            req_organization_id,
             employeeData
         );
     }
@@ -119,7 +118,7 @@ export class EmployeeController {
                                                               .nonoptional()),)
     async updateEmployeeName(
         @Req()
-        request: Request & {
+        req: Request & {
             organization: TOrganizationSelect
         },
         @Param('employee_id')
@@ -127,16 +126,14 @@ export class EmployeeController {
         @Body()
         employeeData: Pick<TEmployeeUpdate, 'employee_first_name' | 'employee_last_name'>,
     ) {
-        if (!request.organization) {
-            throw new BadRequestException('[-] Invalid request...');
-        }
+        const req_organization_id = this.validateOrganization(req)
         
         if (!employeeData.employee_first_name || !employeeData.employee_last_name) {
             throw new BadRequestException('Missing required data...')
         }
         
         return await this.employeesService.updateEmployeeUsernameById(
-            request.organization.organization_id,
+            req_organization_id,
             employee_id,
             employeeData.employee_first_name,
             employeeData.employee_last_name
@@ -151,7 +148,7 @@ export class EmployeeController {
                                                               .nonoptional()),)
     async updateEmployeeNic(
         @Req()
-        request: Request & {
+        req: Request & {
             organization: TOrganizationSelect
         },
         @Param('employee_id')
@@ -159,16 +156,14 @@ export class EmployeeController {
         @Body()
         employeeData: Pick<TEmployeeUpdate, 'employee_nic_number'>,
     ) {
-        if (!request.organization) {
-            throw new BadRequestException('[-] Invalid request...');
-        }
+        const req_organization_id = this.validateOrganization(req)
         
         if (!employeeData.employee_nic_number) {
             throw new BadRequestException('Missing required data...')
         }
         
         return await this.employeesService.updateEmployeeNICById(
-            request.organization.organization_id,
+            req_organization_id,
             employee_id,
             employeeData.employee_nic_number,
         );
@@ -180,7 +175,7 @@ export class EmployeeController {
                                                               .nonoptional()),)
     async updateEmployeePhone(
         @Req()
-        request: Request & {
+        req: Request & {
             organization: TOrganizationSelect
         },
         @Param('employee_id')
@@ -188,16 +183,14 @@ export class EmployeeController {
         @Body()
         employeeData: Pick<TEmployeeUpdate, 'employee_phone'>,
     ) {
-        if (!request.organization) {
-            throw new BadRequestException('[-] Invalid request...');
-        }
+        const req_organization_id = this.validateOrganization(req)
         
         if (!employeeData.employee_phone) {
             throw new BadRequestException('Missing required data...')
         }
         
         return await this.employeesService.updateEmployeePhoneById(
-            request.organization.organization_id,
+            req_organization_id,
             employee_id,
             employeeData.employee_phone,
         );
@@ -211,7 +204,7 @@ export class EmployeeController {
                                                               .nonoptional()),)
     async addEmployeesToSalesGroup(
         @Req()
-        request: Request & {
+        req: Request & {
             organization: TOrganizationSelect
         },
         @Body()
@@ -219,16 +212,14 @@ export class EmployeeController {
             employees_ids: string[]
         },
     ) {
-        if (!request.organization) {
-            throw new BadRequestException('[-] Invalid request...');
-        }
+        const req_organization_id = this.validateOrganization(req)
         
         if (!employeeData.employee_sales_group_id) {
             throw new BadRequestException('Missing required data')
         }
         
         return await this.employeesService.addEmployeesToSalesGroupByIds(
-            request.organization.organization_id,
+            req_organization_id,
             employeeData.employees_ids,
             employeeData.employee_sales_group_id,
         );
@@ -238,18 +229,16 @@ export class EmployeeController {
     @Patch('/update/remove-from-sales-group/')
     async removeEmployeesFromSalesGroup(
         @Req()
-        request: Request & {
+        req: Request & {
             organization: TOrganizationSelect
         },
         @Body('employees_ids')
         employees_ids: string[],
     ) {
-        if (!request.organization) {
-            throw new BadRequestException('[-] Invalid request...');
-        }
+        const req_organization_id = this.validateOrganization(req)
         
         return await this.employeesService.removeEmployeesFromSalesGroup(
-            request.organization.organization_id,
+            req_organization_id,
             employees_ids,
         );
     }
@@ -258,18 +247,16 @@ export class EmployeeController {
     @Patch('/fire/:employee_id')
     async fireEmployee(
         @Req()
-        request: Request & {
+        req: Request & {
             organization: TOrganizationSelect
         },
         @Param('employee_id')
         employee_id: string,
     ) {
-        if (!request.organization) {
-            throw new BadRequestException('[-] Invalid request...');
-        }
+        const req_organization_id = this.validateOrganization(req)
         
         return await this.employeesService.fireEmployee(
-            request.organization.organization_id,
+            req_organization_id,
             employee_id,
         );
     }
@@ -278,18 +265,16 @@ export class EmployeeController {
     @Patch('/suspend/:employee_id')
     async suspendEmployee(
         @Req()
-        request: Request & {
+        req: Request & {
             organization: TOrganizationSelect
         },
         @Param('employee_id')
         employee_id: string,
     ) {
-        if (!request.organization) {
-            throw new BadRequestException('[-] Invalid request...');
-        }
         
+        const req_organization_id = this.validateOrganization(req)
         return await this.employeesService.suspendEmployee(
-            request.organization.organization_id,
+            req_organization_id,
             employee_id,
         );
     }

@@ -3,29 +3,37 @@ import {
     Body,
     Controller,
     Get,
+    Inject,
     Param,
     Post,
     Req,
-    UnauthorizedException,
     UsePipes,
-} from '@nestjs/common';
+}                                from '@nestjs/common';
+import type ILoggerService       from '../../logger/logger.interface';
+import { TOKEN__LOGGER_FACTORY } from '../../logger/logger_factory/logger_factory.service';
 import {
     SchemaSaleData,
     type TOrganizationSelect,
     type TSaleData,
     type TSaleSelect
-} from '../../orm/drizzle/drizzle-postgres/drizzle-postgres.schema';
-import ZodSchemaValidationPipe from '../../pipes/schema_validation.pipe';
-import { SaleService } from './sale.service';
+}                                from '../../orm/drizzle/drizzle-postgres/drizzle-postgres.schema';
+import ZodSchemaValidationPipe   from '../../pipes/schema_validation.pipe';
+import { BaseController }        from '../abstract.base.controller';
+import { SaleService }           from './sale.service';
 
 
 
 @Controller('sale')
-export class SaleController {
+export class SaleController extends BaseController {
     private readonly saleService: SaleService;
     
     
-    constructor(saleService: SaleService) {
+    constructor(
+        saleService: SaleService,
+        @Inject(TOKEN__LOGGER_FACTORY)
+        logger: ILoggerService
+    ) {
+        super(logger)
         this.saleService = saleService;
     }
     
@@ -34,25 +42,22 @@ export class SaleController {
     @UsePipes(new ZodSchemaValidationPipe(SchemaSaleData))
     async addSale(
         @Req()
-        request: Request & {
+        req: Request & {
             organization: TOrganizationSelect
         },
         @Body()
         saleData: TSaleData
     ): Promise<TSaleSelect[]> {
         
-        if (!request.organization) {
-            throw new UnauthorizedException('[-] Invalid request...');
-        }
-        
-        const user_id = request['cookies']['user_id'];
+        const req_organization_id = this.validateOrganization(req)
+        const user_id             = req['cookies']['user_id'];
         
         if (!user_id) {
             throw new BadRequestException('User not found...')
         }
         
         return await this.saleService.addSale(
-            request.organization.organization_id,
+            req_organization_id,
             user_id,
             saleData,
         );
@@ -62,22 +67,20 @@ export class SaleController {
     @Get('/:sale_id')
     async getSaleProfile(
         @Req()
-        request: Request & {
+        req: Request & {
             organization: TOrganizationSelect
         },
         @Param('sale_id')
         sale_id: string,
     ): Promise<TSaleSelect> {
-        if (!request.organization) {
-            throw new UnauthorizedException('Organization not found');
-        }
+        const req_organization_id = this.validateOrganization(req)
         
         if (!sale_id) {
             throw new BadRequestException('Missing sale_id')
         }
         
         return await this.saleService.viewSaleById(
-            request.organization.organization_id,
+            req_organization_id,
             sale_id,
         );
     }
@@ -86,32 +89,26 @@ export class SaleController {
     @Get('/organization')
     async getSalesByOrganizationId(
         @Req()
-        request: Request & {
+        req: Request & {
             organization: TOrganizationSelect
         },): Promise<TSaleSelect[]> {
-        if (!request.organization) {
-            throw new UnauthorizedException('Organization not found');
-        }
-        
-        return await this.saleService.getSalesByOrganizationId(request.organization.organization_id,);
+        const req_organization_id = this.validateOrganization(req)
+        return await this.saleService.getSalesByOrganizationId(req_organization_id,);
     }
     
     
     @Get('/employee/:employee_id')
     async getSalesByEmployeeId(
         @Req()
-        request: Request & {
+        req: Request & {
             organization: TOrganizationSelect
         },
         @Param('employee_id')
         employee_id: string,
     ): Promise<TSaleSelect[]> {
-        if (!request.organization) {
-            throw new UnauthorizedException('Organization not found');
-        }
-        
+        const req_organization_id = this.validateOrganization(req)
         return await this.saleService.getSalesByEmployeeId(
-            request.organization.organization_id,
+            req_organization_id,
             employee_id,
         );
     }
@@ -120,67 +117,58 @@ export class SaleController {
     @Get('/item/:item_id')
     async getSalesByItemId(
         @Req()
-        request: Request & {
+        req: Request & {
             organization: TOrganizationSelect
         },
         @Param('item_id')
         item_id: string,
     ): Promise<TSaleSelect[]> {
-        if (!request.organization) {
-            throw new UnauthorizedException('Organization not found');
-        }
-        
+        const req_organization_id = this.validateOrganization(req)
         return await this.saleService.getSalesByItemId(
-            request.organization.organization_id,
+            req_organization_id,
             item_id,
         );
     }
     
     
-    @Get('/view/client/:client_id')
+    @Get('/client/:client_id')
     async getSalesByClientId(
         @Req()
-        request: Request & {
+        req: Request & {
             organization: TOrganizationSelect
         },
         @Param('client_id')
         client_id: string,
     ): Promise<TSaleSelect[]> {
-        if (!request.organization) {
-            throw new UnauthorizedException('Organization not found');
-        }
-        
+        const req_organization_id = this.validateOrganization(req)
         return await this.saleService.getSalesByClientId(
-            request.organization.organization_id,
+            req_organization_id,
             client_id,
         );
     }
     
     
-    @Get('/view/date/:date')
+    @Get('/date/:date')
     async getSalesByDate(
         @Req()
-        request: Request & {
+        req: Request & {
             organization: TOrganizationSelect
         },
         @Param('date')
         date: number,
     ): Promise<TSaleSelect[]> {
-        if (!request.organization) {
-            throw new UnauthorizedException('Organization not found');
-        }
-        
+        const req_organization_id = this.validateOrganization(req)
         return await this.saleService.getSalesByDate(
-            request.organization.organization_id,
+            req_organization_id,
             date,
         );
     }
     
     
-    @Get('/view/date-range/:date_start/:date_end')
+    @Get('/date-range/:date_start/:date_end')
     async getSalesByDateRange(
         @Req()
-        request: Request & {
+        req: Request & {
             organization: TOrganizationSelect
         },
         @Param('date_start')
@@ -188,12 +176,11 @@ export class SaleController {
         @Param('date_end')
         date_end: number,
     ): Promise<TSaleSelect[]> {
-        if (!request.organization) {
-            throw new UnauthorizedException('Organization not found');
-        }
+        
+        const req_organization_id = this.validateOrganization(req)
         
         return await this.saleService.getSalesWithinDates(
-            request.organization.organization_id,
+            req_organization_id,
             date_start,
             date_end,
         );

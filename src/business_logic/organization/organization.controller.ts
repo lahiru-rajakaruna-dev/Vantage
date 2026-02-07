@@ -4,7 +4,6 @@ import {
     Controller,
     Delete,
     Get,
-    Headers,
     Inject,
     InternalServerErrorException,
     Param,
@@ -22,30 +21,32 @@ import { TOKEN__LOGGER_FACTORY } from '../../logger/logger_factory/logger_factor
 import {
     SchemaInsertOrganization,
     SchemaUpdateOrganization,
-    TOrganizationInsert,
+    type TOrganizationData,
     type   TOrganizationSelect,
     type TOrganizationUpdate
 }                                from '../../orm/drizzle/drizzle-postgres/drizzle-postgres.schema';
 import { PaddleService }         from '../../paddle/paddle.service';
 import ZodSchemaValidationPipe   from '../../pipes/schema_validation.pipe';
+import { BaseController }        from '../abstract.base.controller';
 import { OrganizationService }   from './organization.service';
 
 
 
 @Controller('organization')
-export class OrganizationController {
+export class OrganizationController extends BaseController {
     private organizationService: OrganizationService;
-    private readonly logger: ILoggerService;
     private readonly paddle: PaddleService;
     
     
     constructor(
         organizationService: OrganizationService,
         @Inject(TOKEN__LOGGER_FACTORY)
-        logger: ILoggerService, paddle: PaddleService,
+        logger: ILoggerService,
+        paddle: PaddleService,
     ) {
+        super(logger)
+        
         this.organizationService = organizationService;
-        this.logger              = logger;
         this.paddle              = paddle;
     }
     
@@ -60,8 +61,7 @@ export class OrganizationController {
             throw new BadRequestException('[-] Cookie not found...');
         }
         
-        const organization = await this.organizationService.getOrganizationDetailsAdminById(
-            user_id);
+        const organization = await this.organizationService.getOrganizationDetailsAdminById(user_id);
         
         if (organization) {
             return {
@@ -81,6 +81,9 @@ export class OrganizationController {
         request: Request & {
             organization: TOrganizationSelect
         },) {
+        
+        this.validateOrganization(request)
+        
         return request.organization
     }
     
@@ -97,7 +100,7 @@ export class OrganizationController {
         @Req()
         req: Request,
         @Body()
-        organizationData: Pick<TOrganizationInsert, 'organization_name' | 'organization_admin_email' | 'organization_logo_url' | 'organization_admin_phone'>,
+        organizationData: TOrganizationData,
     ) {
         const user_id = req['cookies']['user_id'];
         
@@ -117,8 +120,9 @@ export class OrganizationController {
         
         // ADD PADDLE CUSTOMER ACCOUNT
         try {
-            paddleCustomerAccount = await this.paddle.addCustomerAccount(organization_name,
-                                                                         organization_admin_email,
+            paddleCustomerAccount = await this.paddle.addCustomerAccount(
+                organization_name,
+                organization_admin_email,
             );
         } catch (e) {
             this.logger.log(e);
@@ -140,16 +144,17 @@ export class OrganizationController {
         
         // ADD ORGANIZATION RECORD
         try {
-            const organizationRecord = await this.organizationService.addOrganization(user_id,
-                                                                                      paddleCustomerAccount.id,
-                                                                                      {
-                                                                                          organization_name,
-                                                                                          organization_admin_email,
-                                                                                          organization_admin_phone,
-                                                                                          organization_logo_url,
-                                                                                          organization_registration_date    : Date.now(),
-                                                                                          organization_subscription_end_date: Date.now() + 1000 * 60 * 60 * 24 * 30
-                                                                                      },
+            const organizationRecord = await this.organizationService.addOrganization(
+                user_id,
+                paddleCustomerAccount.id,
+                {
+                    organization_name,
+                    organization_admin_email,
+                    organization_admin_phone,
+                    organization_logo_url,
+                    organization_registration_date    : Date.now(),
+                    organization_subscription_end_date: Date.now() + 1000 * 60 * 60 * 24 * 30
+                },
             );
             
             return this.logger.logAndReturn(organizationRecord);
@@ -160,25 +165,27 @@ export class OrganizationController {
     }
     
     
-    @Patch('/update/name')
+    @Patch('/name')
     @UsePipes(new ZodSchemaValidationPipe(SchemaUpdateOrganization),)
     updateOrganizationById(
-        @Headers('organization_id')
-        organization_id: string,
+        @Req()
+        req: Request & {
+            organization: TOrganizationSelect
+        },
         @Body()
         organizationData: TOrganizationUpdate,
     ) {
-        if (!organization_id) {
-            throw new BadRequestException('[-] Invalid request...');
-        }
         
-        return this.organizationService.updateOrganizationNameById(organization_id,
-                                                                   organizationData.organization_name!,
+        const req_organization_id = this.validateOrganization(req)
+        
+        return this.organizationService.updateOrganizationNameById(
+            req_organization_id,
+            organizationData.organization_name!,
         );
     }
     
     
-    @Patch('/update/subscription/expired')
+    @Patch('/subscription/expired')
     updateOrganizationSubscriptionStatusToExpiredById(
         @Req()
         request: Request & {
@@ -188,12 +195,11 @@ export class OrganizationController {
             throw new BadRequestException('[-] Invalid request...');
         }
         
-        return this.organizationService.setOrganizationSubscriptionStatusToExpiredById(
-            request.organization.organization_id,);
+        return this.organizationService.setOrganizationSubscriptionStatusToExpiredById(request.organization.organization_id,);
     }
     
     
-    @Patch('/update/subscription/valid')
+    @Patch('/subscription/valid')
     updateOrganizationSubscriptionStatusToValidById(
         @Req()
         request: Request & {
@@ -203,12 +209,11 @@ export class OrganizationController {
             throw new BadRequestException('[-] Invalid request...');
         }
         
-        return this.organizationService.setOrganizationSubscriptionStatusToValidById(
-            request.organization.organization_id,);
+        return this.organizationService.setOrganizationSubscriptionStatusToValidById(request.organization.organization_id,);
     }
     
     
-    @Patch('/update/subscription/date')
+    @Patch('/subscription/date')
     extendOrganizationSubscriptionEndDateBy30ById(
         @Req()
         request: Request & {
@@ -218,8 +223,7 @@ export class OrganizationController {
             throw new BadRequestException('[-] Invalid request...');
         }
         
-        return this.organizationService.setOrganizationSubscriptionEndDateBy30ById(
-            request.organization.organization_id,);
+        return this.organizationService.setOrganizationSubscriptionEndDateBy30ById(request.organization.organization_id,);
     }
     
     

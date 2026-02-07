@@ -1,65 +1,59 @@
 import {
-    BadRequestException,
     Body,
     Controller,
     Get,
+    Inject,
     Param,
     Patch,
     Post,
     Req,
-    UnauthorizedException,
     UsePipes,
-}                              from '@nestjs/common';
+}                                from '@nestjs/common';
+import type ILoggerService       from '../../logger/logger.interface';
+import { TOKEN__LOGGER_FACTORY } from '../../logger/logger_factory/logger_factory.service';
 import {
-    SchemaClientInsert,
-    SchemaClientUpdate,
-    type TClientInsert,
+    SchemaClientData,
+    type TClientData,
     type   TOrganizationSelect,
-}                              from '../../orm/drizzle/drizzle-postgres/drizzle-postgres.schema';
-import ZodSchemaValidationPipe from '../../pipes/schema_validation.pipe';
-import { EAccountStatus }      from '../../types';
-import { ClientService }       from './client.service';
+}                                from '../../orm/drizzle/drizzle-postgres/drizzle-postgres.schema';
+import ZodSchemaValidationPipe   from '../../pipes/schema_validation.pipe';
+import { EAccountStatus }        from '../../types';
+import { BaseController }        from '../abstract.base.controller';
+import { ClientService }         from './client.service';
 
 
 
 @Controller('client')
-export class ClientController {
+export class ClientController extends BaseController {
     private readonly clientService: ClientService;
     
     
-    // EDITED: Removed incorrect @Inject() decorator
-    constructor(clientService: ClientService) {
+    constructor(
+        clientService: ClientService,
+        @Inject(TOKEN__LOGGER_FACTORY)
+        logger: ILoggerService
+    ) {
+        super(logger)
         this.clientService = clientService;
     }
     
     
-    @Post()
-    @UsePipes(new ZodSchemaValidationPipe(SchemaClientInsert.pick({
-                                                                      client_email     : true,
-                                                                      client_name      : true,
-                                                                      client_phone     : true,
-                                                                      client_nic_number: true,
-                                                                  })
-                                                            .nonoptional()))
+    @Post('/')
+    @UsePipes(new ZodSchemaValidationPipe(SchemaClientData))
     async addClient(
         @Req()
         request: Request & {
             organization: TOrganizationSelect
         },
         @Body()
-        clientData: Omit<TClientInsert, 'client_organization_id' | 'client_account_status' | 'client_registration_date'> // EDITED: Fixed type
+        clientData: TClientData
     ) {
-        if (!request.organization) {
-            throw new BadRequestException('[-] Invalid request...');
-        }
+        const req_organization_id = this.validateOrganization(request)
         
         return await this.clientService.addClient(
-            request.organization.organization_id,
+            req_organization_id,
             {
-                client_name             : clientData.client_name,
-                client_nic_number       : clientData.client_nic_number,
-                client_phone            : clientData.client_phone,
-                client_email            : clientData.client_email,
+                ...clientData,
                 client_account_status   : EAccountStatus.UNVERIFIED,
                 client_registration_date: Date.now(),
             }
@@ -67,11 +61,8 @@ export class ClientController {
     }
     
     
-    @Patch('/update/name/:client_id')
-    @UsePipes(new ZodSchemaValidationPipe(SchemaClientUpdate.pick({
-                                                                      client_name: true
-                                                                  })
-                                                            .nonoptional()))
+    @Patch('/name/:client_id')
+    @UsePipes(new ZodSchemaValidationPipe(SchemaClientData))
     async updateClientName(
         @Req()
         request: Request & {
@@ -82,17 +73,17 @@ export class ClientController {
         @Body('client_name')
         client_name: string,
     ) {
+        const req_organization_id = this.validateOrganization(request)
         return await this.clientService.updateClientName(
-            request.organization.organization_id,
+            req_organization_id,
             client_id,
             client_name,
         );
     }
     
     
-    @Patch('/update/nic/:client_id')
-    @UsePipes(new ZodSchemaValidationPipe(SchemaClientUpdate.pick({ client_nic_number: true })
-                                                            .nonoptional()))
+    @Patch('/nic/:client_id')
+    @UsePipes(new ZodSchemaValidationPipe(SchemaClientData))
     async updateClientNic(
         @Req()
         request: Request & {
@@ -105,21 +96,17 @@ export class ClientController {
             client_nic_number: string
         },
     ) {
-        if (!request.organization) {
-            throw new UnauthorizedException('Organization not found')
-        }
-        
+        const req_organization_id = this.validateOrganization(request)
         return await this.clientService.updateClientNicNumber(
-            request.organization.organization_id,
+            req_organization_id,
             client_id,
             clientData.client_nic_number,
         );
     }
     
     
-    @Patch('/update/phone/:client_id')
-    @UsePipes(new ZodSchemaValidationPipe(SchemaClientUpdate.pick({ client_phone: true })
-                                                            .nonoptional()))
+    @Patch('/phone/:client_id')
+    @UsePipes(new ZodSchemaValidationPipe(SchemaClientData))
     async updateClientPhone(
         @Req()
         request: Request & {
@@ -133,21 +120,16 @@ export class ClientController {
         },
     ) {
         
-        if (!request.organization) {
-            throw new UnauthorizedException('Organization not found') // EDITED:
-                                                                      // Fixed
-                                                                      // typo
-        }
-        
+        const req_organization_id = this.validateOrganization(request)
         return await this.clientService.updateClientPhone(
-            request.organization.organization_id,
+            req_organization_id,
             client_id,
             clientData.client_phone,
         );
     }
     
     
-    @Patch('/update/status/active/:client_id')
+    @Patch('/status/active/:client_id')
     async updateClientStatusToActive(
         @Req()
         request: Request & {
@@ -157,19 +139,15 @@ export class ClientController {
         client_id: string,
     ) {
         
-        if (!request.organization) {
-            throw new UnauthorizedException('Organization not found') // EDITED:
-                                                                      // Fixed
-                                                                      // typo
-        }
-        
-        return await this.clientService.updateClientAccountStatusToActive(request.organization.organization_id,
-                                                                          client_id,
+        const req_organization_id = this.validateOrganization(request)
+        return await this.clientService.updateClientAccountStatusToActive(
+            req_organization_id,
+            client_id,
         );
     }
     
     
-    @Patch('/update/status/deactivated/:client_id')
+    @Patch('/status/deactivated/:client_id')
     async updateClientStatusToDeactivated(
         @Req()
         request: Request & {
@@ -178,19 +156,15 @@ export class ClientController {
         @Param('client_id')
         client_id: string,
     ) {
-        if (!request.organization) {
-            throw new UnauthorizedException('Organization not found') // EDITED:
-                                                                      // Fixed
-                                                                      // typo
-        }
-        
-        return await this.clientService.updateClientAccountStatusToDeactivated(request.organization.organization_id,
-                                                                               client_id,
+        const req_organization_id = this.validateOrganization(request)
+        return await this.clientService.updateClientAccountStatusToDeactivated(
+            req_organization_id,
+            client_id,
         );
     }
     
     
-    @Patch('/update/status/unverified/:client_id')
+    @Patch('/status/unverified/:client_id')
     async updateClientStatusToUnverified(
         @Req()
         request: Request & {
@@ -199,14 +173,10 @@ export class ClientController {
         @Param('client_id')
         client_id: string,
     ) {
-        if (!request.organization) {
-            throw new UnauthorizedException('Organization not found') // EDITED:
-                                                                      // Fixed
-                                                                      // typo
-        }
-        
-        return await this.clientService.updateClientAccountStatusToUnverified(request.organization.organization_id,
-                                                                              client_id,
+        const req_organization_id = this.validateOrganization(request)
+        return await this.clientService.updateClientAccountStatusToUnverified(
+            req_organization_id,
+            client_id,
         );
     }
     
@@ -220,14 +190,9 @@ export class ClientController {
         @Param('client_id')
         client_id: string,
     ) {
-        if (!request.organization) {
-            throw new UnauthorizedException('Organization not found') // EDITED:
-                                                                      // Fixed
-                                                                      // typo
-        }
-        
+        const req_organization_id = this.validateOrganization(request)
         return await this.clientService.viewClientProfile(
-            request.organization.organization_id,
+            req_organization_id,
             client_id,
         );
     }
@@ -239,10 +204,9 @@ export class ClientController {
         request: Request & {
             organization: TOrganizationSelect
         },) {
-        if (!request.organization) {
-            throw new UnauthorizedException('Organization not found')
-        }
         
-        return await this.clientService.getClientsByOrganizationId(request.organization.organization_id);
+        const req_organization_id = this.validateOrganization(request)
+        
+        return await this.clientService.getClientsByOrganizationId(req_organization_id);
     }
 }
