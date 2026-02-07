@@ -1,11 +1,18 @@
-import { Module } from '@nestjs/common';
-import { ItemService } from './item.service';
+import { Module }         from '@nestjs/common';
+import { OrmModule }      from 'src/orm/orm.module';
+import { LoggerModule }   from '../../logger/logger.module';
 import { ItemController } from './item.controller';
-import { OrmModule } from 'src/orm/orm.module';
+import { ItemService }    from './item.service';
+
+
 
 @Module({
-  imports: [OrmModule],
-  controllers: [ItemController],
-  providers: [ItemService],
-})
-export class ItemModule {}
+            imports    : [
+                OrmModule,
+                LoggerModule
+            ],
+            controllers: [ ItemController ],
+            providers  : [ ItemService ],
+        })
+export class ItemModule {
+}

@@ -1,11 +1,18 @@
-import { Module } from '@nestjs/common';
+import { Module }             from '@nestjs/common';
+import { OrmModule }          from 'src/orm/orm.module';
+import { LoggerModule }       from '../../logger/logger.module';
 import { EmployeeController } from './employee.controller';
-import { EmployeeService } from './employee.service';
-import { OrmModule } from 'src/orm/orm.module';
+import { EmployeeService }    from './employee.service';
+
+
 
 @Module({
-  imports: [OrmModule],
-  controllers: [EmployeeController],
-  providers: [EmployeeService],
-})
-export class EmployeeModule {}
+            imports    : [
+                OrmModule,
+                LoggerModule
+            ],
+            controllers: [ EmployeeController ],
+            providers  : [ EmployeeService ],
+        })
+export class EmployeeModule {
+}
