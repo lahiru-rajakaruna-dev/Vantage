@@ -21,6 +21,8 @@ import { OrganizationModule }            from './business_logic/organization/org
 import { OrganizationPaymentModule }     from './business_logic/organization_payment/organization-payment.module';
 import { SaleModule }                    from './business_logic/sale/sale.module';
 import { SalesGroupModule }              from './business_logic/sales_group/sales_group.module';
+import { AuthGuardService }              from './guard/auth.guard.service';
+import { GuardModule }                   from './guard/guard.module';
 import { LoggerModule }                  from './logger/logger.module';
 import { MiddlewareModule }              from './middleware/middleware.module'; // import { MiddlewareModule } from './middleware/middleware.module';
 import { Middleware_OrganizationPuller } from './middleware/organization_puller.middleware';
@@ -55,6 +57,7 @@ import { PaddleModule }                  from './paddle/paddle.module';
                 AuthenticationModule,
                 MiddlewareModule,
                 EmployeeAttendanceModule,
+                GuardModule,
             ],
             controllers: [ AppController ],
             providers  : [
@@ -63,10 +66,12 @@ import { PaddleModule }                  from './paddle/paddle.module';
                     provide : APP_INTERCEPTOR,
                     useClass: CacheInterceptor,
                 },
+                AuthGuardService,
             ],
         })
 export class AppModule implements NestModule {
     configure(consumer: MiddlewareConsumer) {
-        consumer.apply(Middleware_OrganizationPuller).forRoutes('*');
+        consumer.apply(Middleware_OrganizationPuller)
+                .forRoutes('*');
     }
 }
