@@ -17,7 +17,7 @@ import {
     TOrganizationPaymentInsert,
     type TOrganizationPaymentUpdate,
     type   TOrganizationSelect,
-}                                     from '../../orm/drizzle/drizzle-postgres/drizzle-postgres.schema';
+}                                     from '../../orm/drizzle/drizzle-postgres/schema';
 import ZodSchemaValidationPipe        from '../../pipes/schema_validation.pipe';
 import { EPaymentStatus }             from '../../types';
 import { BaseController }             from '../abstract.base.controller';

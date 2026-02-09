@@ -1,6 +1,6 @@
-import { ConfigService } from '@nestjs/config';
+import { ConfigService }   from '@nestjs/config';
 import type ILoggerService from '../../logger/logger.interface';
-import IOrmInterface from '../orm.interface';
+import IOrmInterface       from '../orm.interface';
 import {
     TClientData,
     TClientPaymentData,
@@ -34,7 +34,7 @@ import {
     TSalesGroupSelect,
     TSalesGroupUpdate,
     TSaleUpdate
-} from './drizzle-postgres/drizzle-postgres.schema';
+}                          from './drizzle-postgres/schema';
 
 
 

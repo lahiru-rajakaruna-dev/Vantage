@@ -6,7 +6,7 @@ import { v4 as uuid }         from 'uuid'
 import {
     TClientData,
     TClientSelect
-}                             from '../../orm/drizzle/drizzle-postgres/drizzle-postgres.schema';
+}                             from '../../orm/drizzle/drizzle-postgres/schema';
 import { TOKEN__ORM_FACTORY } from '../../orm/orm-factory/orm-factory.service';
 import type IOrmInterface     from '../../orm/orm.interface';
 import { EAccountStatus }     from '../../types';
@@ -30,10 +30,15 @@ export class ClientService {
         organization_id: string,
         clientDetails: TClientData,
     ): Promise<TClientSelect[]> {
-        const client_id = uuid().toString()
-        return this.orm.addClient(organization_id, client_id, {
-            ...clientDetails,
-        });
+        const client_id = uuid()
+            .toString()
+        return this.orm.addClient(
+            organization_id,
+            client_id,
+            {
+                ...clientDetails,
+            }
+        );
     }
     
     
@@ -43,9 +48,13 @@ export class ClientService {
         client_id: string,
         client_name: string,
     ): Promise<TClientSelect[]> {
-        return this.orm.updateClientById(organization_id, client_id, {
-            client_name: client_name,
-        });
+        return this.orm.updateClientById(
+            organization_id,
+            client_id,
+            {
+                client_name: client_name,
+            }
+        );
     }
     
     
@@ -54,9 +63,13 @@ export class ClientService {
         client_id: string,
         client_nic_number: string,
     ): Promise<TClientSelect[]> {
-        return this.orm.updateClientById(organization_id, client_id, {
-            client_nic_number: client_nic_number,
-        });
+        return this.orm.updateClientById(
+            organization_id,
+            client_id,
+            {
+                client_nic_number: client_nic_number,
+            }
+        );
     }
     
     
@@ -65,9 +78,13 @@ export class ClientService {
         client_id: string,
         client_email: string,
     ): Promise<TClientSelect[]> {
-        return this.orm.updateClientById(organization_id, client_id, {
-            client_email: client_email,
-        });
+        return this.orm.updateClientById(
+            organization_id,
+            client_id,
+            {
+                client_email: client_email,
+            }
+        );
     }
     
     
@@ -76,9 +93,13 @@ export class ClientService {
         client_id: string,
         client_phone: string,
     ): Promise<TClientSelect[]> {
-        return this.orm.updateClientById(organization_id, client_id, {
-            client_phone: client_phone,
-        });
+        return this.orm.updateClientById(
+            organization_id,
+            client_id,
+            {
+                client_phone: client_phone,
+            }
+        );
     }
     
     
@@ -86,9 +107,13 @@ export class ClientService {
         organization_id: string,
         client_id: string,
     ): Promise<TClientSelect[]> {
-        return this.orm.updateClientById(organization_id, client_id, {
-            client_account_status: EAccountStatus.DEACTIVATED,
-        });
+        return this.orm.updateClientById(
+            organization_id,
+            client_id,
+            {
+                client_account_status: EAccountStatus.DEACTIVATED,
+            }
+        );
     }
     
     
@@ -96,9 +121,13 @@ export class ClientService {
         organization_id: string,
         client_id: string,
     ): Promise<TClientSelect[]> {
-        return this.orm.updateClientById(organization_id, client_id, {
-            client_account_status: EAccountStatus.ACTIVE,
-        });
+        return this.orm.updateClientById(
+            organization_id,
+            client_id,
+            {
+                client_account_status: EAccountStatus.ACTIVE,
+            }
+        );
     }
     
     
@@ -106,9 +135,13 @@ export class ClientService {
         organization_id: string,
         client_id: string,
     ): Promise<TClientSelect[]> {
-        return this.orm.updateClientById(organization_id, client_id, {
-            client_account_status: EAccountStatus.UNVERIFIED,
-        });
+        return this.orm.updateClientById(
+            organization_id,
+            client_id,
+            {
+                client_account_status: EAccountStatus.UNVERIFIED,
+            }
+        );
     }
     
     
@@ -116,7 +149,10 @@ export class ClientService {
         organization_id: string,
         client_id: string
     ): Promise<TClientSelect> {
-        return this.orm.getClientProfileById(organization_id, client_id);
+        return this.orm.getClientProfileById(
+            organization_id,
+            client_id
+        );
     }
     
     

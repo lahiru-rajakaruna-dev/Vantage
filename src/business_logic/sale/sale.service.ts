@@ -7,7 +7,7 @@ import {
     TSaleData,
     TSaleSelect,
     TSaleUpdate
-}                             from '../../orm/drizzle/drizzle-postgres/drizzle-postgres.schema';
+}                             from '../../orm/drizzle/drizzle-postgres/schema';
 import { TOKEN__ORM_FACTORY } from '../../orm/orm-factory/orm-factory.service';
 import type IOrmInterface     from '../../orm/orm.interface';
 
@@ -30,7 +30,8 @@ export class SaleService {
         employee_id: string,
         saleData: TSaleData
     ): Promise<TSaleSelect[]> {
-        const sale_id = uuid().toString()
+        const sale_id = uuid()
+            .toString()
         return await this.orm.addSale(
             organization_id,
             employee_id,
@@ -44,7 +45,10 @@ export class SaleService {
         organization_id: string,
         sale_id: string
     ): Promise<TSaleSelect> {
-        return await this.orm.getSaleById(organization_id, sale_id);
+        return await this.orm.getSaleById(
+            organization_id,
+            sale_id
+        );
     }
     
     
@@ -63,7 +67,10 @@ export class SaleService {
         organization_id: string,
         item_id: string,
     ): Promise<TSaleSelect[]> { // EDITED: Fixed return type
-        return await this.orm.getSalesByItemId(organization_id, item_id);
+        return await this.orm.getSalesByItemId(
+            organization_id,
+            item_id
+        );
     }
     
     
@@ -71,7 +78,10 @@ export class SaleService {
         organization_id: string,
         client_id: string,
     ): Promise<TSaleSelect[]> {
-        return await this.orm.getSalesByClientId(organization_id, client_id);
+        return await this.orm.getSalesByClientId(
+            organization_id,
+            client_id
+        );
     }
     
     
@@ -84,7 +94,10 @@ export class SaleService {
         organization_id: string,
         date: number,
     ): Promise<TSaleSelect[]> {
-        return await this.orm.getSalesByDate(organization_id, date);
+        return await this.orm.getSalesByDate(
+            organization_id,
+            date
+        );
     }
     
     

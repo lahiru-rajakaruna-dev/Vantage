@@ -18,7 +18,7 @@ import { employeesAttendances } from './employees_attendances.table';
 import { employeesCredentials } from './employees_credentials';
 import { employeesSalaries }    from './employees_salaries.table';
 import { organizations }        from './organizations.table';
-import { salesTable }           from './sales.table';
+import { sales }                from './sales.table';
 import { salesGroups }          from './sales_groups.table';
 
 
@@ -169,7 +169,7 @@ export const employeesRelations = relations(
                     ]
                 }
             ),
-            sales             : many(salesTable,),
+            sales             : many(sales,),
             activities        : many(employeesActivities,),
         };
     }

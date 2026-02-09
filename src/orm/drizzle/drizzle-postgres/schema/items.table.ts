@@ -14,7 +14,7 @@ import {
 }                        from 'drizzle-zod';
 import { z }             from 'zod';
 import { organizations } from './organizations.table';
-import { salesTable }    from './sales.table';
+import { sales }         from './sales.table';
 
 
 
@@ -84,7 +84,7 @@ export const itemsRelations = relations(
                     references: [ organizations.organization_id ],
                 }
             ),
-            sales       : many(salesTable,),
+            sales       : many(sales,),
         };
     }
 );

@@ -16,7 +16,7 @@ import { z }               from 'zod';
 import { EAccountStatus, } from '../../../../types';
 import { clientsPayments } from './clients_payments.table';
 import { organizations }   from './organizations.table';
-import { salesTable }      from './sales.table';
+import { sales }           from './sales.table';
 
 
 
@@ -103,7 +103,7 @@ export const clientsRelations = relations(
                 }
             ),
             payments    : many(clientsPayments,),
-            sales       : many(salesTable,),
+            sales       : many(sales,),
         };
     }
 );

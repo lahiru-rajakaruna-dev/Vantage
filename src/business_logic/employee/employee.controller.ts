@@ -18,7 +18,7 @@ import {
     type TEmployeeCredentialsData,
     type TEmployeeUpdate,
     type TOrganizationSelect
-}                                from '../../orm/drizzle/drizzle-postgres/drizzle-postgres.schema';
+}                                from '../../orm/drizzle/drizzle-postgres/schema';
 import ZodSchemaValidationPipe   from '../../pipes/schema_validation.pipe';
 import { BaseController }        from '../abstract.base.controller';
 import { EmployeeService }       from './employee.service';
@@ -52,7 +52,7 @@ export class EmployeeController extends BaseController {
     }
     
     
-    @Get('/sales-group/:sales_group_id')
+    @Get('/salesTable-group/:sales_group_id')
     async getEmployeesByGroupId(
         @Req()
         req: Request & {
@@ -197,7 +197,7 @@ export class EmployeeController extends BaseController {
     }
     
     
-    @Patch('/update/add-to-sales-group/')
+    @Patch('/update/add-to-salesTable-group/')
     @UsePipes(new ZodSchemaValidationPipe(SchemaEmployeeUpdate.pick({
                                                                         employee_sales_group_id: true
                                                                     })
@@ -226,7 +226,7 @@ export class EmployeeController extends BaseController {
     }
     
     
-    @Patch('/update/remove-from-sales-group/')
+    @Patch('/update/remove-from-salesTable-group/')
     async removeEmployeesFromSalesGroup(
         @Req()
         req: Request & {

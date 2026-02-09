@@ -15,7 +15,7 @@ import {
     SchemaClientData,
     type TClientData,
     type   TOrganizationSelect,
-}                                from '../../orm/drizzle/drizzle-postgres/drizzle-postgres.schema';
+}                                from '../../orm/drizzle/drizzle-postgres/schema';
 import ZodSchemaValidationPipe   from '../../pipes/schema_validation.pipe';
 import { EAccountStatus }        from '../../types';
 import { BaseController }        from '../abstract.base.controller';

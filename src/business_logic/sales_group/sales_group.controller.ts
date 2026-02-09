@@ -13,19 +13,19 @@ import {
 }                                from '@nestjs/common';
 import type ILoggerService       from '../../logger/logger.interface';
 import { TOKEN__LOGGER_FACTORY } from '../../logger/logger_factory/logger_factory.service';
+import { TOrganizationSelect }   from '../../orm/drizzle/drizzle-postgres/schema';
 import {
     SchemaSalesGroupData,
-    TOrganizationSelect,
-    TSalesGroupInsert,
-    TSalesGroupUpdate
-}                                from '../../orm/drizzle/drizzle-postgres/drizzle-postgres.schema';
+    type TSalesGroupData,
+    type   TSalesGroupUpdate,
+}                                from '../../orm/drizzle/drizzle-postgres/schema/sales_groups.table';
 import ZodSchemaValidationPipe   from '../../pipes/schema_validation.pipe';
 import { BaseController }        from '../abstract.base.controller';
 import { SalesGroupService }     from './sales_group.service';
 
 
 
-@Controller('sales-group')
+@Controller('salesTable-group')
 export class SalesGroupController extends BaseController {
     private readonly salesGroupService: SalesGroupService;
     
@@ -48,7 +48,7 @@ export class SalesGroupController extends BaseController {
             organization: TOrganizationSelect
         },
         @Body()
-        salesGroupData: Pick<TSalesGroupInsert, 'sales_group_name' | 'sales_group_territory'>,
+        salesGroupData: TSalesGroupData,
     ) {
         const req_organization_id = this.validateOrganization(req)
         
@@ -81,7 +81,7 @@ export class SalesGroupController extends BaseController {
         @Param('sales_group_id')
         sales_group_id: string,
         @Body()
-        salesGroupData: Pick<TSalesGroupUpdate, 'sales_group_name'>,
+        salesGroupData: TSalesGroupUpdate,
     ) {
         const req_organization_id = this.validateOrganization(req)
         
@@ -107,7 +107,7 @@ export class SalesGroupController extends BaseController {
         @Param('sales_group_id')
         sales_group_id: string,
         @Body()
-        salesGroupData: Pick<TSalesGroupUpdate, 'sales_group_territory'>,
+        salesGroupData: TSalesGroupUpdate,
     ) {
         
         const req_organization_id = this.validateOrganization(req)

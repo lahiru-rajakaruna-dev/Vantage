@@ -22,7 +22,7 @@ import { organizations }   from './organizations.table';
 
 
 
-export const salesTable = pgTable(
+export const sales = pgTable(
     'salesTable',
     {
         sale_id               : text()
@@ -124,13 +124,13 @@ export const salesTable = pgTable(
     }
 );
 
-export const SchemaSaleInsert = createInsertSchema(salesTable)
+export const SchemaSaleInsert = createInsertSchema(sales)
 export const SchemaSaleData   = SchemaSaleInsert.omit({
                                                           sale_id             : true,
                                                           sale_organization_id: true,
                                                           sale_employee_id    : true,
                                                       })
-export const SchemaSaleUpdate = createUpdateSchema(salesTable)
+export const SchemaSaleUpdate = createUpdateSchema(sales)
     .omit({
               sale_id               : true,
               sale_organization_id  : true,
@@ -139,7 +139,7 @@ export const SchemaSaleUpdate = createUpdateSchema(salesTable)
               sale_client_payment_id: true,
               sale_item_id          : true
           });
-export const SchemaSaleSelect = createSelectSchema(salesTable)
+export const SchemaSaleSelect = createSelectSchema(sales)
 
 export type TSaleInsert = z.infer<typeof SchemaSaleInsert>
 export type TSaleData = z.infer<typeof SchemaSaleData>
@@ -147,15 +147,15 @@ export type TSaleUpdate = z.infer<typeof SchemaSaleUpdate>
 export type TSaleSelect = z.infer<typeof SchemaSaleSelect>
 
 export const salesRelations = relations(
-    salesTable,
+    sales,
     ({ one }) => {
         return {
             item         : one(
                 items,
                 {
                     fields    : [
-                        salesTable.sale_item_id,
-                        salesTable.sale_organization_id
+                        sales.sale_item_id,
+                        sales.sale_organization_id
                     ],
                     references: [
                         items.item_id,
@@ -167,8 +167,8 @@ export const salesRelations = relations(
                 employees,
                 {
                     fields    : [
-                        salesTable.sale_employee_id,
-                        salesTable.sale_organization_id
+                        sales.sale_employee_id,
+                        sales.sale_organization_id
                     ],
                     references: [
                         employees.employee_id,
@@ -179,7 +179,7 @@ export const salesRelations = relations(
             organization : one(
                 organizations,
                 {
-                    fields    : [ salesTable.sale_organization_id ],
+                    fields    : [ sales.sale_organization_id ],
                     references: [ organizations.organization_id ],
                 }
             ),
@@ -187,8 +187,8 @@ export const salesRelations = relations(
                 clients,
                 {
                     fields    : [
-                        salesTable.sale_client_id,
-                        salesTable.sale_organization_id
+                        sales.sale_client_id,
+                        sales.sale_organization_id
                     ],
                     references: [
                         clients.client_id,
@@ -200,8 +200,8 @@ export const salesRelations = relations(
                 clientsPayments,
                 {
                     fields    : [
-                        salesTable.sale_client_payment_id,
-                        salesTable.sale_organization_id
+                        sales.sale_client_payment_id,
+                        sales.sale_organization_id
                     ],
                     references: [
                         clientsPayments.client_payment_id,

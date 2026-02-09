@@ -24,7 +24,7 @@ import {
     type TOrganizationData,
     type   TOrganizationSelect,
     type TOrganizationUpdate
-}                                from '../../orm/drizzle/drizzle-postgres/drizzle-postgres.schema';
+}                                from '../../orm/drizzle/drizzle-postgres/schema';
 import { PaddleService }         from '../../paddle/paddle.service';
 import ZodSchemaValidationPipe   from '../../pipes/schema_validation.pipe';
 import { BaseController }        from '../abstract.base.controller';

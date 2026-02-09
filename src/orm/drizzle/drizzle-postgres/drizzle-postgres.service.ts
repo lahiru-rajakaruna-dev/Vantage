@@ -19,7 +19,7 @@ import type ILoggerService       from '../../../logger/logger.interface';
 import { TOKEN__LOGGER_FACTORY } from '../../../logger/logger_factory/logger_factory.service';
 import { EEnvVars }              from '../../../types';
 import AbstractDrizzlerService   from '../abstract_drizzle.service';
-import * as schema               from './drizzle-postgres.schema';
+import * as schema               from './schema';
 import {
     clients,
     clientsPayments,
@@ -65,7 +65,7 @@ import {
     TSalesGroupSelect,
     TSalesGroupUpdate,
     TSaleUpdate
-}                                from './drizzle-postgres.schema';
+}                                from './schema';
 
 
 
@@ -79,12 +79,18 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
         @Inject(TOKEN__LOGGER_FACTORY)
         logger: ILoggerService,
     ) {
-        super(configService, logger);
+        super(
+            configService,
+            logger
+        );
         
         const pgDriver = postgres(this.configService.get(EEnvVars.POSTGRES_URL) as string,);
-        this.driver    = drizzle(pgDriver, {
-            schema: schema,
-        });
+        this.driver    = drizzle(
+            pgDriver,
+            {
+                schema: schema,
+            }
+        );
     }
     
     
@@ -119,7 +125,10 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
             return tx
                 .update(organizations)
                 .set(organizationUpdates)
-                .where(eq(organizations.organization_id, organization_id))
+                .where(eq(
+                    organizations.organization_id,
+                    organization_id
+                ))
                 .returning();
         });
         
@@ -224,7 +233,10 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
                 ));
         });
         
-        return this.logger.logAndReturn(result, 'operation: add_employee');
+        return this.logger.logAndReturn(
+            result,
+            'operation: add_employee'
+        );
     }
     
     
@@ -245,13 +257,16 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
             
             return tx.select()
                      .from(employeesActivities)
-                     .where(and(eq(
-                         employeesActivities.employee_activity_organization_id,
-                         organization_id
-                     ), eq(
-                         employeesActivities.employee_activity_employee_id,
-                         employee_id
-                     )));
+                     .where(and(
+                         eq(
+                             employeesActivities.employee_activity_organization_id,
+                             organization_id
+                         ),
+                         eq(
+                             employeesActivities.employee_activity_employee_id,
+                             employee_id
+                         )
+                     ));
         })
         
         return this.logger.logAndReturn(
@@ -278,7 +293,10 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
                         employees.employee_organization_id,
                         organization_id
                     ),
-                    eq(employees.employee_id, employee_id)
+                    eq(
+                        employees.employee_id,
+                        employee_id
+                    )
                 )))[0];
             
             if (!employee) {
@@ -287,34 +305,43 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
             
             const employee_sales = await tx.select()
                                            .from(sales)
-                                           .where(and(eq(
-                                               sales.sale_organization_id,
-                                               organization_id
-                                           ), eq(
-                                               sales.sale_employee_id,
-                                               employee.employee_id
-                                           )))
+                                           .where(and(
+                                               eq(
+                                                   sales.sale_organization_id,
+                                                   organization_id
+                                               ),
+                                               eq(
+                                                   sales.sale_employee_id,
+                                                   employee.employee_id
+                                               )
+                                           ))
                                            .orderBy(sales.sale_date)
             
             const employee_leaves = await tx.select()
                                             .from(employeesAttendances)
-                                            .where(and(eq(
-                                                employeesAttendances.employee_attendance_organization_id,
-                                                organization_id
-                                            ), eq(
-                                                employeesAttendances.employee_attendance_employee_id,
-                                                employee.employee_id
-                                            )))
+                                            .where(and(
+                                                eq(
+                                                    employeesAttendances.employee_attendance_organization_id,
+                                                    organization_id
+                                                ),
+                                                eq(
+                                                    employeesAttendances.employee_attendance_employee_id,
+                                                    employee.employee_id
+                                                )
+                                            ))
             
             const employee_salary = await tx.select()
                                             .from(employeesSalaries)
-                                            .where(and(eq(
-                                                employeesSalaries.employee_salary_organization_id,
-                                                organization_id
-                                            ), eq(
-                                                employeesSalaries.employee_salary_employee_id,
-                                                employee.employee_id
-                                            )))
+                                            .where(and(
+                                                eq(
+                                                    employeesSalaries.employee_salary_organization_id,
+                                                    organization_id
+                                                ),
+                                                eq(
+                                                    employeesSalaries.employee_salary_employee_id,
+                                                    employee.employee_id
+                                                )
+                                            ))
             
             employee['employee_sales']  = employee_sales;
             employee['employee_leaves'] = employee_leaves[0];
@@ -385,12 +412,18 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
                         employees.employee_organization_id,
                         organization_id
                     ),
-                    eq(employees.employee_id, employee_id),
+                    eq(
+                        employees.employee_id,
+                        employee_id
+                    ),
                 ),);
             return tx
                 .select()
                 .from(employees)
-                .where(eq(employees.employee_organization_id, organization_id));
+                .where(eq(
+                    employees.employee_organization_id,
+                    organization_id
+                ));
         });
         return this.logger.logAndReturn(
             result,
@@ -409,13 +442,22 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
                 .update(employees)
                 .set(employeeUpdates)
                 .where(and(
-                    eq(employees.employee_organization_id, organization_id),
-                    inArray(employees.employee_id, employees_ids),
+                    eq(
+                        employees.employee_organization_id,
+                        organization_id
+                    ),
+                    inArray(
+                        employees.employee_id,
+                        employees_ids
+                    ),
                 ),);
             return tx
                 .select()
                 .from(employees)
-                .where(eq(employees.employee_organization_id, organization_id));
+                .where(eq(
+                    employees.employee_organization_id,
+                    organization_id
+                ));
         });
         return this.logger.logAndReturn(
             result,
@@ -431,13 +473,16 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     ): Promise<TEmployeeCredentialsSelect> {
         const result = await this.driver.update(employeesCredentials)
                                  .set(credentialUpdates)
-                                 .where(and(eq(
-                                     employeesCredentials.employee_credential_organization_id,
-                                     organization_id
-                                 ), eq(
-                                     employeesCredentials.employee_credential_employee_id,
-                                     employee_id
-                                 )))
+                                 .where(and(
+                                     eq(
+                                         employeesCredentials.employee_credential_organization_id,
+                                         organization_id
+                                     ),
+                                     eq(
+                                         employeesCredentials.employee_credential_employee_id,
+                                         employee_id
+                                     )
+                                 ))
                                  .returning()
         
         return this.logger.logAndReturn(
@@ -452,14 +497,18 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
         organization_id: string,
         employee_id: string
     ): Promise<TEmployeeAttendanceSelect> {
-        const result = await this.driver.select().from(employeesAttendances)
-                                 .where(and(eq(
-                                     employeesAttendances.employee_attendance_organization_id,
-                                     organization_id
-                                 ), eq(
-                                     employeesAttendances.employee_attendance_employee_id,
-                                     employee_id
-                                 )))
+        const result = await this.driver.select()
+                                 .from(employeesAttendances)
+                                 .where(and(
+                                     eq(
+                                         employeesAttendances.employee_attendance_organization_id,
+                                         organization_id
+                                     ),
+                                     eq(
+                                         employeesAttendances.employee_attendance_employee_id,
+                                         employee_id
+                                     )
+                                 ))
         
         return this.logger.logAndReturn(
             result[0],
@@ -475,13 +524,16 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     ): Promise<TEmployeeAttendanceSelect> {
         const result = await this.driver.update(employeesAttendances)
                                  .set(employeeAttendanceUpdates)
-                                 .where(and(eq(
-                                     employeesAttendances.employee_attendance_organization_id,
-                                     organization_id
-                                 ), eq(
-                                     employeesAttendances.employee_attendance_employee_id,
-                                     employee_id
-                                 )))
+                                 .where(and(
+                                     eq(
+                                         employeesAttendances.employee_attendance_organization_id,
+                                         organization_id
+                                     ),
+                                     eq(
+                                         employeesAttendances.employee_attendance_employee_id,
+                                         employee_id
+                                     )
+                                 ))
                                  .returning()
         
         return this.logger.logAndReturn(
@@ -498,13 +550,16 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     ): Promise<TEmployeeSalarySelect> {
         const result = await this.driver.update(employeesSalaries)
                                  .set(employeeSalaryUpdates)
-                                 .where(and(eq(
-                                     employeesSalaries.employee_salary_organization_id,
-                                     organization_id
-                                 ), eq(
-                                     employeesSalaries.employee_salary_employee_id,
-                                     employee_id
-                                 )))
+                                 .where(and(
+                                     eq(
+                                         employeesSalaries.employee_salary_organization_id,
+                                         organization_id
+                                     ),
+                                     eq(
+                                         employeesSalaries.employee_salary_employee_id,
+                                         employee_id
+                                     )
+                                 ))
                                  .returning()
         
         return this.logger.logAndReturn(
@@ -529,9 +584,15 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
             return tx
                 .select()
                 .from(items)
-                .where(eq(items.item_organization_id, organization_id),);
+                .where(eq(
+                    items.item_organization_id,
+                    organization_id
+                ),);
         });
-        return this.logger.logAndReturn(result, 'operation: add_item');
+        return this.logger.logAndReturn(
+            result,
+            'operation: add_item'
+        );
     }
     
     
@@ -542,10 +603,16 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
         const result = await this.driver
                                  .select()
                                  .from(items)
-                                 .where(and(eq(
-                                     items.item_organization_id,
-                                     organization_id
-                                 ), eq(items.item_id, item_id)));
+                                 .where(and(
+                                     eq(
+                                         items.item_organization_id,
+                                         organization_id
+                                     ),
+                                     eq(
+                                         items.item_id,
+                                         item_id
+                                     )
+                                 ));
         return this.logger.logAndReturn(
             result[0],
             'operation: view_item_by_id'
@@ -558,7 +625,10 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
             await this.driver
                       .select()
                       .from(items)
-                      .where(eq(items.item_organization_id, organization_id)),
+                      .where(eq(
+                          items.item_organization_id,
+                          organization_id
+                      )),
             'operation: get_items_by_organization_id',
         );
     }
@@ -574,15 +644,27 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
                 .update(items)
                 .set(itemUpdates)
                 .where(and(
-                    eq(items.item_organization_id, organization_id),
-                    eq(items.item_id, item_id),
+                    eq(
+                        items.item_organization_id,
+                        organization_id
+                    ),
+                    eq(
+                        items.item_id,
+                        item_id
+                    ),
                 ),);
             return tx
                 .select()
                 .from(items)
-                .where(eq(items.item_organization_id, organization_id));
+                .where(eq(
+                    items.item_organization_id,
+                    organization_id
+                ));
         });
-        return this.logger.logAndReturn(result, 'operation: update_item_by_id');
+        return this.logger.logAndReturn(
+            result,
+            'operation: update_item_by_id'
+        );
     }
     
     
@@ -596,15 +678,27 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
                 .update(items)
                 .set(itemUpdates)
                 .where(and(
-                    eq(items.item_organization_id, organization_id),
-                    inArray(items.item_id, items_ids),
+                    eq(
+                        items.item_organization_id,
+                        organization_id
+                    ),
+                    inArray(
+                        items.item_id,
+                        items_ids
+                    ),
                 ),);
             return tx
                 .select()
                 .from(items)
-                .where(eq(items.item_organization_id, organization_id));
+                .where(eq(
+                    items.item_organization_id,
+                    organization_id
+                ));
         });
-        return this.logger.logAndReturn(result, 'operation: update_item_by_id');
+        return this.logger.logAndReturn(
+            result,
+            'operation: update_item_by_id'
+        );
     }
     
     
@@ -628,7 +722,10 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
                     organization_id
                 ),);
         });
-        return this.logger.logAndReturn(result, 'operation: add_sales_group');
+        return this.logger.logAndReturn(
+            result,
+            'operation: add_sales_group'
+        );
     }
     
     
@@ -655,46 +752,58 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
         const result = await this.driver.transaction(async (tx) => {
             const sales_group = await tx.select()
                                         .from(salesGroups)
-                                        .where(and(eq(
-                                            salesGroups.sales_group_organization_id,
-                                            organization_id
-                                        ), eq(
-                                            salesGroups.sales_group_id,
-                                            sales_group_id
-                                        )))
+                                        .where(and(
+                                            eq(
+                                                salesGroups.sales_group_organization_id,
+                                                organization_id
+                                            ),
+                                            eq(
+                                                salesGroups.sales_group_id,
+                                                sales_group_id
+                                            )
+                                        ))
                                         .limit(1);
             
             const sales_group_employees = await tx.select()
                                                   .from(employees)
-                                                  .where(and(eq(
-                                                      employees.employee_organization_id,
-                                                      organization_id
-                                                  ), eq(
-                                                      employees.employee_sales_group_id,
-                                                      sales_group_id
-                                                  ),))
+                                                  .where(and(
+                                                      eq(
+                                                          employees.employee_organization_id,
+                                                          organization_id
+                                                      ),
+                                                      eq(
+                                                          employees.employee_sales_group_id,
+                                                          sales_group_id
+                                                      ),
+                                                  ))
             
             const employees_ids = sales_group_employees.map((employee) => employee.employee_id)
             
             const employee_sales = await tx.select()
                                            .from(sales)
-                                           .where(and(eq(
-                                               sales.sale_organization_id,
-                                               organization_id
-                                           ), inArray(
-                                               sales.sale_employee_id,
-                                               employees_ids
-                                           )))
+                                           .where(and(
+                                               eq(
+                                                   sales.sale_organization_id,
+                                                   organization_id
+                                               ),
+                                               inArray(
+                                                   sales.sale_employee_id,
+                                                   employees_ids
+                                               )
+                                           ))
             
             const employee_leaves = await tx.select()
                                             .from(employeesAttendances)
-                                            .where(and(eq(
-                                                employeesAttendances.employee_attendance_organization_id,
-                                                organization_id
-                                            ), inArray(
-                                                employeesAttendances.employee_attendance_employee_id,
-                                                employees_ids
-                                            )))
+                                            .where(and(
+                                                eq(
+                                                    employeesAttendances.employee_attendance_organization_id,
+                                                    organization_id
+                                                ),
+                                                inArray(
+                                                    employeesAttendances.employee_attendance_employee_id,
+                                                    employees_ids
+                                                )
+                                            ))
             
             return {
                 ...sales_group[0],
@@ -734,7 +843,10 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
                         salesGroups.sales_group_organization_id,
                         organization_id
                     ),
-                    eq(salesGroups.sales_group_id, sales_group_id),
+                    eq(
+                        salesGroups.sales_group_id,
+                        sales_group_id
+                    ),
                 ),);
             return tx
                 .select()
@@ -763,7 +875,10 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
                         salesGroups.sales_group_organization_id,
                         organization_id
                     ),
-                    eq(salesGroups.sales_group_id, sales_group_id),
+                    eq(
+                        salesGroups.sales_group_id,
+                        sales_group_id
+                    ),
                 ),);
             return tx
                 .select()
@@ -795,9 +910,15 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
             return tx
                 .select()
                 .from(clients)
-                .where(eq(clients.client_organization_id, organization_id),);
+                .where(eq(
+                    clients.client_organization_id,
+                    organization_id
+                ),);
         });
-        return this.logger.logAndReturn(result, 'operation: add_client');
+        return this.logger.logAndReturn(
+            result,
+            'operation: add_client'
+        );
     }
     
     
@@ -808,10 +929,16 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
         const result = await this.driver
                                  .select()
                                  .from(clients)
-                                 .where(and(eq(
-                                     clients.client_organization_id,
-                                     organization_id
-                                 ), eq(clients.client_id, client_id)));
+                                 .where(and(
+                                     eq(
+                                         clients.client_organization_id,
+                                         organization_id
+                                     ),
+                                     eq(
+                                         clients.client_id,
+                                         client_id
+                                     )
+                                 ));
         return this.logger.logAndReturn(
             result[0],
             'operation: get_client_profile_by_id',
@@ -843,13 +970,22 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
                 .update(clients)
                 .set(clientUpdates)
                 .where(and(
-                    eq(clients.client_organization_id, organization_id),
-                    eq(clients.client_id, client_id),
+                    eq(
+                        clients.client_organization_id,
+                        organization_id
+                    ),
+                    eq(
+                        clients.client_id,
+                        client_id
+                    ),
                 ),);
             return tx
                 .select()
                 .from(clients)
-                .where(eq(clients.client_organization_id, organization_id));
+                .where(eq(
+                    clients.client_organization_id,
+                    organization_id
+                ));
         });
         return this.logger.logAndReturn(
             result,
@@ -868,13 +1004,22 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
                 .update(clients)
                 .set(clientUpdates)
                 .where(and(
-                    eq(clients.client_organization_id, organization_id),
-                    inArray(clients.client_id, clients_ids),
+                    eq(
+                        clients.client_organization_id,
+                        organization_id
+                    ),
+                    inArray(
+                        clients.client_id,
+                        clients_ids
+                    ),
                 ),);
             return tx
                 .select()
                 .from(clients)
-                .where(eq(clients.client_organization_id, organization_id));
+                .where(eq(
+                    clients.client_organization_id,
+                    organization_id
+                ));
         });
         return this.logger.logAndReturn(
             result,
@@ -918,13 +1063,16 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
             (await this.driver
                        .select()
                        .from(organizationsPayments)
-                       .where(and(eq(
-                           organizationsPayments.organization_payment_organization_id,
-                           organization_id
-                       ), eq(
-                           organizationsPayments.organization_payment_id,
-                           payment_id
-                       ))))[0],
+                       .where(and(
+                           eq(
+                               organizationsPayments.organization_payment_organization_id,
+                               organization_id
+                           ),
+                           eq(
+                               organizationsPayments.organization_payment_id,
+                               payment_id
+                           )
+                       )))[0],
             'operation: get_organization_payment_by_id', // Fixed log message
         );
     }
@@ -953,13 +1101,16 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
             await tx
                 .update(organizationsPayments)
                 .set(paymentUpdates)
-                .where(and(eq(
-                    organizationsPayments.organization_payment_organization_id,
-                    organization_id
-                ), eq(
-                    organizationsPayments.organization_payment_id,
-                    payment_id
-                ),),);
+                .where(and(
+                    eq(
+                        organizationsPayments.organization_payment_organization_id,
+                        organization_id
+                    ),
+                    eq(
+                        organizationsPayments.organization_payment_id,
+                        payment_id
+                    ),
+                ),);
             return tx
                 .select()
                 .from(organizationsPayments)
@@ -992,13 +1143,16 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
             return tx
                 .select()
                 .from(clientsPayments)
-                .where(and(eq(
-                    clientsPayments.client_payment_organization_id,
-                    organization_id
-                ), eq(
-                    clientsPayments.client_payment_client_id,
-                    client_payment_id
-                ),),);
+                .where(and(
+                    eq(
+                        clientsPayments.client_payment_organization_id,
+                        organization_id
+                    ),
+                    eq(
+                        clientsPayments.client_payment_client_id,
+                        client_payment_id
+                    ),
+                ),);
         });
         return this.logger.logAndReturn(
             result,
@@ -1014,13 +1168,16 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
         const result = await this.driver
                                  .select()
                                  .from(clientsPayments)
-                                 .where(and(eq(
-                                     clientsPayments.client_payment_organization_id,
-                                     organization_id
-                                 ), eq(
-                                     clientsPayments.client_payment_id,
-                                     payment_id
-                                 )))
+                                 .where(and(
+                                     eq(
+                                         clientsPayments.client_payment_organization_id,
+                                         organization_id
+                                     ),
+                                     eq(
+                                         clientsPayments.client_payment_id,
+                                         payment_id
+                                     )
+                                 ))
                                  .limit(1);
         return this.logger.logAndReturn(
             result[0],
@@ -1036,13 +1193,16 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
         const result = await this.driver
                                  .select()
                                  .from(clientsPayments)
-                                 .where(and(eq(
-                                     clientsPayments.client_payment_organization_id,
-                                     organization_id
-                                 ), eq(
-                                     clientsPayments.client_payment_client_id,
-                                     client_id
-                                 )));
+                                 .where(and(
+                                     eq(
+                                         clientsPayments.client_payment_organization_id,
+                                         organization_id
+                                     ),
+                                     eq(
+                                         clientsPayments.client_payment_client_id,
+                                         client_id
+                                     )
+                                 ));
         return this.logger.logAndReturn(
             result,
             'operation: get_client_payments_by_client_id',
@@ -1059,10 +1219,16 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
             await tx
                 .update(clientsPayments)
                 .set(clientPaymentUpdates)
-                .where(and(eq(
-                    clientsPayments.client_payment_organization_id,
-                    organization_id
-                ), eq(clientsPayments.client_payment_id, payment_id),),);
+                .where(and(
+                    eq(
+                        clientsPayments.client_payment_organization_id,
+                        organization_id
+                    ),
+                    eq(
+                        clientsPayments.client_payment_id,
+                        payment_id
+                    ),
+                ),);
             return tx
                 .select()
                 .from(clientsPayments)
@@ -1095,9 +1261,15 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
             return tx
                 .select()
                 .from(sales)
-                .where(eq(sales.sale_organization_id, organization_id),);
+                .where(eq(
+                    sales.sale_organization_id,
+                    organization_id
+                ),);
         });
-        return this.logger.logAndReturn(result, 'operation: add_sale_item');
+        return this.logger.logAndReturn(
+            result,
+            'operation: add_sale_item'
+        );
     }
     
     
@@ -1108,10 +1280,16 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
         const result = await this.driver
                                  .select()
                                  .from(sales)
-                                 .where(and(eq(
-                                     sales.sale_organization_id,
-                                     organization_id
-                                 ), eq(sales.sale_id, sale_id)));
+                                 .where(and(
+                                     eq(
+                                         sales.sale_organization_id,
+                                         organization_id
+                                     ),
+                                     eq(
+                                         sales.sale_id,
+                                         sale_id
+                                     )
+                                 ));
         return this.logger.logAndReturn(
             result[0],
             'operation: view_sale_by_id'
@@ -1127,10 +1305,16 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
             await this.driver
                       .select()
                       .from(sales)
-                      .where(and(eq(
-                          sales.sale_organization_id,
-                          organization_id
-                      ), eq(sales.sale_employee_id, employee_id))),
+                      .where(and(
+                          eq(
+                              sales.sale_organization_id,
+                              organization_id
+                          ),
+                          eq(
+                              sales.sale_employee_id,
+                              employee_id
+                          )
+                      )),
             'operation: get_sales_by_employee_id',
         );
     }
@@ -1144,10 +1328,16 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
             await this.driver
                       .select()
                       .from(sales)
-                      .where(and(eq(
-                          sales.sale_organization_id,
-                          organization_id
-                      ), eq(sales.sale_item_id, item_id))),
+                      .where(and(
+                          eq(
+                              sales.sale_organization_id,
+                              organization_id
+                          ),
+                          eq(
+                              sales.sale_item_id,
+                              item_id
+                          )
+                      )),
             'operation: get_sales_by_item_id',
         );
     }
@@ -1158,7 +1348,10 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
             await this.driver
                       .select()
                       .from(sales)
-                      .where(eq(sales.sale_organization_id, organization_id)),
+                      .where(eq(
+                          sales.sale_organization_id,
+                          organization_id
+                      )),
             'operation: get_sales_by_organization_id',
         );
     }
@@ -1172,10 +1365,16 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
             await this.driver
                       .select()
                       .from(sales)
-                      .where(and(eq(
-                          sales.sale_organization_id,
-                          organization_id
-                      ), eq(sales.sale_client_id, client_id))),
+                      .where(and(
+                          eq(
+                              sales.sale_organization_id,
+                              organization_id
+                          ),
+                          eq(
+                              sales.sale_client_id,
+                              client_id
+                          )
+                      )),
             'operation: get_sales_by_client_id',
         );
     }
@@ -1188,11 +1387,20 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
         const result = await this.driver
                                  .select()
                                  .from(sales)
-                                 .where(and(eq(
-                                     sales.sale_organization_id,
-                                     organization_id
-                                 ), eq(sales.sale_date, date),),);
-        return this.logger.logAndReturn(result, 'operation: get_sales_by_date');
+                                 .where(and(
+                                     eq(
+                                         sales.sale_organization_id,
+                                         organization_id
+                                     ),
+                                     eq(
+                                         sales.sale_date,
+                                         date
+                                     ),
+                                 ),);
+        return this.logger.logAndReturn(
+            result,
+            'operation: get_sales_by_date'
+        );
     }
     
     
@@ -1204,15 +1412,16 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
         const result = await this.driver
                                  .select()
                                  .from(sales)
-                                 .where(and(eq(
-                                                sales.sale_organization_id,
-                                                organization_id
-                                            ),
-                                            between(
-                                                sales.sale_date,
-                                                date_start,
-                                                date_end
-                                            ),
+                                 .where(and(
+                                     eq(
+                                         sales.sale_organization_id,
+                                         organization_id
+                                     ),
+                                     between(
+                                         sales.sale_date,
+                                         date_start,
+                                         date_end
+                                     ),
                                  ),);
         return this.logger.logAndReturn(
             result,
@@ -1230,8 +1439,14 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
             await tx.update(sales)
                     .set(saleUpdates)
                     .where(and(
-                        eq(sales.sale_organization_id, organization_id),
-                        eq(sales.sale_id, sale_id)
+                        eq(
+                            sales.sale_organization_id,
+                            organization_id
+                        ),
+                        eq(
+                            sales.sale_id,
+                            sale_id
+                        )
                     ));
             
             return await tx.select()
@@ -1242,6 +1457,9 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
                            ),);
         });
         
-        return this.logger.logAndReturn(result, 'operation: update_sale_by_id');
+        return this.logger.logAndReturn(
+            result,
+            'operation: update_sale_by_id'
+        );
     }
 }

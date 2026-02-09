@@ -6,7 +6,7 @@ import { v4 as uuid }         from 'uuid'
 import {
     TSalesGroupInsert,
     TSalesGroupSelect
-}                             from '../../orm/drizzle/drizzle-postgres/drizzle-postgres.schema';
+}                             from '../../orm/drizzle/drizzle-postgres/schema';
 import { TOKEN__ORM_FACTORY } from '../../orm/orm-factory/orm-factory.service';
 import type IOrmInterface     from '../../orm/orm.interface';
 
@@ -28,7 +28,8 @@ export class SalesGroupService {
         organization_id: string,
         salesGroupData: Pick<TSalesGroupInsert, 'sales_group_name' | 'sales_group_territory'>
     ): Promise<TSalesGroupSelect[]> {
-        const sales_group_id = uuid().toString()
+        const sales_group_id = uuid()
+            .toString()
         return await this.orm.addSalesGroup(
             organization_id,
             sales_group_id,

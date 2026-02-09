@@ -1,6 +1,6 @@
 import { UnauthorizedException } from '@nestjs/common';
 import ILoggerService            from '../logger/logger.interface';
-import { TOrganizationSelect }   from '../orm/drizzle/drizzle-postgres/drizzle-postgres.schema';
+import { TOrganizationSelect }   from '../orm/drizzle/drizzle-postgres/schema';
 
 
 

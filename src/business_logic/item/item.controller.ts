@@ -18,7 +18,7 @@ import {
     type TItemData,
     type TItemUpdate,
     TOrganizationSelect
-}                                from '../../orm/drizzle/drizzle-postgres/drizzle-postgres.schema';
+}                                from '../../orm/drizzle/drizzle-postgres/schema';
 import ZodSchemaValidationPipe   from '../../pipes/schema_validation.pipe';
 import { BaseController }        from '../abstract.base.controller';
 import { ItemService }           from './item.service';

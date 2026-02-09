@@ -25,7 +25,7 @@ import { employeesCredentials }  from './employees_credentials';
 import { employeesSalaries }     from './employees_salaries.table';
 import { items }                 from './items.table';
 import { organizationsPayments } from './organizations_payments.table';
-import { salesTable }            from './sales.table';
+import { sales }                 from './sales.table';
 import { salesGroups }           from './sales_groups.table';
 
 
@@ -130,7 +130,7 @@ export const organizationsRelations = relations(
             items                : many(items,),
             salesGroups          : many(salesGroups,),
             organizationsPayments: many(organizationsPayments,),
-            sales                : many(salesTable,),
+            sales                : many(sales,),
             clients              : many(clients,),
             clientsPayments      : many(clientsPayments,),
         };

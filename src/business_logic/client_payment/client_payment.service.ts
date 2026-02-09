@@ -6,7 +6,7 @@ import { v4 as uuid }         from 'uuid'
 import {
     TClientPaymentData,
     TClientPaymentSelect
-}                             from '../../orm/drizzle/drizzle-postgres/drizzle-postgres.schema';
+}                             from '../../orm/drizzle/drizzle-postgres/schema';
 import { TOKEN__ORM_FACTORY } from '../../orm/orm-factory/orm-factory.service';
 import type IOrmInterface     from '../../orm/orm.interface';
 import { EPaymentStatus }     from '../../types';
@@ -32,7 +32,8 @@ export class ClientPaymentService {
         client_id: string,
         paymentDetails: TClientPaymentData // Changed type
     ): Promise<TClientPaymentSelect[]> { // Changed return type
-        const client_payment_id = uuid().toString()
+        const client_payment_id = uuid()
+            .toString()
         return this.orm.addClientPayment(
             organization_id,
             client_id,
@@ -47,9 +48,13 @@ export class ClientPaymentService {
         organization_id: string,
         payment_id: string,
     ): Promise<TClientPaymentSelect[]> { // Fixed return type
-        return this.orm.updateClientPaymentById(organization_id, payment_id, {
-            client_payment_status: EPaymentStatus.PENDING,
-        });
+        return this.orm.updateClientPaymentById(
+            organization_id,
+            payment_id,
+            {
+                client_payment_status: EPaymentStatus.PENDING,
+            }
+        );
     }
     
     
@@ -57,9 +62,13 @@ export class ClientPaymentService {
         organization_id: string,
         payment_id: string,
     ): Promise<TClientPaymentSelect[]> { // Fixed return type
-        return this.orm.updateClientPaymentById(organization_id, payment_id, {
-            client_payment_status: EPaymentStatus.PAID,
-        });
+        return this.orm.updateClientPaymentById(
+            organization_id,
+            payment_id,
+            {
+                client_payment_status: EPaymentStatus.PAID,
+            }
+        );
     }
     
     
@@ -67,9 +76,13 @@ export class ClientPaymentService {
         organization_id: string,
         payment_id: string,
     ): Promise<TClientPaymentSelect[]> { // Fixed return type
-        return this.orm.updateClientPaymentById(organization_id, payment_id, {
-            client_payment_status: EPaymentStatus.VERIFIED,
-        });
+        return this.orm.updateClientPaymentById(
+            organization_id,
+            payment_id,
+            {
+                client_payment_status: EPaymentStatus.VERIFIED,
+            }
+        );
     }
     
     
@@ -77,9 +90,13 @@ export class ClientPaymentService {
         organization_id: string,
         payment_id: string,
     ): Promise<TClientPaymentSelect[]> { // Fixed return type
-        return this.orm.updateClientPaymentById(organization_id, payment_id, {
-            client_payment_status: EPaymentStatus.REFUNDED,
-        });
+        return this.orm.updateClientPaymentById(
+            organization_id,
+            payment_id,
+            {
+                client_payment_status: EPaymentStatus.REFUNDED,
+            }
+        );
     }
     
     
@@ -88,9 +105,13 @@ export class ClientPaymentService {
         payment_id: string,
         payment_amount: number,
     ): Promise<TClientPaymentSelect[]> { // Fixed return type
-        return this.orm.updateClientPaymentById(organization_id, payment_id, {
-            client_payment_amount: payment_amount
-        })
+        return this.orm.updateClientPaymentById(
+            organization_id,
+            payment_id,
+            {
+                client_payment_amount: payment_amount
+            }
+        )
     }
     
     
@@ -99,7 +120,10 @@ export class ClientPaymentService {
         organization_id: string,
         payment_id: string,
     ): Promise<TClientPaymentSelect> { // Fixed return type
-        return this.orm.getClientPaymentById(organization_id, payment_id);
+        return this.orm.getClientPaymentById(
+            organization_id,
+            payment_id
+        );
     }
     
     
@@ -108,6 +132,9 @@ export class ClientPaymentService {
         organization_id: string,
         client_id: string,
     ): Promise<TClientPaymentSelect[]> { // Fixed return type
-        return this.orm.getClientPaymentsByClientId(organization_id, client_id);
+        return this.orm.getClientPaymentsByClientId(
+            organization_id,
+            client_id
+        );
     }
 }

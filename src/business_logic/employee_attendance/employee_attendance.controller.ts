@@ -7,7 +7,7 @@ import {
 }                                    from '@nestjs/common';
 import type ILoggerService           from '../../logger/logger.interface';
 import { TOKEN__LOGGER_FACTORY }     from '../../logger/logger_factory/logger_factory.service';
-import { TOrganizationSelect }       from '../../orm/drizzle/drizzle-postgres/drizzle-postgres.schema';
+import { TOrganizationSelect }       from '../../orm/drizzle/drizzle-postgres/schema';
 import { BaseController }            from '../abstract.base.controller';
 import { EmployeeAttendanceService } from './employee_attendance.service';
 

@@ -6,7 +6,7 @@ import { v4 as uuid }         from 'uuid'
 import {
     TOrganizationPaymentInsert,
     TOrganizationPaymentSelect
-}                             from '../../orm/drizzle/drizzle-postgres/drizzle-postgres.schema';
+}                             from '../../orm/drizzle/drizzle-postgres/schema';
 import { TOKEN__ORM_FACTORY } from '../../orm/orm-factory/orm-factory.service';
 import type IOrmInterface     from '../../orm/orm.interface';
 import { EPaymentStatus }     from '../../types';
@@ -29,7 +29,8 @@ export class OrganizationPaymentService {
         organization_id: string,
         paymentData: Omit<TOrganizationPaymentInsert, 'organization_payment_organization_id' | 'organization_payment_id'>
     ): Promise<TOrganizationPaymentSelect[]> {
-        const organization_payment_id = uuid().toString()
+        const organization_payment_id = uuid()
+            .toString()
         return await this.orm.addOrganizationPayment(
             organization_id,
             organization_payment_id,

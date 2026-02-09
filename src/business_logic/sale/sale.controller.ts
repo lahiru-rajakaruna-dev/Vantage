@@ -16,7 +16,7 @@ import {
     type TOrganizationSelect,
     type TSaleData,
     type TSaleSelect
-}                                from '../../orm/drizzle/drizzle-postgres/drizzle-postgres.schema';
+}                                from '../../orm/drizzle/drizzle-postgres/schema';
 import ZodSchemaValidationPipe   from '../../pipes/schema_validation.pipe';
 import { BaseController }        from '../abstract.base.controller';
 import { SaleService }           from './sale.service';
