@@ -52,11 +52,17 @@ export const employees = sqliteTable(
                                             name          : 'employees_organization_fk',
                                             columns       : [ table.employee_organization_id ],
                                             foreignColumns: [ organizations.organization_id ],
-                                        }),
+                                        },),
         salesGroupFk       : foreignKey({
                                             name          : 'employees_sales_group_fk',
-                                            columns       : [ table.employee_sales_group_id ],
-                                            foreignColumns: [ salesGroups.sales_group_id ],
+                                            columns       : [
+                                                table.employee_sales_group_id,
+                                                table.employee_organization_id
+                                            ],
+                                            foreignColumns: [
+                                                salesGroups.sales_group_id,
+                                                salesGroups.sales_group_organization_id
+                                            ],
                                         })
             .onDelete('set null'),
         employeeIdIndex    : index('employee_id_idx')
@@ -132,8 +138,8 @@ export const employeesRelations = relations(
                 references: [
                     salesGroups.sales_group_id,
                     salesGroups.sales_group_organization_id
-                ],
-            }
+                ]
+            },
         ),
         sales       : many(sales),
         activities  : many(employeesActivities),
