@@ -31,7 +31,7 @@ import {
     TSalesGroupSelect,
     TSalesGroupUpdate,
     TSaleUpdate
-} from './drizzle/drizzle-postgres/drizzle-postgres.schema';
+} from './drizzle/drizzle-postgres/schema';
 
 
 
@@ -128,7 +128,10 @@ export default interface IOrmInterface {
         itemDetails: TItemData
     ): Promise<TItemSelect[]>;
     
-    getItemById(organization_id: string, item_id: string): Promise<TItemSelect>;
+    getItemById(
+        organization_id: string,
+        item_id: string
+    ): Promise<TItemSelect>;
     
     getItemsByOrganizationId(organization_id: string): Promise<TItemSelect[]>;
     
@@ -177,7 +180,10 @@ export default interface IOrmInterface {
         saleDetails: TSaleData
     ): Promise<TSaleSelect[]>;
     
-    getSaleById(organization_id: string, sale_id: string): Promise<TSaleSelect>;
+    getSaleById(
+        organization_id: string,
+        sale_id: string
+    ): Promise<TSaleSelect>;
     
     getSalesByEmployeeId(
         organization_id: string,

@@ -8,11 +8,11 @@ import {
     sqliteTable,
     text
 }                        from 'drizzle-orm/sqlite-core';
+import { employees }     from './employees.table';
 import {
     clients,
     clientsPayments
-}                        from '../../drizzle-postgres/schema';
-import { employees }     from './employees.table';
+}                        from './index';
 import { items }         from './items.table';
 import { organizations } from './organizations.table';
 
