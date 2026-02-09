@@ -29,6 +29,13 @@
       "when": 1770652698600,
       "tag": "0003_curved_prism",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1770652864695,
+      "tag": "0004_complete_ikaris",
+      "breakpoints": true
     }
   ]
 }

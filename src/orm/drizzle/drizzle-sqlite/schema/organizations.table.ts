@@ -63,7 +63,6 @@ export const organizations = sqliteTable(
                                             name   : 'organization_primary_key',
                                             columns: [
                                                 table.organization_id,
-                                                table.organization_stripe_customer_id
                                             ],
                                         }),
         organizationIdIndex: index('organization_id_idx')
