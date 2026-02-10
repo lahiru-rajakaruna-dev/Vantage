@@ -1380,6 +1380,49 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     }
     
     
+    async getSalesBySalesGroupId(
+        organization_id: string,
+        sales_group_id: string
+    ): Promise<TSaleSelect[]> {
+        const result = await this.driver.query.employees.findMany({
+                                                                      where  : (employees) => and(
+                                                                          eq(
+                                                                              employees.employee_organization_id,
+                                                                              organization_id
+                                                                          ),
+                                                                          eq(
+                                                                              employees.employee_sales_group_id,
+                                                                              sales_group_id
+                                                                          )
+                                                                      ),
+                                                                      columns: {
+                                                                          employee_id: true
+                                                                      },
+                                                                      with   : {
+                                                                          sales: true
+                                                                      }
+                                                                  })
+        
+        const allSales = result.reduce(
+            (
+                allSalesArray,
+                currentEmployee
+            ) => {
+                return [
+                    ...allSalesArray,
+                    ...currentEmployee.sales
+                ]
+            },
+            [] as TSaleSelect[]
+        )
+        
+        return this.logger.logAndReturn(
+            allSales,
+            'operation:' + ' get_sales_by_sales_group_id'
+        )
+    }
+    
+    
     async getSalesByDate(
         organization_id: string,
         date: number,

@@ -200,6 +200,11 @@ export default interface IOrmInterface {
         item_id: string
     ): Promise<TSaleSelect[]>;
     
+    getSalesBySalesGroupId(
+        organization_id: string,
+        sales_group_id: string
+    ): Promise<TSaleSelect[]>
+    
     getSalesByOrganizationId(organization_id: string): Promise<TSaleSelect[]>;
     
     getSalesByDate(

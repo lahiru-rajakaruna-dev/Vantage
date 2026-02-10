@@ -97,6 +97,28 @@ export class SaleController extends BaseController {
     }
     
     
+    @Get('/sales-group/:sales_group_id')
+    async getSalesBySalesGroup(
+        @Req()
+        req: Request & {
+            organization: TOrganizationSelect
+        },
+        @Param('sales_group_id')
+        sales_group_id: string
+    ): Promise<TSaleSelect[]> {
+        const req_organization_id = this.validateOrganization(req)
+        
+        if (!sales_group_id) {
+            throw new BadRequestException('Missing sales group id')
+        }
+        
+        return await this.saleService.getSalesBySalesGroupId(
+            req_organization_id,
+            sales_group_id
+        )
+    }
+    
+    
     @Get('/employee/:employee_id')
     async getSalesByEmployeeId(
         @Req()
@@ -107,6 +129,11 @@ export class SaleController extends BaseController {
         employee_id: string,
     ): Promise<TSaleSelect[]> {
         const req_organization_id = this.validateOrganization(req)
+        
+        if (!employee_id) {
+            throw new BadRequestException('Missing employee id')
+        }
+        
         return await this.saleService.getSalesByEmployeeId(
             req_organization_id,
             employee_id,

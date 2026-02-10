@@ -10,6 +10,7 @@ import {
     eq,
     inArray
 }                                from 'drizzle-orm';
+import { LibSQLDatabase }        from 'drizzle-orm/libsql';
 import { drizzle }               from 'drizzle-orm/libsql/node';
 import { v4 as uuid }            from 'uuid'
 import type ILoggerService       from '../../../logger/logger.interface';
@@ -46,13 +47,11 @@ import {
     TOrganizationUpdate,
     TSaleData,
     TSaleSelect,
-    TSaleUpdate
-}                                from '../drizzle-postgres/schema';
-import {
     TSalesGroupData,
     TSalesGroupSelect,
-    TSalesGroupUpdate
-}                                from '../drizzle-postgres/schema/sales_groups.table';
+    TSalesGroupUpdate,
+    TSaleUpdate
+}                                from '../drizzle-postgres/schema';
 import * as schema               from './schema'
 import {
     clients,
@@ -72,7 +71,8 @@ import {
 
 @Injectable()
 export class DrizzleSqliteService extends AbstractDrizzlerService {
-    protected readonly driver: ReturnType<typeof drizzle<typeof schema>>;
+    protected readonly driver: LibSQLDatabase<typeof schema>;
+    private readonly sqliteClient: ReturnType<typeof createClient>;
     
     
     constructor(
@@ -85,14 +85,14 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
             logger,
         );
         
-        const sqliteClient = createClient({
-                                              url: this.configService.get(EEnvVars.SQLITE_URL) as string,
-                                          });
+        this.sqliteClient = createClient({
+                                             url: this.configService.get(EEnvVars.SQLITE_URL) as string,
+                                         });
         
-        sqliteClient.execute('PRAGMA journal_mode = WAL;');
+        // sqliteClient.execute('PRAGMA journal_mode = WAL;');
         
         this.driver = drizzle(
-            sqliteClient,
+            this.sqliteClient,
             {
                 schema: schema,
             }
@@ -1297,6 +1297,59 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
                       )),
             'operation: get_sales_by_item_id',
         );
+    }
+    
+    
+    async getSalesBySalesGroupId(
+        organization_id: string,
+        sales_group_id: string
+    ): Promise<TSaleSelect[]> {
+        const result = await this.driver.query.employees.findMany({
+                                                                      where  : (
+                                                                          employees,
+                                                                          operators
+                                                                      ) => {
+                                                                          return and(
+                                                                              eq(
+                                                                                  employees.employee_organization_id,
+                                                                                  organization_id
+                                                                              ),
+                                                                              eq(
+                                                                                  employees.employee_sales_group_id,
+                                                                                  sales_group_id
+                                                                              )
+                                                                          )
+                                                                      },
+                                                                      columns: { employee_id: true },
+                                                                      with   : {
+                                                                          sales: {
+                                                                              where: (sales) => {
+                                                                                  return eq(
+                                                                                      sales.sale_organization_id,
+                                                                                      organization_id
+                                                                                  )
+                                                                              }
+                                                                          }
+                                                                      }
+                                                                  })
+        
+        const allSales = result.reduce(
+            (
+                allSalesArray,
+                currentEmployee
+            ) => {
+                return [
+                    ...allSalesArray,
+                    ...currentEmployee.sales
+                ]
+            },
+            [] as TSaleSelect[]
+        )
+        
+        return this.logger.logAndReturn(
+            allSales,
+            'operation:' + ' get_sales_by_sales_group_id'
+        )
     }
     
     

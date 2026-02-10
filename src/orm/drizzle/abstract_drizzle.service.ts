@@ -331,6 +331,12 @@ export default abstract class AbstractDrizzlerService implements IOrmInterface {
     ): Promise<TSaleSelect[]>
     
     
+    abstract getSalesBySalesGroupId(
+        organization_id: string,
+        sales_group_id: string
+    ): Promise<TSaleSelect[]>
+    
+    
     abstract getSalesByOrganizationId(organization_id: string): Promise<TSaleSelect[]>
     
     

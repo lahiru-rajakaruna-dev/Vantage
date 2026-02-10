@@ -85,6 +85,17 @@ export class SaleService {
     }
     
     
+    async getSalesBySalesGroupId(
+        organization_id: string,
+        sales_group_id: string
+    ): Promise<TSaleSelect[]> {
+        return await this.orm.getSalesBySalesGroupId(
+            organization_id,
+            sales_group_id
+        )
+    }
+    
+    
     async getSalesByOrganizationId(organization_id: string): Promise<TSaleSelect[]> {
         return await this.orm.getSalesByOrganizationId(organization_id);
     }
