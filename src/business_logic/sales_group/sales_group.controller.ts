@@ -13,19 +13,19 @@ import {
 }                                from '@nestjs/common';
 import type ILoggerService       from '../../logger/logger.interface';
 import { TOKEN__LOGGER_FACTORY } from '../../logger/logger_factory/logger_factory.service';
-import { TOrganizationSelect }   from '../../orm/drizzle/drizzle-postgres/schema';
 import {
     SchemaSalesGroupData,
+    TOrganizationSelect,
     type TSalesGroupData,
-    type   TSalesGroupUpdate,
-}                                from '../../orm/drizzle/drizzle-postgres/schema/sales_groups.table';
+    type   TSalesGroupUpdate
+}                                from '../../orm/drizzle/drizzle-postgres/schema';
 import ZodSchemaValidationPipe   from '../../pipes/schema_validation.pipe';
 import { BaseController }        from '../abstract.base.controller';
 import { SalesGroupService }     from './sales_group.service';
 
 
 
-@Controller('salesTable-group')
+@Controller('sales-group')
 export class SalesGroupController extends BaseController {
     private readonly salesGroupService: SalesGroupService;
     
