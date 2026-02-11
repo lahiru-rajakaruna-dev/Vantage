@@ -520,6 +520,7 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
     async updateEmployeeAttendance(
         organization_id: string,
         employee_id: string,
+        attendance_id: string,
         employeeAttendanceUpdates: TEmployeeAttendanceUpdate
     ): Promise<TEmployeeAttendanceSelect> {
         const result = await this.driver.update(employeesAttendances)
@@ -528,6 +529,10 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
                                      eq(
                                          employeesAttendances.employee_attendance_organization_id,
                                          organization_id
+                                     ),
+                                     eq(
+                                         employeesAttendances.employee_attendance_id,
+                                         attendance_id
                                      ),
                                      eq(
                                          employeesAttendances.employee_attendance_employee_id,

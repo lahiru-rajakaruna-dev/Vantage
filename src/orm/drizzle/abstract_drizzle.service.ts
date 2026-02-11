@@ -149,6 +149,7 @@ export default abstract class AbstractDrizzlerService implements IOrmInterface {
     abstract updateEmployeeAttendance(
         organization_id: string,
         employee_id: string,
+        attendance_id: string,
         employeeAttendanceUpdates: TEmployeeAttendanceUpdate
     ): Promise<TEmployeeAttendanceSelect>
 

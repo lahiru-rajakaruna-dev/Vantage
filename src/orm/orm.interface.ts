@@ -102,6 +102,7 @@ export default interface IOrmInterface {
     updateEmployeeAttendance(
         organization_id: string,
         employee_id: string,
+        attendance_id: string,
         employeeAttendanceUpdates: TEmployeeAttendanceUpdate
     ): Promise<TEmployeeAttendanceSelect>;
     
