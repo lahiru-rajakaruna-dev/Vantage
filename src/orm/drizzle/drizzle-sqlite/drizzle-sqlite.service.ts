@@ -712,78 +712,31 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
         sales_group_id: string,
     ): Promise<TSalesGroupSelect> {
         
-        const result = await this.driver.transaction(async (tx) => {
-            const sales_group = await tx.select()
-                                        .from(salesGroups)
-                                        .where(and(
-                                            eq(
-                                                salesGroups.sales_group_organization_id,
-                                                organization_id
-                                            ),
-                                            eq(
-                                                salesGroups.sales_group_id,
-                                                sales_group_id
-                                            )
-                                        ))
-                                        .limit(1);
-            
-            const sales_group_employees = await tx.select()
-                                                  .from(employees)
-                                                  .where(and(
-                                                      eq(
-                                                          employees.employee_organization_id,
-                                                          organization_id
-                                                      ),
-                                                      eq(
-                                                          employees.employee_sales_group_id,
-                                                          sales_group_id
-                                                      ),
-                                                  ))
-            
-            const employees_ids = sales_group_employees.map((employee) => employee.employee_id)
-            
-            const employee_sales = await tx.select()
-                                           .from(sales)
-                                           .where(and(
-                                               eq(
-                                                   sales.sale_organization_id,
-                                                   organization_id
-                                               ),
-                                               inArray(
-                                                   sales.sale_employee_id,
-                                                   employees_ids
-                                               )
-                                           ))
-            
-            const employee_leaves = await tx.select()
-                                            .from(employeesAttendances)
-                                            .where(and(
-                                                eq(
-                                                    employeesAttendances.employee_attendance_organization_id,
-                                                    organization_id
-                                                ),
-                                                inArray(
-                                                    employeesAttendances.employee_attendance_employee_id,
-                                                    employees_ids
-                                                )
-                                            ))
-            
-            return {
-                ...sales_group[0],
-                sales_group_employees: sales_group_employees.map((employee) => {
-                    return {
-                        ...employee,
-                        employee_sales : employee_sales.filter((sale) => (sale.sale_employee_id === employee.employee_id)),
-                        employee_leaves: employee_leaves.find((leave) => (leave.employee_attendance_employee_id === employee.employee_id))!
-                    }
-                    
-                }) as (TEmployeeSelect & {
-                    employee_sales: TSaleSelect[];
-                    employee_leaves: TEmployeeAttendanceSelect
-                })[]
-            }
-            
-        })
+        const result = await this.driver.query.salesGroups.findFirst({
+                                                                         where(salesGroup) {
+                                                                             return and(
+                                                                                 eq(
+                                                                                     salesGroup.sales_group_organization_id,
+                                                                                     organization_id
+                                                                                 ),
+                                                                                 eq(
+                                                                                     salesGroup.sales_group_id,
+                                                                                     sales_group_id
+                                                                                 )
+                                                                             )
+                                                                         },
+                                                                         with: {
+                                                                             employees: {
+                                                                                 with: {
+                                                                                     sales: true
+                                                                                 }
+                                                                             }
+                                                                         }
+                                                                     })
+        
+        if (!result) {
+            throw new Error('No sales group found')
+        }
         
         return this.logger.logAndReturn(
             result,
