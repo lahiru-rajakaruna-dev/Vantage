@@ -23,7 +23,7 @@ import { SaleService }           from './sale.service';
 
 
 
-@Controller('sale')
+@Controller('sales')
 export class SaleController extends BaseController {
     private readonly saleService: SaleService;
     
@@ -35,32 +35,6 @@ export class SaleController extends BaseController {
     ) {
         super(logger)
         this.saleService = saleService;
-    }
-    
-    
-    @Post()
-    @UsePipes(new ZodSchemaValidationPipe(SchemaSaleData))
-    async addSale(
-        @Req()
-        req: Request & {
-            organization: TOrganizationSelect
-        },
-        @Body()
-        saleData: TSaleData
-    ): Promise<TSaleSelect[]> {
-        
-        const req_organization_id = this.validateOrganization(req)
-        const user_id             = req['cookies']['user_id'];
-        
-        if (!user_id) {
-            throw new BadRequestException('User not found...')
-        }
-        
-        return await this.saleService.addSale(
-            req_organization_id,
-            user_id,
-            saleData,
-        );
     }
     
     
@@ -212,4 +186,31 @@ export class SaleController extends BaseController {
             date_end,
         );
     }
+    
+    
+    @Post()
+    @UsePipes(new ZodSchemaValidationPipe(SchemaSaleData))
+    async addSale(
+        @Req()
+        req: Request & {
+            organization: TOrganizationSelect
+        },
+        @Body()
+        saleData: TSaleData
+    ): Promise<TSaleSelect[]> {
+        
+        const req_organization_id = this.validateOrganization(req)
+        const user_id             = req['cookies']['user_id'];
+        
+        if (!user_id) {
+            throw new BadRequestException('User not found...')
+        }
+        
+        return await this.saleService.addSale(
+            req_organization_id,
+            user_id,
+            saleData,
+        );
+    }
+    
 }
