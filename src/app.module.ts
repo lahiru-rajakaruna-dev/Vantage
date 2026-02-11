@@ -8,7 +8,10 @@ import {
     type NestModule,
 }                                        from '@nestjs/common';
 import { ConfigModule }                  from '@nestjs/config';
-import { APP_INTERCEPTOR }               from '@nestjs/core';
+import {
+    APP_GUARD,
+    APP_INTERCEPTOR
+}                                        from '@nestjs/core';
 import { AppController }                 from './app.controller';
 import { AppService }                    from './app.service';
 import { AuthenticationModule }          from './authentication/authentication.module';
@@ -66,8 +69,12 @@ import { PaddleModule }                  from './paddle/paddle.module';
                     provide : APP_INTERCEPTOR,
                     useClass: CacheInterceptor,
                 },
-                AuthGuardService,
+                {
+                    provide : APP_GUARD,
+                    useClass: AuthGuardService,
+                }
             ],
+            
         })
 export class AppModule implements NestModule {
     configure(consumer: MiddlewareConsumer) {
