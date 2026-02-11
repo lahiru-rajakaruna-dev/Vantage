@@ -21,9 +21,12 @@ export class AuthenticationController {
     
     
     constructor(
-        @Inject(TOKEN__LOGGER_FACTORY) logger: ILoggerService,
-        @Inject() organizationService: OrganizationService,
-        @Inject() configService: ConfigService,
+        @Inject(TOKEN__LOGGER_FACTORY)
+        logger: ILoggerService,
+        @Inject()
+        organizationService: OrganizationService,
+        @Inject()
+        configService: ConfigService,
     ) {
         this.logger              = logger;
         this.organizationService = organizationService;
@@ -32,15 +35,16 @@ export class AuthenticationController {
     
     
     @Get('/authenticate')
-    async authenticate(@Request() request: Request) {
+    async authenticate(
+        @Request()
+        request: Request) {
         const user_id = request['cookies']['user_id'];
         
         if (!user_id) {
             throw new Error('[-] Unauthenticated user');
         }
         
-        const organization =
-                  await this.organizationService.getOrganizationDetailsAdminById(user_id);
+        const organization = await this.organizationService.getOrganizationDetailsByAdmin(user_id);
         if (!organization) {
             throw new Error('[-] Unregistered organization...');
         }
