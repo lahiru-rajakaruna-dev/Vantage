@@ -44,7 +44,8 @@ export class EmployeeController extends BaseController {
     async getAllEmployeesByOrganizationId(
         @Req()
         req: Request & {
-            organization: TOrganizationSelect
+            organization: TOrganizationSelect,
+            user_id: string
         },) {
         
         const req_organization_id = this.validateOrganization(req)
@@ -56,7 +57,8 @@ export class EmployeeController extends BaseController {
     async getEmployeesByGroupId(
         @Req()
         req: Request & {
-            organization: TOrganizationSelect
+            organization: TOrganizationSelect,
+            user_id: string
         },
         @Param('sales_group_id')
         sales_group_id: string,
@@ -74,7 +76,8 @@ export class EmployeeController extends BaseController {
     async getEmployeeById(
         @Req()
         req: Request & {
-            organization: TOrganizationSelect
+            organization: TOrganizationSelect,
+            user_id: string
         },
         @Param('employee_id')
         employee_id: string,
@@ -97,7 +100,8 @@ export class EmployeeController extends BaseController {
     async addEmployee(
         @Req()
         req: Request & {
-            organization: TOrganizationSelect
+            organization: TOrganizationSelect,
+            user_id: string
         },
         @Body()
         employeeData: TEmployeeCredentialsData
@@ -115,7 +119,8 @@ export class EmployeeController extends BaseController {
     async updateEmployee(
         @Req()
         req: Request & {
-            organization: TOrganizationSelect
+            organization: TOrganizationSelect,
+            user_id: string
         },
         @Param('employee_id')
         employee_id: string,

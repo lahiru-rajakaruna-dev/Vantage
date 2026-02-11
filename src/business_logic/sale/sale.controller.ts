@@ -42,7 +42,8 @@ export class SaleController extends BaseController {
     async getSaleProfile(
         @Req()
         req: Request & {
-            organization: TOrganizationSelect
+            organization: TOrganizationSelect,
+            user_id: string
         },
         @Param('sale_id')
         sale_id: string,
@@ -64,7 +65,8 @@ export class SaleController extends BaseController {
     async getSalesByOrganizationId(
         @Req()
         req: Request & {
-            organization: TOrganizationSelect
+            organization: TOrganizationSelect,
+            user_id: string
         },): Promise<TSaleSelect[]> {
         const req_organization_id = this.validateOrganization(req)
         return await this.saleService.getSalesByOrganizationId(req_organization_id,);
@@ -75,7 +77,8 @@ export class SaleController extends BaseController {
     async getSalesBySalesGroup(
         @Req()
         req: Request & {
-            organization: TOrganizationSelect
+            organization: TOrganizationSelect,
+            user_id: string
         },
         @Param('sales_group_id')
         sales_group_id: string
@@ -97,7 +100,8 @@ export class SaleController extends BaseController {
     async getSalesByEmployeeId(
         @Req()
         req: Request & {
-            organization: TOrganizationSelect
+            organization: TOrganizationSelect,
+            user_id: string
         },
         @Param('employee_id')
         employee_id: string,
@@ -119,7 +123,8 @@ export class SaleController extends BaseController {
     async getSalesByItemId(
         @Req()
         req: Request & {
-            organization: TOrganizationSelect
+            organization: TOrganizationSelect,
+            user_id: string
         },
         @Param('item_id')
         item_id: string,
@@ -136,7 +141,8 @@ export class SaleController extends BaseController {
     async getSalesByClientId(
         @Req()
         req: Request & {
-            organization: TOrganizationSelect
+            organization: TOrganizationSelect,
+            user_id: string
         },
         @Param('client_id')
         client_id: string,
@@ -153,7 +159,8 @@ export class SaleController extends BaseController {
     async getSalesByDate(
         @Req()
         req: Request & {
-            organization: TOrganizationSelect
+            organization: TOrganizationSelect,
+            user_id: string
         },
         @Param('date')
         date: number,
@@ -170,7 +177,8 @@ export class SaleController extends BaseController {
     async getSalesByDateRange(
         @Req()
         req: Request & {
-            organization: TOrganizationSelect
+            organization: TOrganizationSelect,
+            user_id: string
         },
         @Param('date_start')
         date_start: number,
@@ -193,7 +201,8 @@ export class SaleController extends BaseController {
     async addSale(
         @Req()
         req: Request & {
-            organization: TOrganizationSelect
+            organization: TOrganizationSelect,
+            user_id: string
         },
         @Body()
         saleData: TSaleData

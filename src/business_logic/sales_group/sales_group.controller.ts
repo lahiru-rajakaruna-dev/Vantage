@@ -45,7 +45,8 @@ export class SalesGroupController extends BaseController {
     async getSalesGroupProfile(
         @Req()
         req: Request & {
-            organization: TOrganizationSelect
+            organization: TOrganizationSelect,
+            user_id: string
         },
         @Param('sales_group_id')
         sales_group_id: string,
@@ -63,7 +64,8 @@ export class SalesGroupController extends BaseController {
     async getSalesGroupsByOrganizationId(
         @Req()
         req: Request & {
-            organization: TOrganizationSelect
+            organization: TOrganizationSelect,
+            user_id: string
         },) {
         const req_organization_id = this.validateOrganization(req)
         
@@ -76,7 +78,8 @@ export class SalesGroupController extends BaseController {
     async addSalesGroup(
         @Req()
         req: Request & {
-            organization: TOrganizationSelect
+            organization: TOrganizationSelect,
+            user_id: string
         },
         @Body()
         salesGroupData: TSalesGroupData,
@@ -107,7 +110,8 @@ export class SalesGroupController extends BaseController {
     async updateSalesGroupName(
         @Req()
         req: Request & {
-            organization: TOrganizationSelect
+            organization: TOrganizationSelect,
+            user_id: string
         },
         @Param('sales_group_id')
         sales_group_id: string,
@@ -128,7 +132,8 @@ export class SalesGroupController extends BaseController {
     async deleteSalesGroup(
         @Req()
         req: Request & {
-            organization: TOrganizationSelect
+            organization: TOrganizationSelect,
+            user_id: string
         },
         @Param('sales_group_id')
         sales_group_id: string,

@@ -45,7 +45,8 @@ export class OrganizationPaymentController extends BaseController {
     async addOrganizationPayment(
         @Req()
         req: Request & {
-            organization: TOrganizationSelect
+            organization: TOrganizationSelect,
+            user_id: string
         },
         @Body()
         paymentData: Pick<TOrganizationPaymentInsert, 'organization_payment_amount'>,
@@ -68,7 +69,8 @@ export class OrganizationPaymentController extends BaseController {
     async updateOrganizationPayment(
         @Req()
         req: Request & {
-            organization: TOrganizationSelect
+            organization: TOrganizationSelect,
+            user_id: string
         },
         @Param('payment_id')
         payment_id: string,
@@ -89,7 +91,8 @@ export class OrganizationPaymentController extends BaseController {
     async getOrganizationPaymentProfile(
         @Req()
         req: Request & {
-            organization: TOrganizationSelect
+            organization: TOrganizationSelect,
+            user_id: string
         },
         @Param('payment_id')
         payment_id: string,
@@ -106,7 +109,8 @@ export class OrganizationPaymentController extends BaseController {
     async getOrganizationPaymentsByOrganizationId(
         @Req()
         req: Request & {
-            organization: TOrganizationSelect
+            organization: TOrganizationSelect,
+            user_id: string
         },) {
         const req_organization_id = this.validateOrganization(req)
         return await this.organizationPaymentService.getOrganizationPaymentsByOrganizationId(req_organization_id,);

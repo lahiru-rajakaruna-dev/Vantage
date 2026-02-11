@@ -46,7 +46,8 @@ export class ClientPaymentController extends BaseController {
     async addClientPayment(
         @Req()
         req: Request & {
-            organization: TOrganizationSelect
+            organization: TOrganizationSelect,
+            user_id: string
         },
         @Param('client_id')
         client_id: string,
@@ -77,7 +78,8 @@ export class ClientPaymentController extends BaseController {
     async updateClientPayment(
         @Req()
         req: Request & {
-            organization: TOrganizationSelect
+            organization: TOrganizationSelect,
+            user_id: string
         },
         @Param('client_payment_id')
         client_payment_id: string,
@@ -98,7 +100,8 @@ export class ClientPaymentController extends BaseController {
     async getClientPaymentProfile(
         @Req()
         req: Request & {
-            organization: TOrganizationSelect
+            organization: TOrganizationSelect,
+            user_id: string
         },
         @Param('client_payment_id')
         client_payment_id: string,
@@ -116,7 +119,8 @@ export class ClientPaymentController extends BaseController {
     async getClientPaymentsByClientId(
         @Req()
         req: Request & {
-            organization: TOrganizationSelect
+            organization: TOrganizationSelect,
+            user_id: string
         },
         @Param('client_id')
         client_id: string,

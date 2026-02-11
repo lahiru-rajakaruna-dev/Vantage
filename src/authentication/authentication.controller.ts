@@ -38,7 +38,7 @@ export class AuthenticationController {
     async authenticate(
         @Request()
         request: Request) {
-        const user_id = request['cookies']['user_id'];
+        const user_id = request.user_id;
         
         if (!user_id) {
             throw new Error('[-] Unauthenticated user');

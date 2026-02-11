@@ -45,7 +45,7 @@ export class OrganizationController extends BaseController {
     async isRegistered(
         @Req()
         request: Request) {
-        const user_id = request['cookies']['user_id'];
+        const user_id = request.user_id;
         
         if (!user_id) {
             throw new BadRequestException('[-] Cookie not found...');
@@ -132,7 +132,8 @@ export class OrganizationController extends BaseController {
     updateOrganizationById(
         @Req()
         req: Request & {
-            organization: TOrganizationSelect
+            organization: TOrganizationSelect,
+            user_id: string
         },
         @Body()
         organizationData: TOrganizationUpdate,

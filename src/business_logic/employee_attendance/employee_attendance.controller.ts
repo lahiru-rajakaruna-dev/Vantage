@@ -37,7 +37,8 @@ export class EmployeeAttendanceController extends BaseController {
     async getEmployeeAttendance(
         @Req()
         req: Request & {
-            organization: TOrganizationSelect
+            organization: TOrganizationSelect,
+            user_id: string
         },
         @Param('employee_id')
         employee_id: string
@@ -56,7 +57,8 @@ export class EmployeeAttendanceController extends BaseController {
     async updateEmployeeAttendance(
         @Req()
         req: Request & {
-            organization: TOrganizationSelect
+            organization: TOrganizationSelect,
+            user_id: string
         },
         @Param('employee_id')
         employee_id: string,

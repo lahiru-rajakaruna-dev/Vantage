@@ -44,7 +44,8 @@ export class ItemController extends BaseController {
     async getItemProfile(
         @Req()
         req: Request & {
-            organization: TOrganizationSelect
+            organization: TOrganizationSelect,
+            user_id: string
         },
         @Param('item_id')
         item_id: string,
@@ -66,7 +67,8 @@ export class ItemController extends BaseController {
     async getItemsByOrganizationId(
         @Req()
         req: Request & {
-            organization: TOrganizationSelect
+            organization: TOrganizationSelect,
+            user_id: string
         },) {
         const req_organization_id = this.validateOrganization(req)
         return await this.itemService.getItemsByOrganizationId(req_organization_id,);
@@ -78,7 +80,8 @@ export class ItemController extends BaseController {
     async addItem(
         @Req()
         req: Request & {
-            organization: TOrganizationSelect
+            organization: TOrganizationSelect,
+            user_id: string
         },
         @Body()
         itemData: TItemData
@@ -100,7 +103,8 @@ export class ItemController extends BaseController {
     async updateItemName(
         @Req()
         req: Request & {
-            organization: TOrganizationSelect
+            organization: TOrganizationSelect,
+            user_id: string
         },
         @Param('item_id')
         item_id: string,
