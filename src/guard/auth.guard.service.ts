@@ -34,6 +34,7 @@ export class AuthGuardService implements CanActivate {
             throw new UnauthorizedException('Organization not found')
         }
         
+        request.user_id      = user_id
         request.organization = organization
         return true
     }
