@@ -7,7 +7,8 @@ import { TOKEN__ORM_FACTORY } from 'src/orm/orm-factory/orm-factory.service';
 import { v4 as uuid }         from 'uuid'
 import {
     TItemInsert,
-    TItemSelect
+    TItemSelect,
+    TItemUpdate
 }                             from '../../orm/drizzle/drizzle-postgres/schema';
 import type IOrmInterface     from '../../orm/orm.interface';
 
@@ -61,44 +62,18 @@ export class ItemService {
     }
     
     
-    async updateItemNameById(
+    async updateItem(
         organization_id: string,
         item_id: string,
-        item_name: string,
+        itemUpdates: TItemUpdate,
     ): Promise<TItemSelect[]> {
         const updatedItem = await this.orm.updateItemById(
             organization_id,
             item_id,
-            {
-                item_name: item_name,
-            }
+            itemUpdates,
         );
-        
-        if (!updatedItem || updatedItem.length === 0) {
-            throw new NotFoundException(`Item with ID "${ item_id }" not found`);
-        }
         
         return updatedItem;
     }
     
-    
-    async updateItemStockById(
-        organization_id: string,
-        item_id: string,
-        item_stock_units: number,
-    ): Promise<TItemSelect[]> {
-        const updatedItem = await this.orm.updateItemById(
-            organization_id,
-            item_id,
-            {
-                item_stock_unit_count: item_stock_units,
-            }
-        );
-        
-        if (!updatedItem || updatedItem.length === 0) {
-            throw new NotFoundException(`Item with ID "${ item_id }" not found`);
-        }
-        
-        return updatedItem;
-    }
 }

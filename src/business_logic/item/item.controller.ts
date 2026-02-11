@@ -25,7 +25,7 @@ import { ItemService }           from './item.service';
 
 
 
-@Controller('item')
+@Controller('items')
 export class ItemController extends BaseController {
     private readonly itemService: ItemService;
     
@@ -37,6 +37,39 @@ export class ItemController extends BaseController {
     ) {
         super(logger)
         this.itemService = itemService;
+    }
+    
+    
+    @Get('/:item_id')
+    async getItemProfile(
+        @Req()
+        req: Request & {
+            organization: TOrganizationSelect
+        },
+        @Param('item_id')
+        item_id: string,
+    ) {
+        const req_organization_id = this.validateOrganization(req)
+        
+        if (!item_id) {
+            throw new BadRequestException('Item id not found');
+        }
+        
+        return await this.itemService.viewItemById(
+            req_organization_id,
+            item_id,
+        );
+    }
+    
+    
+    @Get('/organization')
+    async getItemsByOrganizationId(
+        @Req()
+        req: Request & {
+            organization: TOrganizationSelect
+        },) {
+        const req_organization_id = this.validateOrganization(req)
+        return await this.itemService.getItemsByOrganizationId(req_organization_id,);
     }
     
     
@@ -62,9 +95,8 @@ export class ItemController extends BaseController {
     }
     
     
-    @Patch('/update/name/:item_id')
-    @UsePipes(new ZodSchemaValidationPipe(SchemaItemUpdate.pick({ item_name: true })
-                                                          .nonoptional()),)
+    @Patch('/:item_id')
+    @UsePipes(new ZodSchemaValidationPipe(SchemaItemUpdate))
     async updateItemName(
         @Req()
         req: Request & {
@@ -72,37 +104,8 @@ export class ItemController extends BaseController {
         },
         @Param('item_id')
         item_id: string,
-        @Body('item_name')
-        item_name: string,
-    ) {
-        const req_organization_id = this.validateOrganization(req)
-        
-        if (!item_id) {
-            throw new BadRequestException('Item id not found');
-        }
-        
-        return await this.itemService.updateItemNameById(
-            req_organization_id,
-            item_id,
-            item_name,
-        );
-    }
-    
-    
-    @Patch('/update/stock/:item_id')
-    @UsePipes(new ZodSchemaValidationPipe(SchemaItemUpdate.pick({ item_stock_unit_count: true })
-                                                          .nonoptional()),)
-    async updateItemStock(
-        @Req()
-        req: Request & {
-            organization: TOrganizationSelect
-        },
-        @Param('item_id')
-        item_id: string,
         @Body()
-        itemData: Pick<TItemUpdate, 'item_stock_unit_count'>, // EDITED:
-                                                              // Fixed
-                                                              // type
+        itemUpdates: TItemUpdate,
     ) {
         const req_organization_id = this.validateOrganization(req)
         
@@ -110,47 +113,11 @@ export class ItemController extends BaseController {
             throw new BadRequestException('Item id not found');
         }
         
-        if (!itemData.item_stock_unit_count) {
-            throw new BadRequestException('Missing required data')
-        }
-        
-        return await this.itemService.updateItemStockById(
+        return await this.itemService.updateItem(
             req_organization_id,
             item_id,
-            itemData.item_stock_unit_count,
+            itemUpdates,
         );
     }
     
-    
-    @Get('/profile/:item_id')
-    async getItemProfile(
-        @Req()
-        req: Request & {
-            organization: TOrganizationSelect
-        },
-        @Param('item_id')
-        item_id: string,
-    ) {
-        const req_organization_id = this.validateOrganization(req)
-        
-        if (!item_id) {
-            throw new BadRequestException('Item id not found');
-        }
-        
-        return await this.itemService.viewItemById(
-            req_organization_id,
-            item_id,
-        );
-    }
-    
-    
-    @Get('/view/organization')
-    async getItemsByOrganizationId(
-        @Req()
-        req: Request & {
-            organization: TOrganizationSelect
-        },) {
-        const req_organization_id = this.validateOrganization(req)
-        return await this.itemService.getItemsByOrganizationId(req_organization_id,);
-    }
 }
