@@ -2,20 +2,14 @@ import {
     BadRequestException,
     Body,
     Controller,
-    Delete,
     Get,
     Inject,
     InternalServerErrorException,
-    Param,
     Patch,
     Post,
     Req,
     UsePipes,
 }                                from '@nestjs/common';
-import {
-    Business,
-    Customer
-}                                from '@paddle/paddle-node-sdk';
 import type ILoggerService       from '../../logger/logger.interface';
 import { TOKEN__LOGGER_FACTORY } from '../../logger/logger_factory/logger_factory.service';
 import {
@@ -25,29 +19,25 @@ import {
     type   TOrganizationSelect,
     type TOrganizationUpdate
 }                                from '../../orm/drizzle/drizzle-postgres/schema';
-import { PaddleService }         from '../../paddle/paddle.service';
 import ZodSchemaValidationPipe   from '../../pipes/schema_validation.pipe';
 import { BaseController }        from '../abstract.base.controller';
 import { OrganizationService }   from './organization.service';
 
 
 
-@Controller('organization')
+@Controller('organizations')
 export class OrganizationController extends BaseController {
     private organizationService: OrganizationService;
-    private readonly paddle: PaddleService;
     
     
     constructor(
         organizationService: OrganizationService,
         @Inject(TOKEN__LOGGER_FACTORY)
         logger: ILoggerService,
-        paddle: PaddleService,
     ) {
         super(logger)
         
         this.organizationService = organizationService;
-        this.paddle              = paddle;
     }
     
     
@@ -61,7 +51,7 @@ export class OrganizationController extends BaseController {
             throw new BadRequestException('[-] Cookie not found...');
         }
         
-        const organization = await this.organizationService.getOrganizationDetailsAdminById(user_id);
+        const organization = await this.organizationService.getOrganizationDetailsByAdmin(user_id);
         
         if (organization) {
             return {
@@ -75,7 +65,7 @@ export class OrganizationController extends BaseController {
     }
     
     
-    @Get('/view')
+    @Get('/')
     async getOrganizationById(
         @Req()
         request: Request & {
@@ -88,7 +78,7 @@ export class OrganizationController extends BaseController {
     }
     
     
-    @Post('/add')
+    @Post('/')
     @UsePipes(new ZodSchemaValidationPipe(SchemaInsertOrganization.pick({
                                                                             organization_admin_email: true,
                                                                             organization_admin_phone: true,
@@ -115,38 +105,10 @@ export class OrganizationController extends BaseController {
             throw new BadRequestException('Missing required data',);
         }
         
-        let paddleCustomerAccount: Customer;
-        let paddleBusinessAccount: Business;
-        
-        // ADD PADDLE CUSTOMER ACCOUNT
-        try {
-            paddleCustomerAccount = await this.paddle.addCustomerAccount(
-                organization_name,
-                organization_admin_email,
-            );
-        } catch (e) {
-            this.logger.log(e);
-            throw new InternalServerErrorException((e as Error).message);
-        }
-        
-        // ADD PADDLE BUSINESS ACCOUNT
-        try {
-            paddleBusinessAccount = await this.paddle.addOrganizationAccount(
-                paddleCustomerAccount.id,
-                organization_name,
-                organization_admin_phone,
-            );
-        } catch (e) {
-            this.logger.log(e);
-            throw new InternalServerErrorException((e as Error).message);
-        }
-        this.logger.log('[+] Add organization payment account to the platform');
-        
         // ADD ORGANIZATION RECORD
         try {
             const organizationRecord = await this.organizationService.addOrganization(
                 user_id,
-                paddleCustomerAccount.id,
                 {
                     organization_name,
                     organization_admin_email,
@@ -165,7 +127,7 @@ export class OrganizationController extends BaseController {
     }
     
     
-    @Patch('/name')
+    @Patch('/')
     @UsePipes(new ZodSchemaValidationPipe(SchemaUpdateOrganization),)
     updateOrganizationById(
         @Req()
@@ -178,77 +140,38 @@ export class OrganizationController extends BaseController {
         
         const req_organization_id = this.validateOrganization(req)
         
-        return this.organizationService.updateOrganizationNameById(
+        return this.organizationService.updateOrganization(
             req_organization_id,
-            organizationData.organization_name!,
+            organizationData,
         );
     }
     
     
-    @Patch('/subscription/expired')
-    updateOrganizationSubscriptionStatusToExpiredById(
-        @Req()
-        request: Request & {
-            organization: TOrganizationSelect
-        },) {
-        if (!request.organization) {
-            throw new BadRequestException('[-] Invalid request...');
-        }
-        
-        return this.organizationService.setOrganizationSubscriptionStatusToExpiredById(request.organization.organization_id,);
-    }
+    /*
+     @Delete('/deactivate')
+     deactivateOrganizationById(
+     @Req()
+     request: Request & {
+     organization: TOrganizationSelect
+     },) {
+     if (!request.organization) {
+     throw new BadRequestException('[-] Invalid request...');
+     }
+     
+     return this.organizationService.deactivateOrganizationById(request.organization.organization_id);
+     }
+     */
     
-    
-    @Patch('/subscription/valid')
-    updateOrganizationSubscriptionStatusToValidById(
-        @Req()
-        request: Request & {
-            organization: TOrganizationSelect
-        },) {
-        if (!request.organization) {
-            throw new BadRequestException('[-] Invalid request...');
-        }
-        
-        return this.organizationService.setOrganizationSubscriptionStatusToValidById(request.organization.organization_id,);
-    }
-    
-    
-    @Patch('/subscription/date')
-    extendOrganizationSubscriptionEndDateBy30ById(
-        @Req()
-        request: Request & {
-            organization: TOrganizationSelect
-        },) {
-        if (!request.organization) {
-            throw new BadRequestException('[-] Invalid request...');
-        }
-        
-        return this.organizationService.setOrganizationSubscriptionEndDateBy30ById(request.organization.organization_id,);
-    }
-    
-    
-    @Delete('/deactivate')
-    deactivateOrganizationById(
-        @Req()
-        request: Request & {
-            organization: TOrganizationSelect
-        },) {
-        if (!request.organization) {
-            throw new BadRequestException('[-] Invalid request...');
-        }
-        
-        return this.organizationService.deactivateOrganizationById(request.organization.organization_id);
-    }
-    
-    
-    @Patch('/activate/:organization_id')
-    activateOrganizationById(
-        @Param('organization_id')
-        organization_id: string) {
-        if (!organization_id) {
-            throw new BadRequestException('[-] Invalid request...');
-        }
-        
-        return this.organizationService.activateOrganizationById(organization_id);
-    }
+    /*
+     @Patch('/activate/:organization_id')
+     activateOrganizationById(
+     @Param('organization_id')
+     organization_id: string) {
+     if (!organization_id) {
+     throw new BadRequestException('[-] Invalid request...');
+     }
+     
+     return this.organizationService.activateOrganizationById(organization_id);
+     }
+     */
 }

@@ -1,72 +1,93 @@
 import {
     Inject,
-    Injectable
-}                             from '@nestjs/common';
+    Injectable,
+    InternalServerErrorException
+}                                from '@nestjs/common';
+import { Customer }              from '@paddle/paddle-node-sdk';
 import {
     EOrganizationStatus,
     ESubscriptionStatus
-}                             from 'src/types';
-import { v4 as uuid }         from 'uuid'
+}                                from 'src/types';
+import { v4 as uuid }            from 'uuid'
+import type ILoggerService       from '../../logger/logger.interface';
+import { TOKEN__LOGGER_FACTORY } from '../../logger/logger_factory/logger_factory.service';
 import {
     TOrganizationData,
-    TOrganizationSelect
-}                             from '../../orm/drizzle/drizzle-postgres/schema';
-import { TOKEN__ORM_FACTORY } from '../../orm/orm-factory/orm-factory.service';
-import type IOrmInterface     from '../../orm/orm.interface';
+    TOrganizationSelect,
+    TOrganizationUpdate
+}                                from '../../orm/drizzle/drizzle-postgres/schema';
+import { TOKEN__ORM_FACTORY }    from '../../orm/orm-factory/orm-factory.service';
+import type IOrmInterface        from '../../orm/orm.interface';
+import { PaddleService }         from '../../paddle/paddle.service';
 
 
 
 @Injectable()
 export class OrganizationService {
-    private orm: IOrmInterface;
+    private readonly orm: IOrmInterface;
+    private readonly paddleService: PaddleService
+    private readonly logger: ILoggerService
     
     
     constructor(
         @Inject(TOKEN__ORM_FACTORY)
-        orm: IOrmInterface) {
-        this.orm = orm;
+        orm: IOrmInterface,
+        paddleService: PaddleService,
+        @Inject(TOKEN__LOGGER_FACTORY)
+        logger: ILoggerService,
+    ) {
+        this.orm           = orm;
+        this.paddleService = paddleService
+        this.logger        = logger
     }
     
     
     async addOrganization(
         admin_id: string,
-        paddle_id: string,
-        organizationData: Omit<TOrganizationData, 'organization_subscription_status' | 'organization_status' | 'organization_stripe_customer_id'>,
+        organizationData: Omit<TOrganizationData, 'organization_paddle_customer_id' | 'organization_subscription_status' | 'organization_status' | 'organization_stripe_customer_id'>,
     ): Promise<TOrganizationSelect> {
-        // TODO ADD STRIPE
+        let paddleCustomerAccount: Customer;
+        
+        try {
+            paddleCustomerAccount = await this.paddleService.addCustomerAccount(
+                organizationData.organization_name,
+                organizationData.organization_admin_email,
+            );
+        } catch (e) {
+            this.logger.log(e);
+            throw new InternalServerErrorException((e as Error).message);
+        }
+        
+        this.logger.log('[+] Add organization payment account to the platform');
+        
         const organization_id = uuid()
             .toString()
         return await this.orm.addOrganization(
             organization_id,
             admin_id,
-            paddle_id,
-            {
-                ...organizationData,
-                organization_stripe_customer_id: paddle_id,
-            }
+            paddleCustomerAccount.id,
+            organizationData,
         );
     }
     
     
-    async getOrganizationDetailsById(organization_id: string,): Promise<TOrganizationSelect> {
+    async getOrganizationDetails(organization_id: string,): Promise<TOrganizationSelect> {
         return await this.orm.getOrganizationDetailsById(organization_id);
     }
     
     
-    async getOrganizationDetailsAdminById(admin_id: string,): Promise<TOrganizationSelect> {
+    async getOrganizationDetailsByAdmin(admin_id: string,): Promise<TOrganizationSelect> {
         return await this.orm.getOrganizationDetailsByAdminId(admin_id);
     }
     
     
-    async updateOrganizationNameById(
+    async updateOrganization(
         organization_id: string,
-        organization_name: string,
+        organization_updates: Omit<TOrganizationUpdate, 'organization_subscription_end_date' | 'organization_status' | 'organization_subscription_status'>,
     ): Promise<TOrganizationSelect> {
         return await this.orm.updateOrganizationById(
             organization_id,
-            {
-                organization_name: organization_name,
-            }
+            organization_updates
         );
     }
     
