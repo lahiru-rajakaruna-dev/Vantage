@@ -37,7 +37,9 @@ export class AuthenticationController {
     @Get('/authenticate')
     async authenticate(
         @Request()
-        request: Request) {
+        request: Request & {
+            user_id: string
+        }) {
         const user_id = request.user_id;
         
         if (!user_id) {

@@ -44,7 +44,9 @@ export class OrganizationController extends BaseController {
     @Get('/is_registered')
     async isRegistered(
         @Req()
-        request: Request) {
+        request: Request & {
+            user_id: string
+        }) {
         const user_id = request.user_id;
         
         if (!user_id) {
