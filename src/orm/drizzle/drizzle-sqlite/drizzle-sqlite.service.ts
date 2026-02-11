@@ -690,12 +690,16 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
     
     async getSalesGroupsByOrganizationId(organization_id: string,): Promise<TSalesGroupSelect[]> {
         const result = await this.driver
-                                 .select()
-                                 .from(salesGroups)
-                                 .where(eq(
-                                     salesGroups.sales_group_organization_id,
-                                     organization_id
-                                 ));
+                                 .query
+                                 .salesGroups
+                                 .findMany({
+                                               where(salesGroup) {
+                                                   return eq(
+                                                       salesGroup.sales_group_organization_id,
+                                                       organization_id
+                                                   )
+                                               },
+                                           });
         return this.logger.logAndReturn(
             result,
             'operation: get_sales_groups_by_organization_id',
