@@ -15,6 +15,7 @@ import type ILoggerService       from '../../logger/logger.interface';
 import { TOKEN__LOGGER_FACTORY } from '../../logger/logger_factory/logger_factory.service';
 import {
     SchemaSalesGroupData,
+    SchemaSalesGroupUpdate,
     TOrganizationSelect,
     type TSalesGroupData,
     type   TSalesGroupUpdate
@@ -25,7 +26,7 @@ import { SalesGroupService }     from './sales_group.service';
 
 
 
-@Controller('sales-group')
+@Controller('sales-groups')
 export class SalesGroupController extends BaseController {
     private readonly salesGroupService: SalesGroupService;
     
@@ -37,6 +38,36 @@ export class SalesGroupController extends BaseController {
     ) {
         super(logger)
         this.salesGroupService = salesGroupService
+    }
+    
+    
+    @Get('/:sales_group_id')
+    async getSalesGroupProfile(
+        @Req()
+        req: Request & {
+            organization: TOrganizationSelect
+        },
+        @Param('sales_group_id')
+        sales_group_id: string,
+    ) {
+        
+        const req_organization_id = this.validateOrganization(req)
+        return await this.salesGroupService.getSalesGroupDetailsById(
+            req_organization_id,
+            sales_group_id,
+        );
+    }
+    
+    
+    @Get('/organization')
+    async getSalesGroupsByOrganizationId(
+        @Req()
+        req: Request & {
+            organization: TOrganizationSelect
+        },) {
+        const req_organization_id = this.validateOrganization(req)
+        
+        return await this.salesGroupService.getSalesGroupsByOrganizationId(req_organization_id,);
     }
     
     
@@ -71,8 +102,8 @@ export class SalesGroupController extends BaseController {
     }
     
     
-    @Patch('/name/:sales_group_id')
-    @UsePipes(new ZodSchemaValidationPipe(SchemaSalesGroupData))
+    @Patch('/:sales_group_id')
+    @UsePipes(new ZodSchemaValidationPipe(SchemaSalesGroupUpdate))
     async updateSalesGroupName(
         @Req()
         req: Request & {
@@ -81,45 +112,14 @@ export class SalesGroupController extends BaseController {
         @Param('sales_group_id')
         sales_group_id: string,
         @Body()
-        salesGroupData: TSalesGroupUpdate,
+        salesGroupUpdates: TSalesGroupUpdate,
     ) {
         const req_organization_id = this.validateOrganization(req)
         
-        if (!salesGroupData.sales_group_name) {
-            throw new BadRequestException('Missing required data...')
-        }
-        
-        return await this.salesGroupService.updateSalesGroupNameById(
+        return await this.salesGroupService.updateSalesGroup(
             req_organization_id,
             sales_group_id,
-            salesGroupData.sales_group_name,
-        );
-    }
-    
-    
-    @Patch('/territory/:sales_group_id')
-    @UsePipes(new ZodSchemaValidationPipe(SchemaSalesGroupData))
-    async updateSalesGroupTerritory(
-        @Req()
-        req: Request & {
-            organization: TOrganizationSelect
-        },
-        @Param('sales_group_id')
-        sales_group_id: string,
-        @Body()
-        salesGroupData: TSalesGroupUpdate,
-    ) {
-        
-        const req_organization_id = this.validateOrganization(req)
-        
-        if (!salesGroupData.sales_group_territory) {
-            throw new BadRequestException('Missing required data...')
-        }
-        
-        return await this.salesGroupService.updateSalesGroupTerritoryById(
-            req_organization_id,
-            sales_group_id,
-            salesGroupData.sales_group_territory,
+            salesGroupUpdates,
         );
     }
     
@@ -141,33 +141,4 @@ export class SalesGroupController extends BaseController {
         );
     }
     
-    
-    @Get('/:sales_group_id')
-    async getSalesGroupProfile(
-        @Req()
-        req: Request & {
-            organization: TOrganizationSelect
-        },
-        @Param('sales_group_id')
-        sales_group_id: string,
-    ) {
-        
-        const req_organization_id = this.validateOrganization(req)
-        return await this.salesGroupService.getSalesGroupDetailsById(
-            req_organization_id,
-            sales_group_id,
-        );
-    }
-    
-    
-    @Get('/organization')
-    async getSalesGroupsByOrganizationId(
-        @Req()
-        req: Request & {
-            organization: TOrganizationSelect
-        },) {
-        const req_organization_id = this.validateOrganization(req)
-        
-        return await this.salesGroupService.getSalesGroupsByOrganizationId(req_organization_id,);
-    }
 }

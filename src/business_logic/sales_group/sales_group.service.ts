@@ -5,7 +5,8 @@ import {
 import { v4 as uuid }         from 'uuid'
 import {
     TSalesGroupInsert,
-    TSalesGroupSelect
+    TSalesGroupSelect,
+    TSalesGroupUpdate
 }                             from '../../orm/drizzle/drizzle-postgres/schema';
 import { TOKEN__ORM_FACTORY } from '../../orm/orm-factory/orm-factory.service';
 import type IOrmInterface     from '../../orm/orm.interface';
@@ -54,32 +55,15 @@ export class SalesGroupService {
     }
     
     
-    async updateSalesGroupNameById(
+    async updateSalesGroup(
         organization_id: string,
         sales_group_id: string,
-        sales_group_name: string,
+        salesGroupUpdates: TSalesGroupUpdate,
     ): Promise<TSalesGroupSelect[]> {
         return await this.orm.updateSalesGroupById(
             organization_id,
             sales_group_id,
-            {
-                sales_group_name: sales_group_name,
-            }
-        );
-    }
-    
-    
-    async updateSalesGroupTerritoryById(
-        organization_id: string,
-        sales_group_id: string,
-        sales_group_territory: string
-    ): Promise<TSalesGroupSelect[]> {
-        return await this.orm.updateSalesGroupById(
-            organization_id,
-            sales_group_id,
-            {
-                sales_group_territory: sales_group_territory
-            }
+            salesGroupUpdates,
         );
     }
     
