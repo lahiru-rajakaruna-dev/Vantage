@@ -22,7 +22,7 @@ export class AuthGuardService implements CanActivate {
         const request = context.switchToHttp()
                                .getRequest()
         
-        const user_id = request['Cookies']['user_id']
+        const user_id = request['cookies']['user_id']
         
         if (!user_id) {
             throw new UnauthorizedException('Authentication required')
