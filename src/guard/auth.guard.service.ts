@@ -28,7 +28,7 @@ export class AuthGuardService implements CanActivate {
             throw new UnauthorizedException('Authentication required')
         }
         
-        const organization = await this.organizationService.getOrganizationDetailsAdminById(user_id)
+        const organization = await this.organizationService.getOrganizationDetailsByAdmin(user_id)
         
         if (!organization) {
             throw new UnauthorizedException('Organization not found')
