@@ -13,7 +13,9 @@ import type ILoggerService       from '../../logger/logger.interface';
 import { TOKEN__LOGGER_FACTORY } from '../../logger/logger_factory/logger_factory.service';
 import {
     SchemaClientData,
+    SchemaClientUpdate,
     type TClientData,
+    type TClientUpdate,
     type   TOrganizationSelect,
 }                                from '../../orm/drizzle/drizzle-postgres/schema';
 import ZodSchemaValidationPipe   from '../../pipes/schema_validation.pipe';
@@ -23,7 +25,7 @@ import { ClientService }         from './client.service';
 
 
 
-@Controller('client')
+@Controller('clients')
 export class ClientController extends BaseController {
     private readonly clientService: ClientService;
     
@@ -35,6 +37,36 @@ export class ClientController extends BaseController {
     ) {
         super(logger)
         this.clientService = clientService;
+    }
+    
+    
+    @Get('/organization')
+    async getClientsByOrganizationId( // EDITED: Removed unnecessary param decorator
+        @Req()
+        request: Request & {
+            organization: TOrganizationSelect
+        },) {
+        
+        const req_organization_id = this.validateOrganization(request)
+        
+        return await this.clientService.getClientsByOrganizationId(req_organization_id);
+    }
+    
+    
+    @Get('/:client_id')
+    async getClientProfile(
+        @Req()
+        request: Request & {
+            organization: TOrganizationSelect
+        },
+        @Param('client_id')
+        client_id: string,
+    ) {
+        const req_organization_id = this.validateOrganization(request)
+        return await this.clientService.viewClientProfile(
+            req_organization_id,
+            client_id,
+        );
     }
     
     
@@ -61,8 +93,8 @@ export class ClientController extends BaseController {
     }
     
     
-    @Patch('/name/:client_id')
-    @UsePipes(new ZodSchemaValidationPipe(SchemaClientData))
+    @Patch('/:client_id')
+    @UsePipes(new ZodSchemaValidationPipe(SchemaClientUpdate))
     async updateClientName(
         @Req()
         request: Request & {
@@ -70,143 +102,17 @@ export class ClientController extends BaseController {
         },
         @Param('client_id')
         client_id: string,
-        @Body('client_name')
-        client_name: string,
-    ) {
-        const req_organization_id = this.validateOrganization(request)
-        return await this.clientService.updateClientName(
-            req_organization_id,
-            client_id,
-            client_name,
-        );
-    }
-    
-    
-    @Patch('/nic/:client_id')
-    @UsePipes(new ZodSchemaValidationPipe(SchemaClientData))
-    async updateClientNic(
-        @Req()
-        request: Request & {
-            organization: TOrganizationSelect
-        },
-        @Param('client_id')
-        client_id: string,
         @Body()
-        clientData: {
-            client_nic_number: string
-        },
+        clientUpdates: TClientUpdate,
     ) {
-        const req_organization_id = this.validateOrganization(request)
-        return await this.clientService.updateClientNicNumber(
-            req_organization_id,
-            client_id,
-            clientData.client_nic_number,
-        );
-    }
-    
-    
-    @Patch('/phone/:client_id')
-    @UsePipes(new ZodSchemaValidationPipe(SchemaClientData))
-    async updateClientPhone(
-        @Req()
-        request: Request & {
-            organization: TOrganizationSelect
-        },
-        @Param('client_id')
-        client_id: string,
-        @Body()
-        clientData: {
-            client_phone: string
-        },
-    ) {
-        
-        const req_organization_id = this.validateOrganization(request)
-        return await this.clientService.updateClientPhone(
-            req_organization_id,
-            client_id,
-            clientData.client_phone,
-        );
-    }
-    
-    
-    @Patch('/status/active/:client_id')
-    async updateClientStatusToActive(
-        @Req()
-        request: Request & {
-            organization: TOrganizationSelect
-        },
-        @Param('client_id')
-        client_id: string,
-    ) {
-        
-        const req_organization_id = this.validateOrganization(request)
-        return await this.clientService.updateClientAccountStatusToActive(
-            req_organization_id,
-            client_id,
-        );
-    }
-    
-    
-    @Patch('/status/deactivated/:client_id')
-    async updateClientStatusToDeactivated(
-        @Req()
-        request: Request & {
-            organization: TOrganizationSelect
-        },
-        @Param('client_id')
-        client_id: string,
-    ) {
-        const req_organization_id = this.validateOrganization(request)
-        return await this.clientService.updateClientAccountStatusToDeactivated(
-            req_organization_id,
-            client_id,
-        );
-    }
-    
-    
-    @Patch('/status/unverified/:client_id')
-    async updateClientStatusToUnverified(
-        @Req()
-        request: Request & {
-            organization: TOrganizationSelect
-        },
-        @Param('client_id')
-        client_id: string,
-    ) {
-        const req_organization_id = this.validateOrganization(request)
-        return await this.clientService.updateClientAccountStatusToUnverified(
-            req_organization_id,
-            client_id,
-        );
-    }
-    
-    
-    @Get('/profile/:client_id')
-    async getClientProfile(
-        @Req()
-        request: Request & {
-            organization: TOrganizationSelect
-        },
-        @Param('client_id')
-        client_id: string,
-    ) {
-        const req_organization_id = this.validateOrganization(request)
-        return await this.clientService.viewClientProfile(
-            req_organization_id,
-            client_id,
-        );
-    }
-    
-    
-    @Get('/view/organization')
-    async getClientsByOrganizationId( // EDITED: Removed unnecessary param decorator
-        @Req()
-        request: Request & {
-            organization: TOrganizationSelect
-        },) {
-        
         const req_organization_id = this.validateOrganization(request)
         
-        return await this.clientService.getClientsByOrganizationId(req_organization_id);
+        return await this.clientService.updateClient(
+            req_organization_id,
+            client_id,
+            clientUpdates
+        );
+        
     }
+    
 }
