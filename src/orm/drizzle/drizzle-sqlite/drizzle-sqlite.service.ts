@@ -113,7 +113,7 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
                                  ...organizationDetails,
                                  organization_id                : organization_id,
                                  organization_admin_id          : organization_admin_id,
-                                 organization_stripe_customer_id: organization_stripe_customer_id
+                                 organization_paddle_customer_id: organization_stripe_customer_id
                              })
                      .returning();
         });

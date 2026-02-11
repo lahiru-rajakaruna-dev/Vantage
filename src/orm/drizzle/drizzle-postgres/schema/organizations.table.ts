@@ -39,7 +39,7 @@ export const organizations = pgTable(
         organization_admin_id             : text()
             .unique()
             .notNull(),
-        organization_stripe_customer_id   : text()
+        organization_paddle_customer_id   : text()
             .unique()
             .notNull(),
         organization_name                 : text()
@@ -89,27 +89,29 @@ export const organizations = pgTable(
                                                 name   : 'organization_primary_key',
                                                 columns: [
                                                     table.organization_id,
-                                                    table.organization_stripe_customer_id
+                                                    table.organization_paddle_customer_id
                                                 ],
                                             }),
             organizationIdIndex: index('organization_id_idx')
                 .on(table.organization_id),
             stripeIdIndex      : index('organization_stripe_customer_id_idx')
-                .on(table.organization_stripe_customer_id),
+                .on(table.organization_paddle_customer_id),
         };
     }
 );
 
 export const SchemaInsertOrganization = createInsertSchema(organizations)
 export const SchemaOrganizationData   = SchemaInsertOrganization.omit({
-                                                                          organization_id      : true,
-                                                                          organization_admin_id: true
+                                                                          organization_id                : true,
+                                                                          organization_admin_id          : true,
+                                                                          organization_paddle_customer_id: true
                                                                       })
 export const SchemaUpdateOrganization = createUpdateSchema(organizations)
     .omit({
               organization_id                : true,
               organization_admin_id          : true,
-              organization_stripe_customer_id: true
+              organization_paddle_customer_id: true,
+              organization_registration_date : true,
           });
 export const SchemaSelectOrganization = createSelectSchema(organizations)
 

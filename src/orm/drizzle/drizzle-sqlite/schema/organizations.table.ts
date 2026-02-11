@@ -32,7 +32,7 @@ export const organizations = sqliteTable(
         organization_admin_id             : text()
             .unique()
             .notNull(),
-        organization_stripe_customer_id   : text()
+        organization_paddle_customer_id   : text()
             .unique()
             .notNull(),
         organization_name                 : text()
