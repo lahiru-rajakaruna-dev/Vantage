@@ -25,7 +25,7 @@ import { EmployeeService }       from './employee.service';
 
 
 
-@Controller('employee')
+@Controller('employees')
 export class EmployeeController extends BaseController {
     private employeesService: EmployeeService;
     
@@ -48,11 +48,11 @@ export class EmployeeController extends BaseController {
         },) {
         
         const req_organization_id = this.validateOrganization(req)
-        return await this.employeesService.getEmployeesByOrganizationId(req_organization_id);
+        return await this.employeesService.getEmployeesByOrganization(req_organization_id);
     }
     
     
-    @Get('/salesTable-group/:sales_group_id')
+    @Get('/sales-group/:sales_group_id')
     async getEmployeesByGroupId(
         @Req()
         req: Request & {
@@ -63,7 +63,7 @@ export class EmployeeController extends BaseController {
     ) {
         const req_organization_id = this.validateOrganization(req)
         
-        return await this.employeesService.getEmployeesBySalesGroupId(
+        return await this.employeesService.getEmployeesBySalesGroup(
             req_organization_id,
             sales_group_id,
         );
@@ -110,13 +110,9 @@ export class EmployeeController extends BaseController {
     }
     
     
-    @Patch('/update/name/:employee_id')
-    @UsePipes(new ZodSchemaValidationPipe(SchemaEmployeeUpdate.pick({
-                                                                        employee_first_name: true,
-                                                                        employee_last_name : true
-                                                                    })
-                                                              .nonoptional()),)
-    async updateEmployeeName(
+    @Patch('/:employee_id')
+    @UsePipes(new ZodSchemaValidationPipe(SchemaEmployeeUpdate))
+    async updateEmployee(
         @Req()
         req: Request & {
             organization: TOrganizationSelect
@@ -124,158 +120,14 @@ export class EmployeeController extends BaseController {
         @Param('employee_id')
         employee_id: string,
         @Body()
-        employeeData: Pick<TEmployeeUpdate, 'employee_first_name' | 'employee_last_name'>,
+        employeeData: TEmployeeUpdate,
     ) {
         const req_organization_id = this.validateOrganization(req)
         
-        if (!employeeData.employee_first_name || !employeeData.employee_last_name) {
-            throw new BadRequestException('Missing required data...')
-        }
-        
-        return await this.employeesService.updateEmployeeUsernameById(
+        return await this.employeesService.updateEmployee(
             req_organization_id,
             employee_id,
-            employeeData.employee_first_name,
-            employeeData.employee_last_name
-        );
-    }
-    
-    
-    @Patch('/update/nic/:employee_id')
-    @UsePipes(new ZodSchemaValidationPipe(SchemaEmployeeUpdate.pick({
-                                                                        employee_nic_number: true
-                                                                    })
-                                                              .nonoptional()),)
-    async updateEmployeeNic(
-        @Req()
-        req: Request & {
-            organization: TOrganizationSelect
-        },
-        @Param('employee_id')
-        employee_id: string,
-        @Body()
-        employeeData: Pick<TEmployeeUpdate, 'employee_nic_number'>,
-    ) {
-        const req_organization_id = this.validateOrganization(req)
-        
-        if (!employeeData.employee_nic_number) {
-            throw new BadRequestException('Missing required data...')
-        }
-        
-        return await this.employeesService.updateEmployeeNICById(
-            req_organization_id,
-            employee_id,
-            employeeData.employee_nic_number,
-        );
-    }
-    
-    
-    @Patch('/update/phone/:employee_id')
-    @UsePipes(new ZodSchemaValidationPipe(SchemaEmployeeUpdate.pick({ employee_phone: true })
-                                                              .nonoptional()),)
-    async updateEmployeePhone(
-        @Req()
-        req: Request & {
-            organization: TOrganizationSelect
-        },
-        @Param('employee_id')
-        employee_id: string,
-        @Body()
-        employeeData: Pick<TEmployeeUpdate, 'employee_phone'>,
-    ) {
-        const req_organization_id = this.validateOrganization(req)
-        
-        if (!employeeData.employee_phone) {
-            throw new BadRequestException('Missing required data...')
-        }
-        
-        return await this.employeesService.updateEmployeePhoneById(
-            req_organization_id,
-            employee_id,
-            employeeData.employee_phone,
-        );
-    }
-    
-    
-    @Patch('/update/add-to-salesTable-group/')
-    @UsePipes(new ZodSchemaValidationPipe(SchemaEmployeeUpdate.pick({
-                                                                        employee_sales_group_id: true
-                                                                    })
-                                                              .nonoptional()),)
-    async addEmployeesToSalesGroup(
-        @Req()
-        req: Request & {
-            organization: TOrganizationSelect
-        },
-        @Body()
-        employeeData: Pick<TEmployeeUpdate, 'employee_sales_group_id'> & {
-            employees_ids: string[]
-        },
-    ) {
-        const req_organization_id = this.validateOrganization(req)
-        
-        if (!employeeData.employee_sales_group_id) {
-            throw new BadRequestException('Missing required data')
-        }
-        
-        return await this.employeesService.addEmployeesToSalesGroupByIds(
-            req_organization_id,
-            employeeData.employees_ids,
-            employeeData.employee_sales_group_id,
-        );
-    }
-    
-    
-    @Patch('/update/remove-from-salesTable-group/')
-    async removeEmployeesFromSalesGroup(
-        @Req()
-        req: Request & {
-            organization: TOrganizationSelect
-        },
-        @Body('employees_ids')
-        employees_ids: string[],
-    ) {
-        const req_organization_id = this.validateOrganization(req)
-        
-        return await this.employeesService.removeEmployeesFromSalesGroup(
-            req_organization_id,
-            employees_ids,
-        );
-    }
-    
-    
-    @Patch('/fire/:employee_id')
-    async fireEmployee(
-        @Req()
-        req: Request & {
-            organization: TOrganizationSelect
-        },
-        @Param('employee_id')
-        employee_id: string,
-    ) {
-        const req_organization_id = this.validateOrganization(req)
-        
-        return await this.employeesService.fireEmployee(
-            req_organization_id,
-            employee_id,
-        );
-    }
-    
-    
-    @Patch('/suspend/:employee_id')
-    async suspendEmployee(
-        @Req()
-        req: Request & {
-            organization: TOrganizationSelect
-        },
-        @Param('employee_id')
-        employee_id: string,
-    ) {
-        
-        const req_organization_id = this.validateOrganization(req)
-        return await this.employeesService.suspendEmployee(
-            req_organization_id,
-            employee_id,
+            employeeData
         );
     }
 }
