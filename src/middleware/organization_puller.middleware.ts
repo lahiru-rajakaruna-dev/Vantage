@@ -18,15 +18,21 @@ export class Middleware_OrganizationPuller implements NestMiddleware {
     
     
     constructor(
-        @Inject() organizationService: OrganizationService,
-        @Inject(TOKEN__LOGGER_FACTORY) logger: ILoggerService,
+        @Inject()
+        organizationService: OrganizationService,
+        @Inject(TOKEN__LOGGER_FACTORY)
+        logger: ILoggerService,
     ) {
         this.organizationService = organizationService;
         this.logger              = logger;
     }
     
     
-    async use(req: Request, res: Response, next: (error?: any) => void) {
+    async use(
+        req: Request,
+        res: Response,
+        next: (error?: any) => void
+    ) {
         try {
             const user_id = req['cookies']['user_id'];
             
@@ -36,8 +42,7 @@ export class Middleware_OrganizationPuller implements NestMiddleware {
                                                 });
             }
             
-            const adminsOrganization =
-                      await this.organizationService.getOrganizationDetailsAdminById(user_id);
+            const adminsOrganization = await this.organizationService.getOrganizationDetailsByAdmin(user_id);
             
             req['organization'] = adminsOrganization;
             
