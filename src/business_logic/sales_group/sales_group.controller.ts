@@ -41,6 +41,18 @@ export class SalesGroupController extends BaseController {
     }
     
     
+    @Get('/organization')
+    async getSalesGroupsByOrganizationId(
+        @Req()
+        req: Request & {
+            organization: TOrganizationSelect,
+            user_id: string
+        },) {
+        const req_organization_id = this.validateOrganization(req)
+        return await this.salesGroupService.getSalesGroupsByOrganizationId(req_organization_id,);
+    }
+    
+    
     @Get('/:sales_group_id')
     async getSalesGroupProfile(
         @Req()
@@ -57,19 +69,6 @@ export class SalesGroupController extends BaseController {
             req_organization_id,
             sales_group_id,
         );
-    }
-    
-    
-    @Get('/organization')
-    async getSalesGroupsByOrganizationId(
-        @Req()
-        req: Request & {
-            organization: TOrganizationSelect,
-            user_id: string
-        },) {
-        const req_organization_id = this.validateOrganization(req)
-        
-        return await this.salesGroupService.getSalesGroupsByOrganizationId(req_organization_id,);
     }
     
     
