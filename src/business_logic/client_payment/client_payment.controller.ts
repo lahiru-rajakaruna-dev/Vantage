@@ -26,7 +26,7 @@ import { ClientPaymentService }  from './client_payment.service';
 
 
 
-@Controller('client-payment')
+@Controller('client-payments')
 export class ClientPaymentController extends BaseController {
     private readonly clientPaymentService: ClientPaymentService;
     
@@ -41,7 +41,7 @@ export class ClientPaymentController extends BaseController {
     }
     
     
-    @Post('/add/:client_id')
+    @Post('/:client_id')
     @UsePipes(new ZodSchemaValidationPipe(SchemaClientPaymentData))
     async addClientPayment(
         @Req()
@@ -72,10 +72,9 @@ export class ClientPaymentController extends BaseController {
     }
     
     
-    @Patch('/amount/:client_payment_id')
-    @UsePipes(new ZodSchemaValidationPipe(SchemaClientPaymentUpdate.pick({ client_payment_amount: true })
-                                                                   .nonoptional()),)
-    async updateClientPaymentAmount(
+    @Patch('/:client_payment_id')
+    @UsePipes(new ZodSchemaValidationPipe(SchemaClientPaymentUpdate))
+    async updateClientPayment(
         @Req()
         req: Request & {
             organization: TOrganizationSelect
@@ -83,95 +82,19 @@ export class ClientPaymentController extends BaseController {
         @Param('client_payment_id')
         client_payment_id: string,
         @Body()
-        clientPaymentData: Pick<TClientPaymentUpdate, 'client_payment_amount'>,
+        clientPaymentUpdates: TClientPaymentUpdate,
     ) {
         const req_organization_id = this.validateOrganization(req)
         
-        if (!clientPaymentData.client_payment_amount) {
-            throw new BadRequestException('Missing required data')
-        }
-        
-        return await this.clientPaymentService.updateClientPaymentAmountById(
+        return await this.clientPaymentService.updateClientPayment(
             req_organization_id,
             client_payment_id,
-            clientPaymentData.client_payment_amount,
+            clientPaymentUpdates,
         );
     }
     
     
-    @Patch('/status/pending/:client_payment_id')
-    async updateClientPaymentStatusToPending(
-        @Req()
-        req: Request & {
-            organization: TOrganizationSelect
-        },
-        @Param('client_payment_id')
-        client_payment_id: string,
-    ) {
-        const req_organization_id = this.validateOrganization(req)
-        
-        return await this.clientPaymentService.updateClientPaymentStatusToPendingById(
-            req_organization_id,
-            client_payment_id,
-        );
-    }
-    
-    
-    @Patch('/status/paid/:client_payment_id')
-    async updateClientPaymentStatusToPaid(
-        @Req()
-        req: Request & {
-            organization: TOrganizationSelect
-        },
-        @Param('client_payment_id')
-        client_payment_id: string,
-    ) {
-        const req_organization_id = this.validateOrganization(req)
-        
-        return await this.clientPaymentService.updateClientPaymentStatusToPaidById(
-            req_organization_id,
-            client_payment_id,
-        );
-    }
-    
-    
-    @Patch('/status/verified/:client_payment_id')
-    async updateClientPaymentStatusToVerified(
-        @Req()
-        req: Request & {
-            organization: TOrganizationSelect
-        },
-        @Param('client_payment_id')
-        client_payment_id: string,
-    ) {
-        const req_organization_id = this.validateOrganization(req)
-        
-        return await this.clientPaymentService.updateClientPaymentStatusToVerifiedById(
-            req_organization_id,
-            client_payment_id,
-        );
-    }
-    
-    
-    @Patch('/status/refunded/:client_payment_id')
-    async updateClientPaymentStatusToRefunded(
-        @Req()
-        req: Request & {
-            organization: TOrganizationSelect
-        },
-        @Param('client_payment_id')
-        client_payment_id: string,
-    ) {
-        const req_organization_id = this.validateOrganization(req)
-        
-        return await this.clientPaymentService.updateClientPaymentStatusToRefundedById(
-            req_organization_id,
-            client_payment_id,
-        );
-    }
-    
-    
-    @Get('/profile/:client_payment_id')
+    @Get('/:client_payment_id')
     async getClientPaymentProfile(
         @Req()
         req: Request & {
@@ -189,7 +112,7 @@ export class ClientPaymentController extends BaseController {
     }
     
     
-    @Get('/view/client/:client_id')
+    @Get('/client/:client_id')
     async getClientPaymentsByClientId(
         @Req()
         req: Request & {

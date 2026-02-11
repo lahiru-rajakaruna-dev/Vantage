@@ -5,11 +5,11 @@ import {
 import { v4 as uuid }         from 'uuid'
 import {
     TClientPaymentData,
-    TClientPaymentSelect
+    TClientPaymentSelect,
+    TClientPaymentUpdate
 }                             from '../../orm/drizzle/drizzle-postgres/schema';
 import { TOKEN__ORM_FACTORY } from '../../orm/orm-factory/orm-factory.service';
 import type IOrmInterface     from '../../orm/orm.interface';
-import { EPaymentStatus }     from '../../types';
 
 
 
@@ -25,13 +25,11 @@ export class ClientPaymentService {
     }
     
     
-    //   ADD CLIENT PAYMENT
-    // EDITED: Fixed parameters to match ORM interface
     async addClientPayment(
-        organization_id: string, // Added missing parameter
+        organization_id: string,
         client_id: string,
-        paymentDetails: TClientPaymentData // Changed type
-    ): Promise<TClientPaymentSelect[]> { // Changed return type
+        paymentDetails: TClientPaymentData
+    ): Promise<TClientPaymentSelect[]> {
         const client_payment_id = uuid()
             .toString()
         return this.orm.addClientPayment(
@@ -43,83 +41,23 @@ export class ClientPaymentService {
     }
     
     
-    //   UPDATE CLIENT PAYMENT BY ID
-    async updateClientPaymentStatusToPendingById(
+    async updateClientPayment(
         organization_id: string,
         payment_id: string,
+        paymentUpdates: TClientPaymentUpdate,
     ): Promise<TClientPaymentSelect[]> { // Fixed return type
         return this.orm.updateClientPaymentById(
             organization_id,
             payment_id,
-            {
-                client_payment_status: EPaymentStatus.PENDING,
-            }
-        );
-    }
-    
-    
-    async updateClientPaymentStatusToPaidById(
-        organization_id: string,
-        payment_id: string,
-    ): Promise<TClientPaymentSelect[]> { // Fixed return type
-        return this.orm.updateClientPaymentById(
-            organization_id,
-            payment_id,
-            {
-                client_payment_status: EPaymentStatus.PAID,
-            }
-        );
-    }
-    
-    
-    async updateClientPaymentStatusToVerifiedById(
-        organization_id: string,
-        payment_id: string,
-    ): Promise<TClientPaymentSelect[]> { // Fixed return type
-        return this.orm.updateClientPaymentById(
-            organization_id,
-            payment_id,
-            {
-                client_payment_status: EPaymentStatus.VERIFIED,
-            }
-        );
-    }
-    
-    
-    async updateClientPaymentStatusToRefundedById(
-        organization_id: string,
-        payment_id: string,
-    ): Promise<TClientPaymentSelect[]> { // Fixed return type
-        return this.orm.updateClientPaymentById(
-            organization_id,
-            payment_id,
-            {
-                client_payment_status: EPaymentStatus.REFUNDED,
-            }
-        );
-    }
-    
-    
-    async updateClientPaymentAmountById(
-        organization_id: string,
-        payment_id: string,
-        payment_amount: number,
-    ): Promise<TClientPaymentSelect[]> { // Fixed return type
-        return this.orm.updateClientPaymentById(
-            organization_id,
-            payment_id,
-            {
-                client_payment_amount: payment_amount
-            }
+            paymentUpdates
         )
     }
     
     
-    //   GET CLIENT PAYMENT BY ID
     async viewClientPaymentById(
         organization_id: string,
         payment_id: string,
-    ): Promise<TClientPaymentSelect> { // Fixed return type
+    ): Promise<TClientPaymentSelect> {
         return this.orm.getClientPaymentById(
             organization_id,
             payment_id
@@ -127,11 +65,10 @@ export class ClientPaymentService {
     }
     
     
-    //   GET CLIENT PAYMENTS BY CLIENT_ID
     async getClientPaymentsByClientId(
         organization_id: string,
         client_id: string,
-    ): Promise<TClientPaymentSelect[]> { // Fixed return type
+    ): Promise<TClientPaymentSelect[]> {
         return this.orm.getClientPaymentsByClientId(
             organization_id,
             client_id
