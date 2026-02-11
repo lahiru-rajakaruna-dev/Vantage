@@ -1,5 +1,4 @@
 import {
-    BadRequestException,
     Body,
     Controller,
     Get,
@@ -14,6 +13,7 @@ import type ILoggerService            from '../../logger/logger.interface';
 import { TOKEN__LOGGER_FACTORY }      from '../../logger/logger_factory/logger_factory.service';
 import {
     SchemaOrganizationPaymentData,
+    SchemaOrganizationPaymentUpdate,
     TOrganizationPaymentInsert,
     type TOrganizationPaymentUpdate,
     type   TOrganizationSelect,
@@ -25,7 +25,7 @@ import { OrganizationPaymentService } from './organization-payment.service';
 
 
 
-@Controller('organization-payment')
+@Controller('organization-payments')
 export class OrganizationPaymentController extends BaseController {
     private readonly organizationPaymentService: OrganizationPaymentService;
     
@@ -63,9 +63,9 @@ export class OrganizationPaymentController extends BaseController {
     }
     
     
-    @Patch('/amount/:payment_id')
-    @UsePipes(new ZodSchemaValidationPipe(SchemaOrganizationPaymentData))
-    async updateOrganizationPaymentAmount(
+    @Patch('/:payment_id')
+    @UsePipes(new ZodSchemaValidationPipe(SchemaOrganizationPaymentUpdate))
+    async updateOrganizationPayment(
         @Req()
         req: Request & {
             organization: TOrganizationSelect
@@ -73,91 +73,19 @@ export class OrganizationPaymentController extends BaseController {
         @Param('payment_id')
         payment_id: string,
         @Body()
-        paymentData: Pick<TOrganizationPaymentUpdate, 'organization_payment_amount'>,
+        paymentUpdates: TOrganizationPaymentUpdate,
     ) {
         const req_organization_id = this.validateOrganization(req)
         
-        if (!paymentData.organization_payment_amount) {
-            throw new BadRequestException('Missing required data')
-        }
-        
-        return await this.organizationPaymentService.updateOrganizationPaymentAmountById(
+        return await this.organizationPaymentService.updateOrganizationPayment(
             req_organization_id,
             payment_id,
-            paymentData.organization_payment_amount
+            paymentUpdates
         );
     }
     
     
-    @Patch('/status/pending/:payment_id')
-    async updateOrganizationPaymentStatusToPending(
-        @Req()
-        req: Request & {
-            organization: TOrganizationSelect
-        },
-        @Param('payment_id')
-        payment_id: string,
-    ) {
-        const req_organization_id = this.validateOrganization(req)
-        return await this.organizationPaymentService.updateOrganizationPaymentStatusToPendingById(
-            req_organization_id,
-            payment_id,
-        );
-    }
-    
-    
-    @Patch('/status/paid/:payment_id')
-    async updateOrganizationPaymentStatusToPaid(
-        @Req()
-        req: Request & {
-            organization: TOrganizationSelect
-        },
-        @Param('payment_id')
-        payment_id: string,
-    ) {
-        const req_organization_id = this.validateOrganization(req)
-        return await this.organizationPaymentService.updateOrganizationPaymentStatusToPaidById(
-            req_organization_id,
-            payment_id,
-        );
-    }
-    
-    
-    @Patch('/status/verified/:payment_id')
-    async updateOrganizationPaymentStatusToVerified(
-        @Req()
-        req: Request & {
-            organization: TOrganizationSelect
-        },
-        @Param('payment_id')
-        payment_id: string,
-    ) {
-        const req_organization_id = this.validateOrganization(req)
-        return await this.organizationPaymentService.updateOrganizationPaymentStatusToVerifiedById(
-            req_organization_id,
-            payment_id,
-        );
-    }
-    
-    
-    @Patch('/status/refunded/:payment_id')
-    async updateOrganizationPaymentStatusToRefunded(
-        @Req()
-        req: Request & {
-            organization: TOrganizationSelect
-        },
-        @Param('payment_id')
-        payment_id: string,
-    ) {
-        const req_organization_id = this.validateOrganization(req)
-        return await this.organizationPaymentService.updateOrganizationPaymentStatusToRefundedById(
-            req_organization_id,
-            payment_id,
-        );
-    }
-    
-    
-    @Get('/profile/:payment_id')
+    @Get('/:payment_id')
     async getOrganizationPaymentProfile(
         @Req()
         req: Request & {
@@ -174,7 +102,7 @@ export class OrganizationPaymentController extends BaseController {
     }
     
     
-    @Get('/view/organization')
+    @Get('/organization')
     async getOrganizationPaymentsByOrganizationId(
         @Req()
         req: Request & {
