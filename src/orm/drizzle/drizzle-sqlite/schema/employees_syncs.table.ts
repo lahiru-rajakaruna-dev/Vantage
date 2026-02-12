@@ -7,12 +7,6 @@ import {
     sqliteTable,
     text
 }                        from 'drizzle-orm/sqlite-core';
-import {
-    createInsertSchema,
-    createSelectSchema,
-    createUpdateSchema
-}                        from 'drizzle-zod';
-import { z }             from 'zod';
 import { employees }     from './employees.table';
 import { organizations } from './organizations.table';
 
@@ -68,25 +62,6 @@ export const employeesSyncs = sqliteTable(
         }
     }
 )
-
-export const SchemaEmployeeSyncInsert = createInsertSchema(employeesSyncs)
-export const SchemaEmployeeSyncData   = SchemaEmployeeSyncInsert.omit({
-                                                                          employee_sync_id             : true,
-                                                                          employee_sync_organization_id: true,
-                                                                          employee_sync_employee_id    : true
-                                                                      })
-export const SchemaEmployeeSyncUpdate = createUpdateSchema(employeesSyncs)
-    .omit({
-              employee_sync_id             : true,
-              employee_sync_organization_id: true,
-              employee_sync_employee_id    : true,
-          });
-export const SchemaEmployeeSyncSelect = createSelectSchema(employeesSyncs)
-
-export type TEmployeeSyncInsert = z.infer<typeof SchemaEmployeeSyncInsert>
-export type TEmployeeSyncData = z.infer<typeof SchemaEmployeeSyncData>
-export type TEmployeeSyncUpdate = z.infer<typeof SchemaEmployeeSyncUpdate>
-export type TEmployeeSyncSelect = z.infer<typeof SchemaEmployeeSyncSelect>
 
 export const EmployeeSyncsRelations = relations(
     employeesSyncs,
