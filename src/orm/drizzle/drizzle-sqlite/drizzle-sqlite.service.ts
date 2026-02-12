@@ -33,8 +33,8 @@ import {
     TEmployeeCredentialsData,
     TEmployeeCredentialsSelect,
     TEmployeeCredentialsUpdate,
-    TEmployeeSalarySelect,
-    TEmployeeSalaryUpdate,
+    TEmployeeSalaryProfileSelect,
+    TEmployeeSalaryProfileUpdate,
     TEmployeeSelect,
     TEmployeeSyncSelect,
     TEmployeeSyncUpdate,
@@ -63,7 +63,7 @@ import {
     employeesActivities,
     employeesAttendances,
     employeesCredentials,
-    employeesSalaries,
+    employeesSalaryProfiles,
     employeesSyncs,
     items,
     organizations,
@@ -224,14 +224,14 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
                                 employee_attendance_year           : currentYear
                             })
             
-            await tx.insert(employeesSalaries)
+            await tx.insert(employeesSalaryProfiles)
                     .values({
-                                employee_salary_id                   : uuid()
+                                employee_salary_profile_id                   : uuid()
                                     .toString(),
-                                employee_salary_organization_id      : organization_id,
-                                employee_salary_employee_id          : employeeRecord.employee_id,
-                                employee_salary_base                 : 30_000,
-                                employee_salary_commission_percentage: 0,
+                                employee_salary_profile_organization_id      : organization_id,
+                                employee_salary_profile_employee_id          : employeeRecord.employee_id,
+                                employee_salary_profile_base                 : 30_000,
+                                employee_salary_profile_commission_percentage: 0,
                             })
             
             await tx.insert(employeesSyncs)
@@ -558,20 +558,53 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
     }
     
     
-    async updateEmployeeSalary(
+    async getEmployeeSalaryProfileById(
+        organization_id: string,
+        employee_id: string
+    ): Promise<TEmployeeSalaryProfileSelect> {
+        const result = await this.driver.query.employeesSalaryProfiles.findFirst({
+                                                                                     where({
+                                                                                               employee_salary_profile_organization_id,
+                                                                                               employee_salary_profile_employee_id
+                                                                                           }) {
+                                                                                         return and(
+                                                                                             eq(
+                                                                                                 employee_salary_profile_organization_id,
+                                                                                                 organization_id
+                                                                                             ),
+                                                                                             eq(
+                                                                                                 employee_salary_profile_employee_id,
+                                                                                                 employee_id
+                                                                                             )
+                                                                                         )
+                                                                                     }
+                                                                                 })
+        
+        if (!result) {
+            throw new Error('No employee salary profile record found')
+        }
+        
+        return this.logger.logAndReturn(
+            result[0],
+            'operation:' + ' get_employee_salary_profile_profile_by_id'
+        )
+    }
+    
+    
+    async updateEmployeeSalaryProfile(
         organization_id: string,
         employee_id: string,
-        employeeSalaryUpdates: TEmployeeSalaryUpdate
-    ): Promise<TEmployeeSalarySelect> {
-        const result = await this.driver.update(employeesSalaries)
-                                 .set(employeeSalaryUpdates)
+        employeeSalaryProfileUpdates: TEmployeeSalaryProfileUpdate
+    ): Promise<TEmployeeSalaryProfileSelect> {
+        const result = await this.driver.update(employeesSalaryProfiles)
+                                 .set(employeeSalaryProfileUpdates)
                                  .where(and(
                                      eq(
-                                         employeesSalaries.employee_salary_organization_id,
+                                         employeesSalaryProfiles.employee_salary_profile_organization_id,
                                          organization_id
                                      ),
                                      eq(
-                                         employeesSalaries.employee_salary_employee_id,
+                                         employeesSalaryProfiles.employee_salary_profile_employee_id,
                                          employee_id
                                      )
                                  ))

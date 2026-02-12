@@ -12,8 +12,8 @@ import {
     TEmployeeCredentialsData,
     TEmployeeCredentialsSelect,
     TEmployeeCredentialsUpdate,
-    TEmployeeSalarySelect,
-    TEmployeeSalaryUpdate,
+    TEmployeeSalaryProfileSelect,
+    TEmployeeSalaryProfileUpdate,
     TEmployeeSelect,
     TEmployeeSyncSelect,
     TEmployeeSyncUpdate,
@@ -137,11 +137,16 @@ export default interface IOrmInterface {
     ): Promise<TEmployeeSyncSelect>
     
     // --- EMPLOYEE SALARY ---
-    updateEmployeeSalary(
+    getEmployeeSalaryProfileById(
+        organization_id: string,
+        employee_id: string
+    ): Promise<TEmployeeSalaryProfileSelect>
+    
+    updateEmployeeSalaryProfile(
         organization_id: string,
         employee_id: string,
-        employeeSalaryUpdates: TEmployeeSalaryUpdate
-    ): Promise<TEmployeeSalarySelect>;
+        employeeSalaryProfileUpdates: TEmployeeSalaryProfileUpdate
+    ): Promise<TEmployeeSalaryProfileSelect>;
     
     // --- ITEM ---
     addItem(
