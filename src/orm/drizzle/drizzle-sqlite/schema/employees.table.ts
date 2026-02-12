@@ -1,4 +1,4 @@
-import { relations }            from 'drizzle-orm';
+import { relations }               from 'drizzle-orm';
 import {
     foreignKey,
     index,
@@ -6,16 +6,16 @@ import {
     primaryKey,
     sqliteTable,
     text
-}                               from 'drizzle-orm/sqlite-core';
-import { EmployeeStatus }       from './common';
-import { employeesActivities }  from './employees_activities.table';
-import { employeesAttendances } from './employees_attendances.table';
-import { employeesCredentials } from './employees_credentials.table';
-import { employeesSalaries }    from './employees_salaries.table';
-import { employeesSyncs }       from './employees_syncs.table';
-import { organizations }        from './organizations.table';
-import { sales }                from './sales.table';
-import { salesGroups }          from './sales_groups.table';
+}                                  from 'drizzle-orm/sqlite-core';
+import { EmployeeStatus }          from './common';
+import { employeesActivities }     from './employees_activities.table';
+import { employeesAttendances }    from './employees_attendances.table';
+import { employeesCredentials }    from './employees_credentials.table';
+import { employeesSalaryProfiles } from './employees_salaries.table';
+import { employeesSyncs }          from './employees_syncs.table';
+import { organizations }           from './organizations.table';
+import { sales }                   from './sales.table';
+import { salesGroups }             from './sales_groups.table';
 
 
 
@@ -83,14 +83,14 @@ export const employeesRelations = relations(
          one,
          many
      }) => ({
-        organization: one(
+        organization : one(
             organizations,
             {
                 fields    : [ employees.employee_organization_id ],
                 references: [ organizations.organization_id ],
             }
         ),
-        credentials : one(
+        credentials  : one(
             employeesCredentials,
             {
                 fields    : [
@@ -103,7 +103,7 @@ export const employeesRelations = relations(
                 ],
             }
         ),
-        attendance  : one(
+        attendance   : one(
             employeesAttendances,
             {
                 fields    : [
@@ -116,20 +116,20 @@ export const employeesRelations = relations(
                 ],
             }
         ),
-        salary      : one(
-            employeesSalaries,
+        salaryProfile: one(
+            employeesSalaryProfiles,
             {
                 fields    : [
                     employees.employee_id,
                     employees.employee_organization_id
                 ],
                 references: [
-                    employeesSalaries.employee_salary_employee_id,
-                    employeesSalaries.employee_salary_organization_id
+                    employeesSalaryProfiles.employee_salary_profile_employee_id,
+                    employeesSalaryProfiles.employee_salary_profile_organization_id
                 ],
             }
         ),
-        sync        : one(
+        sync         : one(
             employeesSyncs,
             {
                 fields    : [
@@ -142,7 +142,7 @@ export const employeesRelations = relations(
                 ],
             }
         ),
-        salesGroup  : one(
+        salesGroup   : one(
             salesGroups,
             {
                 fields    : [
@@ -155,7 +155,7 @@ export const employeesRelations = relations(
                 ]
             },
         ),
-        sales       : many(sales),
-        activities  : many(employeesActivities),
+        sales        : many(sales),
+        activities   : many(employeesActivities),
     })
 );

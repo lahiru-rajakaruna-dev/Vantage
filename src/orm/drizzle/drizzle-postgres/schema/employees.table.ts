@@ -1,4 +1,4 @@
-import { relations }            from 'drizzle-orm';
+import { relations }               from 'drizzle-orm';
 import {
     foreignKey,
     index,
@@ -6,21 +6,21 @@ import {
     pgTable,
     primaryKey,
     text
-}                               from 'drizzle-orm/pg-core';
+}                                  from 'drizzle-orm/pg-core';
 import {
     createInsertSchema,
     createSelectSchema,
     createUpdateSchema
-}                               from 'drizzle-zod';
-import { z }                    from 'zod';
-import { employeesActivities }  from './employees_activities';
-import { employeesAttendances } from './employees_attendances.table';
-import { employeesCredentials } from './employees_credentials';
-import { employeesSalaries }    from './employees_salaries.table';
-import { employeesSyncs }       from './employees_syncs.table';
-import { organizations }        from './organizations.table';
-import { sales }                from './sales.table';
-import { salesGroups }          from './sales_groups.table';
+}                                  from 'drizzle-zod';
+import { z }                       from 'zod';
+import { employeesActivities }     from './employees_activities';
+import { employeesAttendances }    from './employees_attendances.table';
+import { employeesCredentials }    from './employees_credentials';
+import { employeesSalaryProfiles } from './employees_salaries.table';
+import { employeesSyncs }          from './employees_syncs.table';
+import { organizations }           from './organizations.table';
+import { sales }                   from './sales.table';
+import { salesGroups }             from './sales_groups.table';
 
 
 
@@ -112,14 +112,14 @@ export const employeesRelations = relations(
          many
      }) => {
         return {
-            organization      : one(
+            organization         : one(
                 organizations,
                 {
                     fields    : [ employees.employee_organization_id ],
                     references: [ organizations.organization_id ],
                 }
             ),
-            employeeCredential: one(
+            employeeCredential   : one(
                 employeesCredentials,
                 {
                     fields    : [
@@ -132,7 +132,7 @@ export const employeesRelations = relations(
                     ]
                 }
             ),
-            employeeAttendance: one(
+            employeeAttendance   : one(
                 employeesAttendances,
                 {
                     fields    : [
@@ -145,20 +145,20 @@ export const employeesRelations = relations(
                     ]
                 }
             ),
-            employeeSalary    : one(
-                employeesSalaries,
+            employeeSalaryProfile: one(
+                employeesSalaryProfiles,
                 {
                     fields    : [
                         employees.employee_id,
                         employees.employee_organization_id
                     ],
                     references: [
-                        employeesSalaries.employee_salary_employee_id,
-                        employeesSalaries.employee_salary_organization_id
+                        employeesSalaryProfiles.employee_salary_profile_employee_id,
+                        employeesSalaryProfiles.employee_salary_profile_organization_id
                     ]
                 }
             ),
-            employeeSync      : one(
+            employeeSync         : one(
                 employeesSyncs,
                 {
                     fields    : [
@@ -171,7 +171,7 @@ export const employeesRelations = relations(
                     ],
                 }
             ),
-            salesGroup        : one(
+            salesGroup           : one(
                 salesGroups,
                 {
                     fields    : [
@@ -184,8 +184,8 @@ export const employeesRelations = relations(
                     ]
                 }
             ),
-            sales             : many(sales,),
-            activities        : many(employeesActivities,),
+            sales                : many(sales,),
+            activities           : many(employeesActivities,),
         };
     }
 );

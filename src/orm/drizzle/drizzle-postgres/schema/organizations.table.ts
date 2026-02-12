@@ -1,33 +1,33 @@
-import { relations }             from 'drizzle-orm';
+import { relations }               from 'drizzle-orm';
 import {
     index,
     integer,
     pgTable,
     primaryKey,
     text
-}                                from 'drizzle-orm/pg-core';
+}                                  from 'drizzle-orm/pg-core';
 import {
     createInsertSchema,
     createSelectSchema,
     createUpdateSchema
-}                                from 'drizzle-zod';
-import { z }                     from 'zod';
+}                                  from 'drizzle-zod';
+import { z }                       from 'zod';
 import {
     EOrganizationStatus,
     ESubscriptionStatus
-}                                from '../../../../types';
-import { clients }               from './clients.table';
-import { clientsPayments }       from './clients_payments.table';
-import { employees }             from './employees.table';
-import { employeesActivities }   from './employees_activities';
-import { employeesAttendances }  from './employees_attendances.table';
-import { employeesCredentials }  from './employees_credentials';
-import { employeesSalaries }     from './employees_salaries.table';
-import { employeesSyncs }        from './employees_syncs.table';
-import { items }                 from './items.table';
-import { organizationsPayments } from './organizations_payments.table';
-import { sales }                 from './sales.table';
-import { salesGroups }           from './sales_groups.table';
+}                                  from '../../../../types';
+import { clients }                 from './clients.table';
+import { clientsPayments }         from './clients_payments.table';
+import { employees }               from './employees.table';
+import { employeesActivities }     from './employees_activities';
+import { employeesAttendances }    from './employees_attendances.table';
+import { employeesCredentials }    from './employees_credentials';
+import { employeesSalaryProfiles } from './employees_salaries.table';
+import { employeesSyncs }          from './employees_syncs.table';
+import { items }                   from './items.table';
+import { organizationsPayments }   from './organizations_payments.table';
+import { sales }                   from './sales.table';
+import { salesGroups }             from './sales_groups.table';
 
 
 
@@ -124,18 +124,18 @@ export const organizationsRelations = relations(
     organizations,
     ({ many }) => {
         return {
-            employees            : many(employees),
-            employeesCredentials : many(employeesCredentials,),
-            employeesAttendances : many(employeesAttendances,),
-            employeesActivities  : many(employeesActivities,),
-            employeesSalaries    : many(employeesSalaries,),
-            employeesSyncs       : many(employeesSyncs),
-            items                : many(items,),
-            salesGroups          : many(salesGroups,),
-            organizationsPayments: many(organizationsPayments,),
-            sales                : many(sales,),
-            clients              : many(clients,),
-            clientsPayments      : many(clientsPayments,),
+            employees              : many(employees),
+            employeesCredentials   : many(employeesCredentials,),
+            employeesAttendances   : many(employeesAttendances,),
+            employeesActivities    : many(employeesActivities,),
+            employeesSalaryProfiles: many(employeesSalaryProfiles,),
+            employeesSyncs         : many(employeesSyncs),
+            items                  : many(items,),
+            salesGroups            : many(salesGroups,),
+            organizationsPayments  : many(organizationsPayments,),
+            sales                  : many(sales,),
+            clients                : many(clients,),
+            clientsPayments        : many(clientsPayments,),
         };
     }
 );
