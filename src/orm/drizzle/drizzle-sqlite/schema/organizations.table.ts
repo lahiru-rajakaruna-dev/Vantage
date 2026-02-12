@@ -17,6 +17,7 @@ import { employeesActivities }   from './employees_activities.table';
 import { employeesAttendances }  from './employees_attendances.table';
 import { employeesCredentials }  from './employees_credentials.table';
 import { employeesSalaries }     from './employees_salaries.table';
+import { employeesSyncs }        from './employees_syncs.table';
 import { items }                 from './items.table';
 import { organizationsPayments } from './organizations_payments.table';
 import { sales }                 from './sales.table';
@@ -78,6 +79,7 @@ export const organizationsRelations = relations(
         employeesAttendances : many(employeesAttendances),
         employeesActivities  : many(employeesActivities),
         employeesSalaries    : many(employeesSalaries),
+        employeesSyncs       : many(employeesSyncs),
         items                : many(items),
         salesGroups          : many(salesGroups),
         organizationsPayments: many(organizationsPayments),

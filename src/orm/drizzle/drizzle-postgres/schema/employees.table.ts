@@ -17,6 +17,7 @@ import { employeesActivities }  from './employees_activities';
 import { employeesAttendances } from './employees_attendances.table';
 import { employeesCredentials } from './employees_credentials';
 import { employeesSalaries }    from './employees_salaries.table';
+import { employeesSyncs }       from './employees_syncs.table';
 import { organizations }        from './organizations.table';
 import { sales }                from './sales.table';
 import { salesGroups }          from './sales_groups.table';
@@ -155,6 +156,19 @@ export const employeesRelations = relations(
                         employeesSalaries.employee_salary_employee_id,
                         employeesSalaries.employee_salary_organization_id
                     ]
+                }
+            ),
+            employeeSync      : one(
+                employeesSyncs,
+                {
+                    fields    : [
+                        employees.employee_id,
+                        employees.employee_organization_id
+                    ],
+                    references: [
+                        employeesSyncs.employee_sync_employee_id,
+                        employeesSyncs.employee_sync_organization_id
+                    ],
                 }
             ),
             salesGroup        : one(

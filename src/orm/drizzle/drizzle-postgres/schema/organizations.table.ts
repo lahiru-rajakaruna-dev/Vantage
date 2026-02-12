@@ -23,6 +23,7 @@ import { employeesActivities }   from './employees_activities';
 import { employeesAttendances }  from './employees_attendances.table';
 import { employeesCredentials }  from './employees_credentials';
 import { employeesSalaries }     from './employees_salaries.table';
+import { employeesSyncs }        from './employees_syncs.table';
 import { items }                 from './items.table';
 import { organizationsPayments } from './organizations_payments.table';
 import { sales }                 from './sales.table';
@@ -89,7 +90,6 @@ export const organizations = pgTable(
                                                 name   : 'organization_primary_key',
                                                 columns: [
                                                     table.organization_id,
-                                                    table.organization_paddle_customer_id
                                                 ],
                                             }),
             organizationIdIndex: index('organization_id_idx')
@@ -129,6 +129,7 @@ export const organizationsRelations = relations(
             employeesAttendances : many(employeesAttendances,),
             employeesActivities  : many(employeesActivities,),
             employeesSalaries    : many(employeesSalaries,),
+            employeesSyncs       : many(employeesSyncs),
             items                : many(items,),
             salesGroups          : many(salesGroups,),
             organizationsPayments: many(organizationsPayments,),
