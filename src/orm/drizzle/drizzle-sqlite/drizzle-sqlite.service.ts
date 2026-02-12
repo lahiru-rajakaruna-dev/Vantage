@@ -8,7 +8,9 @@ import {
     and,
     between,
     eq,
-    inArray
+    gte,
+    inArray,
+    lte
 }                                from 'drizzle-orm';
 import { LibSQLDatabase }        from 'drizzle-orm/libsql';
 import { drizzle }               from 'drizzle-orm/libsql/node';
@@ -277,6 +279,50 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
         return this.logger.logAndReturn(
             result,
             'operation:' + ' add_employee_activity'
+        )
+    }
+    
+    
+    async getEmployeeActivityProfile(
+        organization_id: string,
+        employee_id: string,
+        start_date?: number,
+        end_date?: number
+    ) {
+        const result = await this.driver.query.employeesActivities.findMany({
+                                                                                where({
+                                                                                          employee_activity_organization_id,
+                                                                                          employee_activity_employee_id,
+                                                                                          employee_activity_timestamp
+                                                                                      }) {
+                                                                                    return and(
+                                                                                        eq(
+                                                                                            employee_activity_organization_id,
+                                                                                            organization_id
+                                                                                        ),
+                                                                                        eq(
+                                                                                            employee_activity_employee_id,
+                                                                                            employee_id
+                                                                                        ),
+                                                                                        start_date
+                                                                                        ? gte(
+                                                                                            employee_activity_timestamp,
+                                                                                            start_date
+                                                                                        )
+                                                                                        : undefined,
+                                                                                        end_date
+                                                                                        ? lte(
+                                                                                            employee_activity_timestamp,
+                                                                                            end_date
+                                                                                        )
+                                                                                        : undefined,
+                                                                                    )
+                                                                                }
+                                                                            })
+        
+        return this.logger.logAndReturn(
+            result,
+            'operation:' + ' get_employee_activity_profile'
         )
     }
     

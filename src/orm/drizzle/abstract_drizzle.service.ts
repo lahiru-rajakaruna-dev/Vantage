@@ -161,6 +161,14 @@ export default abstract class AbstractDrizzlerService implements IOrmInterface {
         activity_id: string,
         employeeActivityData: TEmployeeActivityData
     ): Promise<TEmployeeActivitySelect[]>
+    
+    
+    abstract getEmployeeActivityProfile(
+        organization_id: string,
+        employee_id: string,
+        start_date?: number,
+        end_date?: number
+    ): Promise<TEmployeeActivitySelect[]>
 
 
 //     EMPLOYEE_SALARY

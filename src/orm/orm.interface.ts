@@ -115,6 +115,13 @@ export default interface IOrmInterface {
         employeeActivityData: TEmployeeActivityData
     ): Promise<TEmployeeActivitySelect[]>
     
+    getEmployeeActivityProfile(
+        organization_id: string,
+        employee_id: string,
+        start_date?: number,
+        end_date?: number
+    ): Promise<TEmployeeActivitySelect[]>
+    
     // --- EMPLOYEE SALARY ---
     updateEmployeeSalary(
         organization_id: string,
