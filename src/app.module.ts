@@ -38,7 +38,8 @@ import { PaddleModule }                  from './paddle/paddle.module';
 @Module({
             imports    : [
                 CacheModule.register({
-                                         ttl: 1000,
+                                         ttl             : 1000,
+                                         refreshThreshold: 500
                                      }),
                 EmployeeModule,
                 OrganizationModule,
