@@ -25,7 +25,6 @@ import { OrganizationModule }            from './business_logic/organization/org
 import { OrganizationPaymentModule }     from './business_logic/organization_payment/organization-payment.module';
 import { SaleModule }                    from './business_logic/sale/sale.module';
 import { SalesGroupModule }              from './business_logic/sales_group/sales_group.module';
-import { BusinessLogicModule }           from './employees_activities/business_logic/business_logic.module';
 import { AuthGuardService }              from './guard/auth.guard.service';
 import { GuardModule }                   from './guard/guard.module';
 import { LoggerModule }                  from './logger/logger.module';
@@ -64,7 +63,6 @@ import { PaddleModule }                  from './paddle/paddle.module';
                 MiddlewareModule,
                 EmployeeAttendanceModule,
                 GuardModule,
-                BusinessLogicModule,
                 EmployeesActivitiesModule,
             ],
             controllers: [ AppController ],
