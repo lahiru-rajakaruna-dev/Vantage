@@ -19,11 +19,13 @@ import { ClientModule }                  from './business_logic/client/client.mo
 import { ClientPaymentModule }           from './business_logic/client_payment/client_payment.module';
 import { EmployeeModule }                from './business_logic/employee/employee.module';
 import { EmployeeAttendanceModule }      from './business_logic/employee_attendance/employee_attendance.module';
+import { EmployeesActivitiesModule }     from './business_logic/employees_activities/employees_activities.module';
 import { ItemModule }                    from './business_logic/item/item.module';
 import { OrganizationModule }            from './business_logic/organization/organization.module';
 import { OrganizationPaymentModule }     from './business_logic/organization_payment/organization-payment.module';
 import { SaleModule }                    from './business_logic/sale/sale.module';
 import { SalesGroupModule }              from './business_logic/sales_group/sales_group.module';
+import { BusinessLogicModule }           from './employees_activities/business_logic/business_logic.module';
 import { AuthGuardService }              from './guard/auth.guard.service';
 import { GuardModule }                   from './guard/guard.module';
 import { LoggerModule }                  from './logger/logger.module';
@@ -62,6 +64,8 @@ import { PaddleModule }                  from './paddle/paddle.module';
                 MiddlewareModule,
                 EmployeeAttendanceModule,
                 GuardModule,
+                BusinessLogicModule,
+                EmployeesActivitiesModule,
             ],
             controllers: [ AppController ],
             providers  : [
