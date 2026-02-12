@@ -20,7 +20,6 @@ import { TOKEN__LOGGER_FACTORY } from '../../../logger/logger_factory/logger_fac
 import { EEnvVars }              from '../../../types';
 import AbstractDrizzlerService   from '../abstract_drizzle.service';
 import {
-    employeesAttendances,
     TClientData,
     TClientPaymentData,
     TClientPaymentSelect,
@@ -37,6 +36,8 @@ import {
     TEmployeeSalarySelect,
     TEmployeeSalaryUpdate,
     TEmployeeSelect,
+    TEmployeeSyncSelect,
+    TEmployeeSyncUpdate,
     TEmployeeUpdate,
     TItemData,
     TItemSelect,
@@ -60,8 +61,10 @@ import {
     clientsPayments,
     employees,
     employeesActivities,
+    employeesAttendances,
     employeesCredentials,
     employeesSalaries,
+    employeesSyncs,
     items,
     organizations,
     organizationsPayments,
@@ -229,6 +232,15 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
                                 employee_salary_employee_id          : employeeRecord.employee_id,
                                 employee_salary_base                 : 30_000,
                                 employee_salary_commission_percentage: 0,
+                            })
+            
+            await tx.insert(employeesSyncs)
+                    .values({
+                                employee_sync_id                   : uuid()
+                                    .toString(),
+                                employee_sync_employee_id          : employeeRecord.employee_id,
+                                employee_sync_organization_id      : organization_id,
+                                employee_sync_last_synced_timestamp: Date.now()
                             })
             
             return tx
@@ -568,6 +580,69 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
         return this.logger.logAndReturn(
             result[0],
             'operation: update_employee_salary'
+        )
+    }
+    
+    
+    async getEmployeeSyncProfileById(
+        organization_id: string,
+        employee_id: string
+    ): Promise<TEmployeeSyncSelect> {
+        const result = await this.driver.query.employeesSyncs.findFirst({
+                                                                            where({
+                                                                                      employee_sync_organization_id,
+                                                                                      employee_sync_employee_id
+                                                                                  }) {
+                                                                                return and(
+                                                                                    eq(
+                                                                                        employee_sync_organization_id,
+                                                                                        organization_id
+                                                                                    ),
+                                                                                    eq(
+                                                                                        employee_sync_employee_id,
+                                                                                        employee_id
+                                                                                    )
+                                                                                )
+                                                                            }
+                                                                        })
+        
+        if (!result) {
+            throw new Error('No employee sync record found')
+        }
+        
+        return this.logger.logAndReturn(
+            result[0],
+            'operation:' + ' get_employee_sync_profile_by_id'
+        )
+    }
+    
+    
+    async updateEmployeeSyncProfileById(
+        organization_id: string,
+        employee_id: string,
+        employeeSyncUpdates: TEmployeeSyncUpdate
+    ): Promise<TEmployeeSyncSelect> {
+        const result = await this.driver.update(employeesSyncs)
+                                 .set(employeeSyncUpdates)
+                                 .where(and(
+                                     eq(
+                                         employeesSyncs.employee_sync_organization_id,
+                                         organization_id
+                                     ),
+                                     eq(
+                                         employeesSyncs.employee_sync_employee_id,
+                                         employee_id
+                                     )
+                                 ))
+                                 .returning()
+        
+        if (!result) {
+            throw new Error('No employee sync record found')
+        }
+        
+        return this.logger.logAndReturn(
+            result[0],
+            'operation:' + ' get_employee_sync_profile_by_id'
         )
     }
     

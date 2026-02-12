@@ -30,6 +30,7 @@ import {
     employeesAttendances,
     employeesCredentials,
     employeesSalaries,
+    employeesSyncs,
     items,
     organizations,
     organizationsPayments,
@@ -51,6 +52,8 @@ import {
     TEmployeeSalarySelect,
     TEmployeeSalaryUpdate,
     TEmployeeSelect,
+    TEmployeeSyncSelect,
+    TEmployeeSyncUpdate,
     TEmployeeUpdate,
     TItemData,
     TItemSelect,
@@ -226,6 +229,15 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
                                 employee_salary_commission_percentage: 0
                             })
             
+            await tx.insert(employeesSyncs)
+                    .values({
+                                employee_sync_id                   : uuid()
+                                    .toString(),
+                                employee_sync_employee_id          : employeeRecord.employee_id,
+                                employee_sync_organization_id      : organization_id,
+                                employee_sync_last_synced_timestamp: Date.now()
+                            })
+            
             return tx
                 .select()
                 .from(employees)
@@ -318,6 +330,69 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
         return this.logger.logAndReturn(
             result,
             'operation:' + ' get_employee_activity_profile'
+        )
+    }
+    
+    
+    async getEmployeeSyncProfileById(
+        organization_id: string,
+        employee_id: string
+    ): Promise<TEmployeeSyncSelect> {
+        const result = await this.driver.query.employeesSyncs.findFirst({
+                                                                            where({
+                                                                                      employee_sync_organization_id,
+                                                                                      employee_sync_employee_id
+                                                                                  }) {
+                                                                                return and(
+                                                                                    eq(
+                                                                                        employee_sync_organization_id,
+                                                                                        organization_id
+                                                                                    ),
+                                                                                    eq(
+                                                                                        employee_sync_employee_id,
+                                                                                        employee_id
+                                                                                    )
+                                                                                )
+                                                                            }
+                                                                        })
+        
+        if (!result) {
+            throw new Error('No employee sync record found')
+        }
+        
+        return this.logger.logAndReturn(
+            result[0],
+            'operation:' + ' get_employee_sync_profile_by_id'
+        )
+    }
+    
+    
+    async updateEmployeeSyncProfileById(
+        organization_id: string,
+        employee_id: string,
+        employeeSyncUpdates: TEmployeeSyncUpdate
+    ): Promise<TEmployeeSyncSelect> {
+        const result = await this.driver.update(employeesSyncs)
+                                 .set(employeeSyncUpdates)
+                                 .where(and(
+                                     eq(
+                                         employeesSyncs.employee_sync_organization_id,
+                                         organization_id
+                                     ),
+                                     eq(
+                                         employeesSyncs.employee_sync_employee_id,
+                                         employee_id
+                                     )
+                                 ))
+                                 .returning()
+        
+        if (!result) {
+            throw new Error('No employee sync record found')
+        }
+        
+        return this.logger.logAndReturn(
+            result[0],
+            'operation:' + ' get_employee_sync_profile_by_id'
         )
     }
     

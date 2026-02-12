@@ -18,6 +18,8 @@ import {
     TEmployeeSalarySelect,
     TEmployeeSalaryUpdate,
     TEmployeeSelect,
+    TEmployeeSyncSelect,
+    TEmployeeSyncUpdate,
     TEmployeeUpdate,
     TItemData,
     TItemSelect,
@@ -169,6 +171,20 @@ export default abstract class AbstractDrizzlerService implements IOrmInterface {
         start_date?: number,
         end_date?: number
     ): Promise<TEmployeeActivitySelect[]>
+    
+    
+    // EMPLOYEE SYNC
+    abstract getEmployeeSyncProfileById(
+        organization_id: string,
+        employee_id: string
+    ): Promise<TEmployeeSyncSelect>
+    
+    
+    abstract updateEmployeeSyncProfileById(
+        organization_id: string,
+        employee_id: string,
+        employeeSyncUpdates: TEmployeeSyncUpdate
+    ): Promise<TEmployeeSyncSelect>
 
 
 //     EMPLOYEE_SALARY

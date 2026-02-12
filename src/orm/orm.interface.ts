@@ -15,6 +15,8 @@ import {
     TEmployeeSalarySelect,
     TEmployeeSalaryUpdate,
     TEmployeeSelect,
+    TEmployeeSyncSelect,
+    TEmployeeSyncUpdate,
     TEmployeeUpdate,
     TItemData,
     TItemSelect,
@@ -121,6 +123,18 @@ export default interface IOrmInterface {
         start_date?: number,
         end_date?: number
     ): Promise<TEmployeeActivitySelect[]>
+    
+    // --- EMPLOYEE SYNC ---
+    getEmployeeSyncProfileById(
+        organization_id: string,
+        employee_id: string
+    ): Promise<TEmployeeSyncSelect>
+    
+    updateEmployeeSyncProfileById(
+        organization_id: string,
+        employee_id: string,
+        employeeSyncUpdates: TEmployeeSyncUpdate
+    ): Promise<TEmployeeSyncSelect>
     
     // --- EMPLOYEE SALARY ---
     updateEmployeeSalary(
