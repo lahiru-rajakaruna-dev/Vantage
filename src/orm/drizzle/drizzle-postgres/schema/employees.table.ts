@@ -93,8 +93,9 @@ export const SchemaEmployeeData   = SchemaEmployeeInsert.omit({
                                                               })
 export const SchemaEmployeeUpdate = createUpdateSchema(employees)
     .omit({
-              employee_id             : true,
-              employee_organization_id: true
+              employee_id               : true,
+              employee_organization_id  : true,
+              employee_registration_date: true,
           });
 export const SchemaEmployeeSelect = createSelectSchema(employees)
 
