@@ -20,6 +20,7 @@ import { ClientPaymentModule }           from './business_logic/client_payment/c
 import { EmployeeModule }                from './business_logic/employee/employee.module';
 import { EmployeeAttendanceModule }      from './business_logic/employee_attendance/employee_attendance.module';
 import { EmployeesActivitiesModule }     from './business_logic/employees_activities/employees_activities.module';
+import { EmployeesSyncsModule }          from './business_logic/employees_syncs/employees_syncs.module';
 import { ItemModule }                    from './business_logic/item/item.module';
 import { OrganizationModule }            from './business_logic/organization/organization.module';
 import { OrganizationPaymentModule }     from './business_logic/organization_payment/organization-payment.module';
@@ -64,6 +65,7 @@ import { PaddleModule }                  from './paddle/paddle.module';
                 EmployeeAttendanceModule,
                 GuardModule,
                 EmployeesActivitiesModule,
+                EmployeesSyncsModule,
             ],
             controllers: [ AppController ],
             providers  : [
