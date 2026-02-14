@@ -20,7 +20,7 @@ import { organizations } from './organizations.table';
 
 
 export const employeesSalaryProfiles = pgTable(
-    'employees_salaries',
+    'employees_salary_profiles',
     {
         employee_salary_profile_id                   : text()
             .unique()

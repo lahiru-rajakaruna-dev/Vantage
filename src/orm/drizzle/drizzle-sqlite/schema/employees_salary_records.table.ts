@@ -49,8 +49,14 @@ export const employeesSalaryRecords = sqliteTable(
                                             }),
             employeeFK         : foreignKey({
                                                 name          : 'employee_salary_record_employee_FK',
-                                                columns       : [ table.employee_salary_record_employee_id ],
-                                                foreignColumns: [ employees.employee_id ]
+                                                columns       : [
+                                                    table.employee_salary_record_employee_id,
+                                                    table.employee_salary_record_organization_id
+                                                ],
+                                                foreignColumns: [
+                                                    employees.employee_id,
+                                                    employees.employee_organization_id
+                                                ]
                                             }),
             organizationIdIndex: index('employee_salary_record_organization_id_IDX')
                 .on(table.employee_salary_record_organization_id),
