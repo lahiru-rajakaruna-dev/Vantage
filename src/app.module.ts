@@ -19,6 +19,7 @@ import { ClientModule }                  from './business_logic/client/client.mo
 import { ClientPaymentModule }           from './business_logic/client_payment/client_payment.module';
 import { EmployeeModule }                from './business_logic/employee/employee.module';
 import { EmployeeAttendanceModule }      from './business_logic/employee_attendance/employee_attendance.module';
+import { EmployeeSalaryModule }          from './business_logic/employee_salary/employee_salary.module';
 import { EmployeesActivitiesModule }     from './business_logic/employees_activities/employees_activities.module';
 import { EmployeesSyncsModule }          from './business_logic/employees_syncs/employees_syncs.module';
 import { ItemModule }                    from './business_logic/item/item.module';
@@ -66,8 +67,11 @@ import { PaddleModule }                  from './paddle/paddle.module';
                 GuardModule,
                 EmployeesActivitiesModule,
                 EmployeesSyncsModule,
+                EmployeeSalaryModule,
             ],
-            controllers: [ AppController ],
+            controllers: [
+                AppController,
+            ],
             providers  : [
                 AppService,
                 {
