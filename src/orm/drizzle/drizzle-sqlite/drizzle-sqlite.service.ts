@@ -588,8 +588,8 @@ export class DrizzleSqliteService extends AbstractDrizzlerService {
         }
         
         return this.logger.logAndReturn(
-            result[0],
-            'operation:' + ' get_employee_salary_profile_profile_by_id'
+            result,
+            'operation:' + ' get_employee_salary_profile_by_id'
         )
     }
     
