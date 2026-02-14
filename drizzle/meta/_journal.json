@@ -5,43 +5,15 @@
     {
       "idx": 0,
       "version": "6",
-      "when": 1770400020501,
-      "tag": "0000_powerful_black_knight",
+      "when": 1771058561802,
+      "tag": "0000_shiny_randall_flagg",
       "breakpoints": true
     },
     {
       "idx": 1,
       "version": "6",
-      "when": 1770400379885,
-      "tag": "0001_chubby_starjammers",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "6",
-      "when": 1770651482831,
-      "tag": "0002_happy_gorgon",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "6",
-      "when": 1770652698600,
-      "tag": "0003_curved_prism",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "6",
-      "when": 1770652864695,
-      "tag": "0004_complete_ikaris",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "6",
-      "when": 1770826362066,
-      "tag": "0005_swift_carnage",
+      "when": 1771058995103,
+      "tag": "0001_curvy_lord_tyger",
       "breakpoints": true
     }
   ]
