@@ -5,7 +5,6 @@ import {
     Get,
     Inject,
     Param,
-    ParseIntPipe,
     Patch,
     Post,
     Query,
@@ -102,15 +101,9 @@ export class EmployeeSalaryController extends BaseController {
         },
         @Param('employee_id')
         employee_id: string,
-        @Query(
-            'year',
-            ParseIntPipe
-        )
+        @Query('year',)
         year: number,
-        @Query(
-            'month',
-            ParseIntPipe
-        )
+        @Query('month',)
         month: number
     ) {
         const req_organization_id = this.validateOrganization(req)
