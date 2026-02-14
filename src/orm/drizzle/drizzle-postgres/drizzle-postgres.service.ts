@@ -71,6 +71,11 @@ import {
     TSalesGroupUpdate,
     TSaleUpdate
 }                                from './schema';
+import {
+    employeesSalaryRecords,
+    TEmployeeSalaryRecordData,
+    TEmployeeSalaryRecordSelect
+}                                from './schema/employees_salary_records.table';
 
 
 
@@ -699,6 +704,93 @@ export class DrizzlePostgresService extends AbstractDrizzlerService {
             result[0],
             'operation:' + ' get_employee_salary_profile_by_id'
         )
+    }
+    
+    
+    async getEmployeeSalaryRecords(
+        organization_id: string,
+        employee_id: string,
+        monthStart?: number,
+        monthEnd?: number
+    ): Promise<TEmployeeSalaryRecordSelect[]> {
+        const result = await this.driver.query.employeesSalaryRecords.findMany({
+                                                                                   where({
+                                                                                             employee_salary_record_organization_id,
+                                                                                             employee_salary_record_employee_id,
+                                                                                             employee_salary_record_timestamp
+                                                                                         }) {
+                                                                                       return and(
+                                                                                           eq(
+                                                                                               employee_salary_record_organization_id,
+                                                                                               organization_id
+                                                                                           ),
+                                                                                           eq(
+                                                                                               employee_salary_record_employee_id,
+                                                                                               employee_id
+                                                                                           ),
+                                                                                           monthEnd
+                                                                                           ? lte(
+                                                                                               employee_salary_record_timestamp,
+                                                                                               monthEnd
+                                                                                           )
+                                                                                           : undefined,
+                                                                                           monthStart
+                                                                                           ? gte(
+                                                                                               employee_salary_record_timestamp,
+                                                                                               monthStart
+                                                                                           )
+                                                                                           : undefined,
+                                                                                       )
+                                                                                   }
+                                                                               })
+        
+        return this.logger.logAndReturn(
+            result,
+            'operations:' + ' get_employee_salary_records'
+        );
+    }
+    
+    
+    async addEmployeeSalaryRecord(
+        organization_id: string,
+        employee_id: string,
+        employee_salary_record_id: string,
+        salaryRecordData: TEmployeeSalaryRecordData
+    ): Promise<TEmployeeSalaryRecordSelect[]> {
+        const result = await this.driver.transaction(async (tx) => {
+            
+            await tx.insert(employeesSalaryRecords)
+                    .values({
+                                ...salaryRecordData,
+                                employee_salary_record_organization_id: organization_id,
+                                employee_salary_record_employee_id    : employee_id,
+                                employee_salary_record_id             : employee_salary_record_id
+                            })
+            
+            return await tx.query.employeesSalaryRecords.findMany({
+                                                                      where({
+                                                                                employee_salary_record_organization_id,
+                                                                                employee_salary_record_employee_id
+                                                                            }) {
+                                                                          return and(
+                                                                              eq(
+                                                                                  employee_salary_record_organization_id,
+                                                                                  organization_id
+                                                                              ),
+                                                                              eq(
+                                                                                  employee_salary_record_employee_id,
+                                                                                  employee_id
+                                                                              ),
+                                                                          )
+                                                                      }
+                                                                  })
+            
+        })
+        
+        return this.logger.logAndReturn(
+            result,
+            'operation:' + ' add_employee_salary_record'
+        );
     }
     
     

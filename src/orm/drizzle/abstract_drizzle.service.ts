@@ -37,6 +37,10 @@ import {
     TSalesGroupUpdate,
     TSaleUpdate
 }                          from './drizzle-postgres/schema';
+import {
+    TEmployeeSalaryRecordData,
+    TEmployeeSalaryRecordSelect
+}                          from './drizzle-postgres/schema/employees_salary_records.table';
 
 
 
@@ -193,6 +197,22 @@ export default abstract class AbstractDrizzlerService implements IOrmInterface {
         organization_id: string,
         employee_id: string
     ): Promise<TEmployeeSalaryProfileSelect>
+    
+    
+    abstract getEmployeeSalaryRecords(
+        organization_id: string,
+        employee_id: string,
+        monthStart?: number,
+        monthEnd?: number
+    ): Promise<TEmployeeSalaryRecordSelect[]>
+    
+    
+    abstract addEmployeeSalaryRecord(
+        organization_id: string,
+        employee_id: string,
+        employee_salary_record_id: string,
+        salaryRecordData: TEmployeeSalaryRecordData
+    ): Promise<TEmployeeSalaryRecordSelect[]>
     
     
     abstract updateEmployeeSalaryProfile(

@@ -12,6 +12,7 @@ import { employeesActivities }     from './employees_activities.table';
 import { employeesAttendances }    from './employees_attendances.table';
 import { employeesCredentials }    from './employees_credentials.table';
 import { employeesSalaryProfiles } from './employees_salaries.table';
+import { employeesSalaryRecords }  from './employees_salary_records.table';
 import { employeesSyncs }          from './employees_syncs.table';
 import { organizations }           from './organizations.table';
 import { sales }                   from './sales.table';
@@ -157,5 +158,6 @@ export const employeesRelations = relations(
         ),
         sales        : many(sales),
         activities   : many(employeesActivities),
+        salaryRecords: many(employeesSalaryRecords)
     })
 );

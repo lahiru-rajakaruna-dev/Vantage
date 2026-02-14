@@ -8,6 +8,7 @@ export * from './employees_credentials'
 export * from './employees_salaries.table'
 export * from './employees_syncs.table'
 export * from './sales_groups.table'
+export * from './employees_salary_records.table'
 
 export * from './clients.table'
 export * from './clients_payments.table'
