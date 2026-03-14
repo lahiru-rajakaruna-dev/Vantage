@@ -3,7 +3,7 @@ WORKDIR /app
 COPY package.json package-lock.json
 RUN npm i -g pnpm@latest
 COPY . .
-RUN pnpm run bulid
+RUN pnpm run build
 
 FROM node:20-slim
 WORKDIR /app
