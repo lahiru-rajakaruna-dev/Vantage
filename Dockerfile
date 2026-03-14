@@ -8,7 +8,7 @@ RUN pnpm run build
 
 FROM node:20-slim
 WORKDIR /app
-COPY --from=build /app/build /app/build
+COPY --from=build /app/dist /app/dist
 COPY package.json package-lock.json tsconfig.json tsconfig.build.json ./
 RUN npm i -g pnpm@latest
 RUN pnpm install
