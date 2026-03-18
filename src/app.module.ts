@@ -1,7 +1,5 @@
-import {CacheInterceptor, CacheModule}                                    from '@nestjs/cache-manager';
 import {type MiddlewareConsumer, Module, type NestModule, RequestMethod,} from '@nestjs/common';
 import {ConfigModule}                                                     from '@nestjs/config';
-import {APP_INTERCEPTOR}                                                  from '@nestjs/core';
 import {AppController}                                                    from './app.controller';
 import {AppService}                                                       from './app.service';
 import {AuthenticationModule}                                             from './authentication/authentication.module';
@@ -51,52 +49,39 @@ import {PaddleModule}                                                     from '
 
 
 @Module({
-          imports    : [
-            CacheModule.register({
-                                   ttl             : 1000,
-                                   refreshThreshold: 500
-                                 }),
-            EmployeeModule,
-            OrganizationModule,
-            OrganizationPaymentModule,
-            ClientPaymentModule,
-            ItemModule,
-            SalesGroupModule,
-            ClientModule,
-            SaleModule,
-            ConfigModule.forRoot({
-                                   isGlobal   : true,
-                                   envFilePath: ['.env'],
-                                   cache      : true,
-                                 }),
-            LoggerModule,
-            DrizzleModule,
-            OrmModule,
-            PaddleModule,
-            AuthenticationModule,
-            MiddlewareModule,
-            EmployeeAttendanceModule,
-            GuardModule,
-            EmployeesActivitiesModule,
-            EmployeesSyncsModule,
-            EmployeeSalaryModule,
+			imports    : [
+				EmployeeModule,
+				OrganizationModule,
+				OrganizationPaymentModule,
+				ClientPaymentModule,
+				ItemModule,
+				SalesGroupModule,
+				ClientModule,
+				SaleModule,
+				ConfigModule.forRoot({
+										 isGlobal   : true,
+										 envFilePath: ['.env'],
+										 cache      : true,
+									 }),
+				LoggerModule,
+				DrizzleModule,
+				OrmModule,
+				PaddleModule,
+				AuthenticationModule,
+				MiddlewareModule,
+				EmployeeAttendanceModule,
+				GuardModule,
+				EmployeesActivitiesModule,
+				EmployeesSyncsModule,
+				EmployeeSalaryModule,
           ],
-          controllers: [
-            AppController,
-          ],
-          providers  : [
-            AppService,
-            {
-              provide : APP_INTERCEPTOR,
-              useClass: CacheInterceptor,
-            },
-            // {
-            // provide : APP_GUARD,
-            // useClass: AuthGuardService,
-            // }
-          ],
-
-        })
+			controllers: [
+				AppController,
+			],
+			providers  : [
+				AppService
+			]
+		})
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(Middleware_OrganizationPuller)
