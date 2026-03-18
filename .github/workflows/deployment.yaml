@@ -74,3 +74,4 @@ jobs:
         with:
           service: vantage-runner
           image: ${{env.DOCKER_IMAGE_NAME}}
+          region: 'asia-southeast1'
